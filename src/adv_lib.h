@@ -36,6 +36,9 @@ DLL_PUBLIC void AdvFrameAddStatusTag32(unsigned int tagIndex, unsigned long tagV
 DLL_PUBLIC void AdvFrameAddStatusTag64(unsigned int tagIndex, long long tagValue);
 DLL_PUBLIC void AdvEndFrame();
 
+DLL_PUBLIC void GetLibraryVersion(char* version);
+DLL_PUBLIC void GetLibraryPlatformId(char* platform);
+
 #ifdef __cplusplus
 }
 #endif

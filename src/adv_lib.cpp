@@ -8,6 +8,7 @@
 #include <vector>
 #include <stdlib.h>
 #include <string.h>
+#include <cstdint>
 
 #include "adv_lib.h"
 #include "adv_image_layout.h"
@@ -205,4 +206,32 @@ void AdvEndFrame()
 	AdvProfiling_StartProcessing();
 	g_AdvFile->EndFrame();
 	AdvProfiling_EndProcessing();
+}
+
+void GetLibraryVersion(char* version)
+{
+	strcpy(version, "1.0a");
+}
+
+void GetLibraryPlatformId(char* platform)
+{
+#ifdef MSVC
+	#if INTPTR_MAX == INT32_MAX
+		strcpy(platform, "MS VC++, x86, Windows");
+	#elif INTPTR_MAX == INT64_MAX
+		strcpy(platform, "MS VC++, AMD64, Windows");
+	#endif
+#elif __linux__
+	strcpy(platform, "Linux");
+#elif __APPLE__
+	strcpy(platform, "OSX");
+#elif __GNUC__ || __GNUG__
+	#ifdef __x86_64__ || __ppc64__ || _WIN64
+		strcpy(platform, "GNU GCC/G++, AMD64, Windows");
+	#else
+		strcpy(platform, "GNU GCC/G++, x86, Windows");
+	#endif	
+#else
+	strcpy(platform, "Unknown");
+#endif
 }

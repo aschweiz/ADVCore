@@ -19,3 +19,12 @@
 *.exe
 *.out
 *.app
+/Debug
+/x64
+/.build-release
+/Release
+/*.user
+/AdvLic.Core.Win32.workspace.*
+/*.mk
+/*.tags
+/AdvLib_Win32.txt
