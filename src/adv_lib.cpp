@@ -226,7 +226,7 @@ void GetLibraryPlatformId(char* platform)
 #elif __APPLE__
 	strcpy(platform, "OSX");
 #elif __GNUC__ || __GNUG__
-	#ifdef __x86_64__ || __ppc64__ || _WIN64
+	#if __x86_64__ || __ppc64__ || _WIN64
 		strcpy(platform, "GNU GCC/G++, AMD64, Windows");
 	#else
 		strcpy(platform, "GNU GCC/G++, x86, Windows");

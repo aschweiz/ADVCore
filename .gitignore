@@ -24,7 +24,7 @@
 /.build-release
 /Release
 /*.user
-/AdvLic.Core.Win32.workspace.*
+/AdvLib.Core.Win32.workspace.*
 /*.mk
 /*.tags
 /AdvLib_Win32.txt

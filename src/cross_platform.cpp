@@ -57,7 +57,7 @@ int advfsetpos64(FILE* file, const __int64* pos, int origin)
 #elif _WIN32
 	int rv = fseeko64(file, *pos, origin);
 #elif __APPLE__
-	int rv = fseeko(file, (off_t )*pos, origin);
+	int rv = fseeko(file, (off_t)*pos, origin);
 #else
 	#error Platform not supported
 #endif
