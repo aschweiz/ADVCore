@@ -1,0 +1,388 @@
+/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
+
+#include "StdAfx.h"
+#include "adv2_file.h"
+#include <iostream>
+#include <stdlib.h>
+#include <stdio.h>
+#include <vector>
+#include "utils.h"
+#include "cross_platform.h"
+#include "adv_profiling.h"
+
+using namespace std;
+
+namespace AdvLib2
+{
+
+FILE* m_Adv2File;
+	
+Adv2File::Adv2File()
+{
+	StatusSection = new AdvLib2::Adv2StatusSection();
+	
+	crc32_init();
+	
+	m_FrameBytes = NULL;
+}
+
+Adv2File::~Adv2File()
+{
+	if (NULL != m_Adv2File)
+	{
+		advfclose(m_Adv2File);
+		m_Adv2File = NULL;
+	}
+	
+	if (NULL != ImageSection)
+	{
+		delete ImageSection;
+		ImageSection = NULL;
+	}
+	
+	if (NULL != StatusSection)
+	{
+		delete StatusSection;
+		StatusSection = NULL;
+	}
+	
+	if (NULL != m_Index)
+	{
+		delete m_Index;
+		m_Index = NULL;
+	}
+	
+	if (NULL != m_FrameBytes)
+	{
+		delete m_FrameBytes;
+		m_FrameBytes = NULL;
+	}
+
+	m_UserMetadataTags.clear();
+	m_FileTags.clear();
+
+	map<unsigned char, Adv2Stream*>::iterator currIml = m_FileStreams.begin();
+	while (currIml != m_FileStreams.end()) 
+	{
+		Adv2Stream* fileStream = currIml->second;
+		delete fileStream;
+		
+		currIml++;
+	}
+
+	m_FileStreams.empty();
+}
+
+unsigned char CURRENT_DATAFORMAT_VERSION = 1;
+
+bool Adv2File::BeginFile(const char* fileName)
+{
+	m_Adv2File = advfopen(fileName, "wb");
+	if (m_Adv2File == 0) return false;
+	
+	unsigned int buffInt;
+	unsigned long buffLong;
+	unsigned char buffChar;
+	
+	buffInt = 0x46545346;
+	advfwrite(&buffInt, 4, 1, m_Adv2File);
+	advfwrite(&CURRENT_DATAFORMAT_VERSION, 1, 1, m_Adv2File);
+
+	buffInt = 0;
+	buffLong = 0;
+	advfwrite(&buffInt, 4, 1, m_Adv2File); // Number of frames (will be saved later) 
+	advfwrite(&buffLong, 8, 1, m_Adv2File); // Offset of index table (will be saved later) 
+	advfwrite(&buffLong, 8, 1, m_Adv2File); // Offset of system metadata table (will be saved later) 
+	advfwrite(&buffLong, 8, 1, m_Adv2File); // Offset of user metadata table (will be saved later) 
+	
+	buffChar = (unsigned char)2;
+	advfwrite(&buffChar, 1, 1, m_Adv2File); // Number of sections (image and status) 
+
+	__int64 sectionHeaderOffsetPositions[2];
+	
+	WriteString(m_Adv2File, "IMAGE");	
+	advfgetpos64(m_Adv2File, &sectionHeaderOffsetPositions[0]);
+	buffLong = 0;
+	advfwrite(&buffLong, 8, 1, m_Adv2File);
+	
+	WriteString(m_Adv2File, "STATUS");	
+	advfgetpos64(m_Adv2File, &sectionHeaderOffsetPositions[1]);
+	buffLong = 0;
+	advfwrite(&buffLong, 8, 1, m_Adv2File);
+
+	// Write section headers
+	__int64 sectionHeaderOffsets[2];
+	advfgetpos64(m_Adv2File, &sectionHeaderOffsets[0]);
+	ImageSection->WriteHeader(m_Adv2File);
+	advfgetpos64(m_Adv2File, &sectionHeaderOffsets[1]);
+	StatusSection->WriteHeader(m_Adv2File);
+
+	// Write section headers positions
+	advfsetpos64(m_Adv2File, &sectionHeaderOffsetPositions[0]);
+	advfwrite(&sectionHeaderOffsets[0], 8, 1, m_Adv2File);
+	advfsetpos64(m_Adv2File, &sectionHeaderOffsetPositions[1]);
+	advfwrite(&sectionHeaderOffsets[1], 8, 1, m_Adv2File);
+		
+	advfseek(m_Adv2File, 0, SEEK_END);
+	
+	// Write system metadata table
+	__int64 systemMetadataTablePosition;
+	advfgetpos64(m_Adv2File, &systemMetadataTablePosition);
+	
+	unsigned int fileTagsCount = m_FileTags.size();
+	advfwrite(&fileTagsCount, 4, 1, m_Adv2File);
+	
+	map<string, string>::iterator curr = m_FileTags.begin();
+	while (curr != m_FileTags.end()) 
+	{
+		char* tagName = const_cast<char*>(curr->first.c_str());	
+		WriteString(m_Adv2File, tagName);
+		
+		char* tagValue = const_cast<char*>(curr->second.c_str());	
+		WriteString(m_Adv2File, tagValue);
+		
+		curr++;
+	}
+	
+	// Write system metadata table position to the file header
+	advfseek(m_Adv2File, 0x11, SEEK_SET);
+	advfwrite(&systemMetadataTablePosition, 8, 1, m_Adv2File);
+	
+	advfseek(m_Adv2File, 0, SEEK_END);
+	
+    m_Index = new AdvLib2::Adv2FramesIndex();
+	
+	advfflush(m_Adv2File);
+		
+	m_FrameNo = 0;
+	m_UserMetadataTags.clear();
+
+	return true;
+}
+
+void Adv2File::EndFile()
+{
+	__int64 indexTableOffset;
+	advfgetpos64(m_Adv2File, &indexTableOffset);
+	
+	m_Index->WriteIndex(m_Adv2File);
+		
+	__int64 userMetaTableOffset;
+	advfgetpos64(m_Adv2File, &userMetaTableOffset);
+
+	advfseek(m_Adv2File, 5, SEEK_SET);
+	advfwrite(&m_FrameNo, 4, 1, m_Adv2File);
+	advfwrite(&indexTableOffset, 8, 1, m_Adv2File);	
+	advfseek(m_Adv2File, 0x19, SEEK_SET);	
+	advfwrite(&userMetaTableOffset, 8, 1, m_Adv2File);
+		
+	// Write the metadata table
+	advfseek(m_Adv2File, 0, SEEK_END);	
+
+	unsigned int userTagsCount = m_UserMetadataTags.size();
+	advfwrite(&userTagsCount, 4, 1, m_Adv2File);
+	
+	map<string, string>::iterator curr = m_UserMetadataTags.begin();
+	while (curr != m_UserMetadataTags.end()) 
+	{
+		char* userTagName = const_cast<char*>(curr->first.c_str());	
+		WriteString(m_Adv2File, userTagName);
+		
+		char* userTagValue = const_cast<char*>(curr->second.c_str());	
+		WriteString(m_Adv2File, userTagValue);
+		
+		curr++;
+	}
+	
+	
+	advfflush(m_Adv2File);
+	advfclose(m_Adv2File);	
+	
+	m_Adv2File = NULL;
+}
+
+void Adv2File::AddImageSection(AdvLib2::Adv2ImageSection* section)
+{
+	ImageSection = section;
+
+	char convStr [10];
+	snprintf(convStr, 10, "%d", section->Width);
+	m_FileTags.insert(make_pair(string("WIDTH"), string(convStr)));
+	
+	snprintf(convStr, 10, "%d", section->Height);
+	m_FileTags.insert(make_pair(string("HEIGHT"), string(convStr)));
+	
+	snprintf(convStr, 10, "%d", section->DataBpp);
+	m_FileTags.insert(make_pair(string("BITPIX"), string(convStr)));
+}
+
+int Adv2File::AddFileTag(const char* tagName, const char* tagValue)
+{	
+	m_FileTags.insert((make_pair(string(tagName == NULL ? "" : tagName), string(tagValue == NULL ? "" : tagValue))));
+	
+	return m_FileTags.size();	
+}
+
+int Adv2File::AddUserTag(const char* tagName, const char* tagValue)
+{
+	m_UserMetadataTags.insert((make_pair(string(tagName == NULL ? "" : tagName), string(tagValue == NULL ? "" : tagValue))));
+	
+	return m_UserMetadataTags.size();	
+}
+
+void Adv2File::BeginFrame(long long timeStamp, unsigned int elapsedTime, unsigned int exposure)
+{
+	AdvProfiling_StartBytesOperation();
+
+	advfgetpos64(m_Adv2File, &m_NewFrameOffset);
+
+	m_FrameBufferIndex = 0;
+	
+	m_ElapedTime = elapsedTime;
+		
+	if (m_FrameBytes == NULL)
+	{
+		int maxUncompressedBufferSize = 
+			4 + // frame start magic
+			8 + // timestamp
+			4 + // exposure			
+			4 + 4 + // the length of each of the 2 sections 
+			StatusSection->MaxFrameBufferSize +
+			ImageSection->MaxFrameBufferSize() + 
+			100; // Just in case
+		
+		m_FrameBytes = new unsigned char[maxUncompressedBufferSize];
+	};		
+	
+	// Add the timestamp
+	m_FrameBytes[0] = (unsigned char)(timeStamp & 0xFF);
+	m_FrameBytes[1] = (unsigned char)((timeStamp >> 8) & 0xFF);
+	m_FrameBytes[2] = (unsigned char)((timeStamp >> 16) & 0xFF);
+	m_FrameBytes[3] = (unsigned char)((timeStamp >> 24) & 0xFF);
+	m_FrameBytes[4] = (unsigned char)((timeStamp >> 32) & 0xFF);
+	m_FrameBytes[5] = (unsigned char)((timeStamp >> 40) & 0xFF);
+	m_FrameBytes[6] = (unsigned char)((timeStamp >> 48) & 0xFF);
+	m_FrameBytes[7] = (unsigned char)((timeStamp >> 56) & 0xFF);
+	
+	// Add the exposure
+	m_FrameBytes[8] = (unsigned char)(exposure & 0xFF);
+	m_FrameBytes[9] = (unsigned char)((exposure >> 8) & 0xFF);
+	m_FrameBytes[10] = (unsigned char)((exposure >> 16) & 0xFF);
+	m_FrameBytes[11] = (unsigned char)((exposure >> 24) & 0xFF);
+	
+	m_FrameBufferIndex = 12;
+	
+	StatusSection->BeginFrame();
+	ImageSection->BeginFrame();	
+	
+	AdvProfiling_EndBytesOperation();
+}
+
+void Adv2File::AddFrameStatusTag(unsigned int tagIndex, const char* tagValue)
+{
+	StatusSection->AddFrameStatusTag(tagIndex, tagValue);
+}
+
+void Adv2File::AddFrameStatusTagMessage(unsigned int tagIndex, const char* tagValue)
+{
+	StatusSection->AddFrameStatusTagMessage(tagIndex, tagValue);
+}
+
+void Adv2File::AddFrameStatusTagUInt16(unsigned int tagIndex, unsigned short tagValue)
+{
+	StatusSection->AddFrameStatusTagUInt16(tagIndex, tagValue);
+}
+
+void Adv2File::AddFrameStatusTagReal(unsigned int tagIndex, float tagValue)
+{
+	StatusSection->AddFrameStatusTagReal(tagIndex, tagValue);
+}
+
+void Adv2File::AddFrameStatusTagUInt8(unsigned int tagIndex, unsigned char tagValue)
+{
+	StatusSection->AddFrameStatusTagUInt8(tagIndex, tagValue);
+}
+
+void Adv2File::AddFrameStatusTagUInt32(unsigned int tagIndex, unsigned int tagValue)
+{
+	StatusSection->AddFrameStatusTagUInt32(tagIndex, tagValue);
+}
+
+void Adv2File::AddFrameStatusTagUInt64(unsigned int tagIndex, long long tagValue)
+{
+	StatusSection->AddFrameStatusTagUInt64(tagIndex, tagValue);
+}
+
+void Adv2File::AddFrameImage(unsigned char layoutId, unsigned short* pixels, unsigned char pixelsBpp)
+{
+	AdvProfiling_StartGenericProcessing();
+	AdvProfiling_StartBytesOperation();
+	
+	unsigned int imageBytesCount = 0;	
+	char byteMode = 0;
+	m_CurrentImageLayout = ImageSection->GetImageLayoutById(layoutId);
+	unsigned char *imageBytes = ImageSection->GetDataBytes(layoutId, pixels, &imageBytesCount, &byteMode, pixelsBpp);
+	
+	int imageSectionBytesCount = imageBytesCount + 2; // +1 byte for the layout id and +1 byte for the byteMode (See few lines below)
+	
+	m_FrameBytes[m_FrameBufferIndex] = imageSectionBytesCount & 0xFF;
+	m_FrameBytes[m_FrameBufferIndex + 1] = (imageSectionBytesCount >> 8) & 0xFF;
+	m_FrameBytes[m_FrameBufferIndex + 2] = (imageSectionBytesCount >> 16) & 0xFF;
+	m_FrameBytes[m_FrameBufferIndex + 3] = (imageSectionBytesCount >> 24) & 0xFF;
+	m_FrameBufferIndex+=4;
+	
+	// It is faster to write the layoutId and byteMode directly here
+	m_FrameBytes[m_FrameBufferIndex] = m_CurrentImageLayout->LayoutId;
+	m_FrameBytes[m_FrameBufferIndex + 1] = byteMode;
+	m_FrameBufferIndex+=2;	
+		
+	memcpy(&m_FrameBytes[m_FrameBufferIndex], &imageBytes[0], imageBytesCount);
+	m_FrameBufferIndex+= imageBytesCount;
+		
+	unsigned int statusBytesCount = 0;
+	unsigned char *statusBytes = StatusSection->GetDataBytes(&statusBytesCount);
+	
+	m_FrameBytes[m_FrameBufferIndex] = statusBytesCount & 0xFF;
+	m_FrameBytes[m_FrameBufferIndex + 1] = (statusBytesCount >> 8) & 0xFF;
+	m_FrameBytes[m_FrameBufferIndex + 2] = (statusBytesCount >> 16) & 0xFF;
+	m_FrameBytes[m_FrameBufferIndex + 3] = (statusBytesCount >> 24) & 0xFF;
+	m_FrameBufferIndex+=4;
+	
+	if (statusBytesCount > 0)
+	{
+		memcpy(&m_FrameBytes[m_FrameBufferIndex], &statusBytes[0], statusBytesCount);
+		m_FrameBufferIndex+=statusBytesCount;
+
+		delete statusBytes;		
+	}
+	
+	AdvProfiling_EndBytesOperation();
+	AdvProfiling_EndGenericProcessing();
+}
+			
+void Adv2File::EndFrame()
+{	
+	AdvProfiling_StartGenericProcessing();
+	
+	__int64 frameOffset;
+	advfgetpos64(m_Adv2File, &frameOffset);
+		
+	// Frame start magic
+	unsigned int frameStartMagic = 0xEE0122FF;
+	advfwrite(&frameStartMagic, 4, 1, m_Adv2File);
+	
+	advfwrite(m_FrameBytes, m_FrameBufferIndex, 1, m_Adv2File);
+		
+	m_Index->AddFrame(m_FrameNo, m_ElapedTime, frameOffset, m_FrameBufferIndex);
+	
+	advfflush(m_Adv2File);
+	
+	m_FrameNo++;
+	AdvProfiling_NewFrameProcessed();
+	
+	AdvProfiling_EndGenericProcessing();
+}
+
+}
