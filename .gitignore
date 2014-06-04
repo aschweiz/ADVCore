@@ -28,3 +28,5 @@
 /*.mk
 /*.tags
 /AdvLib_Win32.txt
+/Release_64
+/.build-release_64

@@ -64,9 +64,6 @@
     <ClInclude Include="src\stdafx.h" />
     <ClInclude Include="src\utils.h" />
   </ItemGroup>
-  <ItemGroup>
-    <None Include="src\AdvLib.Core.def" />
-  </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{D95C7815-F060-4023-99A1-865CE88FE3A5}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
@@ -176,7 +173,8 @@
       </EnableCOMDATFolding>
       <OptimizeReferences>
       </OptimizeReferences>
-      <ModuleDefinitionFile>src/AdvLib.Core.def</ModuleDefinitionFile>
+      <ModuleDefinitionFile>
+      </ModuleDefinitionFile>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -199,7 +197,8 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <ModuleDefinitionFile>src/AdvLib.Core.def</ModuleDefinitionFile>
+      <ModuleDefinitionFile>
+      </ModuleDefinitionFile>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release - Non Windows|Win32'">
@@ -245,12 +244,14 @@
       </EnableCOMDATFolding>
       <OptimizeReferences>
       </OptimizeReferences>
-      <ModuleDefinitionFile>src/AdvLib.Core.def</ModuleDefinitionFile>
+      <ModuleDefinitionFile>
+      </ModuleDefinitionFile>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <Link>
-      <ModuleDefinitionFile>src/AdvLib.Core.def</ModuleDefinitionFile>
+      <ModuleDefinitionFile>
+      </ModuleDefinitionFile>
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
     <ClCompile>

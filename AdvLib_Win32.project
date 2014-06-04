@@ -2,7 +2,7 @@
 <CodeLite_Project Name="AdvLib_Win32" InternalType="Library">
   <Plugins>
     <Plugin Name="qmake">
-      <![CDATA[00020001N0005Debug0000000000000001N0007Release000000000000]]>
+      <![CDATA[00030001N0005Debug0000000000000001N0007Release0000000000000001N0010Release_64000000000000]]>
     </Plugin>
   </Plugins>
   <Description/>
@@ -21,7 +21,6 @@
     <File Name="src/dllmain.cpp"/>
     <File Name="src/stdafx.cpp"/>
     <File Name="src/utils.cpp"/>
-    <File Name="src/AdvLib.Core.def"/>
   </VirtualDirectory>
   <VirtualDirectory Name="include">
     <File Name="src/adv_file.h"/>
@@ -84,12 +83,49 @@
       </Completion>
     </Configuration>
     <Configuration Name="Release" CompilerType="gnu g++" DebuggerType="GNU gdb debugger" Type="Dynamic Library" BuildCmpWithGlobalSettings="append" BuildLnkWithGlobalSettings="append" BuildResWithGlobalSettings="append">
-      <Compiler Options="-g -D_FILE_OFFSET_BITS=64 -std=gnu++11" C_Options="-g -D_FILE_OFFSET_BITS=64" Required="yes" PreCompiledHeader="" PCHInCommandLine="no" UseDifferentPCHFlags="no" PCHFlags="">
+      <Compiler Options="-g -D_FILE_OFFSET_BITS=64 -m32 -std=gnu++11" C_Options="-g -D_FILE_OFFSET_BITS=64 -m32 " Required="yes" PreCompiledHeader="" PCHInCommandLine="no" UseDifferentPCHFlags="no" PCHFlags="">
         <IncludePath Value="."/>
       </Compiler>
-      <Linker Options="-O2 src/AdvLib.Core.def -Wl,--enable-stdcall-fixup,--subsystem,windows,--out-implib,./Release/AdvLib.Core.lib" Required="yes"/>
+      <Linker Options="-O2 -Wl,--enable-stdcall-fixup,--subsystem,windows,--out-implib,./Release/AdvLib.Core.lib" Required="yes"/>
       <ResourceCompiler Options="" Required="no"/>
       <General OutputFile="$(IntermediateDirectory)/AdvLib.Core32.dll" IntermediateDirectory="./Release" Command="" CommandArguments="" UseSeparateDebugArgs="no" DebugArguments="" WorkingDirectory="$(IntermediateDirectory)" PauseExecWhenProcTerminates="yes"/>
+      <Environment EnvVarSetName="&lt;Use Defaults&gt;" DbgSetName="&lt;Use Defaults&gt;">
+        <![CDATA[]]>
+      </Environment>
+      <Debugger IsRemote="no" RemoteHostName="" RemoteHostPort="" DebuggerPath="">
+        <PostConnectCommands/>
+        <StartupCommands/>
+      </Debugger>
+      <PreBuild/>
+      <PostBuild/>
+      <CustomBuild Enabled="no">
+        <RebuildCommand/>
+        <CleanCommand/>
+        <BuildCommand/>
+        <PreprocessFileCommand/>
+        <SingleFileCommand/>
+        <MakefileGenerationCommand/>
+        <ThirdPartyToolName/>
+        <WorkingDirectory/>
+      </CustomBuild>
+      <AdditionalRules>
+        <CustomPostBuild/>
+        <CustomPreBuild/>
+      </AdditionalRules>
+      <Completion EnableCpp11="no">
+        <ClangCmpFlagsC/>
+        <ClangCmpFlags/>
+        <ClangPP/>
+        <SearchPaths/>
+      </Completion>
+    </Configuration>
+    <Configuration Name="Release_64" CompilerType="MinGW-64" DebuggerType="GNU gdb debugger" Type="Dynamic Library" BuildCmpWithGlobalSettings="append" BuildLnkWithGlobalSettings="append" BuildResWithGlobalSettings="append">
+      <Compiler Options="-g -D_FILE_OFFSET_BITS=64 -m64 -march=x86-64 -std=gnu++11" C_Options="-g -D_FILE_OFFSET_BITS=64 -m64 -march=x86-64" Required="yes" PreCompiledHeader="" PCHInCommandLine="no" UseDifferentPCHFlags="no" PCHFlags="">
+        <IncludePath Value="."/>
+      </Compiler>
+      <Linker Options="-O2 -Wl,--enable-stdcall-fixup,--subsystem,windows,--out-implib,./Release_64/AdvLib.Core.lib" Required="yes"/>
+      <ResourceCompiler Options="" Required="no"/>
+      <General OutputFile="$(IntermediateDirectory)/AdvLib.Core64.dll" IntermediateDirectory="./Release_64" Command="" CommandArguments="" UseSeparateDebugArgs="no" DebugArguments="" WorkingDirectory="$(IntermediateDirectory)" PauseExecWhenProcTerminates="yes"/>
       <Environment EnvVarSetName="&lt;Use Defaults&gt;" DbgSetName="&lt;Use Defaults&gt;">
         <![CDATA[]]>
       </Environment>
