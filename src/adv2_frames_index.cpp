@@ -23,9 +23,9 @@ void Adv2FramesIndex::WriteIndex(FILE *file)
 
 }
 
-void Adv2FramesIndex::AddFrame(unsigned int frameNo, unsigned int elapedTime, __int64 frameOffset, unsigned int  bytesCount)
+void Adv2FramesIndex::AddFrame(unsigned char streamId, unsigned int frameNo, unsigned int elapedTime, __int64 frameOffset, unsigned int  bytesCount)
 {
-
+	// TODO: Add the right index entry for the right stream 
 }
 
 }

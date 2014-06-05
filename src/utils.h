@@ -10,6 +10,7 @@
 #include <time.h>
 
 void WriteString(FILE* pFile, const char* str);
+void WriteUTF8String(FILE* pFile, const char* str);
 
 enum AdvTagType
 {

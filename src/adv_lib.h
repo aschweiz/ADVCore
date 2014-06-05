@@ -36,6 +36,17 @@ DLL_PUBLIC void AdvVer1_FrameAddStatusTag32(unsigned int tagIndex, unsigned long
 DLL_PUBLIC void AdvVer1_FrameAddStatusTag64(unsigned int tagIndex, long long tagValue);
 DLL_PUBLIC void AdvVer1_EndFrame();
 
+DLL_PUBLIC void AdvVer2_NewFile(const char* fileName);
+DLL_PUBLIC void AdvVer2_SetTimingPrecision(__int64 mainClockFrequency, int mainStreamAccuracy, __int64 calibrationClockFrequency, int calibrationStreamAccuracy);
+DLL_PUBLIC unsigned int AdvVer2_AddMainStreamTag(const char* tagName, const char* tagValue);
+DLL_PUBLIC unsigned int AdvVer2_AddCalibrationStreamTag(const char* tagName, const char* tagValue);
+DLL_PUBLIC bool AdvVer2_BeginFrame(unsigned char streamId, long long timeStamp, unsigned int elapsedTime, unsigned int exposure);
+DLL_PUBLIC void AdvVer2_EndFrame();
+DLL_PUBLIC void AdvVer2_EndFile();
+
+//DLL_PUBLIC void AdvVer2_DefineImageSection(unsigned short width, unsigned short height, unsigned char dataBpp);
+//DLL_PUBLIC void AdvVer2_DefineImageLayout(unsigned char layoutId, const char* layoutType, const char* compression, unsigned char layoutBpp, int keyFrame, const char* diffCorrFromBaseFrame);
+
 DLL_PUBLIC void GetLibraryVersion(char* version);
 DLL_PUBLIC void GetLibraryPlatformId(char* platform);
 

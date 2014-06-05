@@ -14,6 +14,15 @@ void WriteString(FILE* pFile, const char* str)
 	fputs(str, pFile);
 }
 
+void WriteUTF8String(FILE* pFile, const char* str)
+{
+	unsigned short len;
+	len = strlen(str);
+	
+	fwrite(&len, 2, 1, pFile);
+	fputs(str, pFile);
+}
+
 unsigned int crctab[256];
 
 void crc32_init(void)

@@ -56,7 +56,7 @@ void Adv2StatusSection::AddFrameStatusTagUInt64(unsigned int tagIndex, long long
 
 unsigned char* Adv2StatusSection::GetDataBytes(unsigned int *bytesCount)
 {
-
+	return 0;
 }
 
 }

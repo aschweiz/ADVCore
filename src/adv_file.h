@@ -28,7 +28,7 @@ namespace AdvLib
 			
 		protected:
 			AdvLib::AdvFramesIndex* m_Index;
-			map<string, string> m_FileTags;			
+			map<string, string> m_FileTags;
 			
 		private:
 			AdvLib::AdvImageLayout* m_CurrentImageLayout;

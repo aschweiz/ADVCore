@@ -14,7 +14,7 @@ namespace AdvLib2
 			~Adv2FramesIndex();
 
 			void WriteIndex(FILE *file);
-			void AddFrame(unsigned int frameNo, unsigned int elapedTime, __int64 frameOffset, unsigned int  bytesCount);
+			void AddFrame(unsigned char streamId, unsigned int frameNo, unsigned int elapedTime, __int64 frameOffset, unsigned int  bytesCount);
 	};
 }
 

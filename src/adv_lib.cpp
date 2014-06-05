@@ -13,11 +13,14 @@
 #include "adv_lib.h"
 #include "adv_image_layout.h"
 #include "adv_profiling.h"
+#include "adv2_file.h"
 
 
 char* g_CurrentAdvFile;
 AdvLib::AdvFile* g_AdvFile;
 bool g_FileStarted = false;
+
+AdvLib2::Adv2File* g_Adv2File;
 
 using namespace std;
 
@@ -210,7 +213,7 @@ void AdvVer1_EndFrame()
 
 void GetLibraryVersion(char* version)
 {
-	strcpy(version, "1.0a");
+	strcpy(version, "2.0a");
 }
 
 void GetLibraryPlatformId(char* platform)
@@ -234,4 +237,108 @@ void GetLibraryPlatformId(char* platform)
 #else
 	strcpy(platform, "Unknown");
 #endif
+}
+
+void AdvVer2_NewFile(const char* fileName)
+{
+	AdvProfiling_ResetPerformanceCounters();
+	AdvProfiling_StartProcessing();
+	
+    if (NULL != g_Adv2File)
+	{
+		delete g_Adv2File;
+		g_Adv2File = NULL;
+	}
+	
+	if (NULL != g_CurrentAdvFile)
+	{
+		delete g_CurrentAdvFile;
+		g_CurrentAdvFile = NULL;
+	}
+	
+	g_FileStarted = false;
+	
+	int len = strlen(fileName);
+	if (len > 0)
+	{
+		g_CurrentAdvFile = new char[len + 1];
+		strncpy(g_CurrentAdvFile, fileName, len + 1);
+	
+		g_Adv2File = new AdvLib2::Adv2File();
+	}
+	AdvProfiling_EndProcessing();
+}
+
+void AdvVer2_SetTimingPrecision(__int64 mainClockFrequency, int mainStreamAccuracy, __int64 calibrationClockFrequency, int calibrationStreamAccuracy)
+{
+	if (NULL != g_Adv2File)
+	{
+		g_Adv2File->SetTimingPrecision(mainClockFrequency, mainStreamAccuracy, calibrationClockFrequency, calibrationStreamAccuracy);
+	}
+}
+
+void AdvVer2_EndFile()
+{
+	if (NULL != g_Adv2File)
+	{
+		g_Adv2File->EndFile();
+		
+		delete g_Adv2File;
+		g_Adv2File = NULL;
+	}
+	
+	if (NULL != g_CurrentAdvFile)
+	{
+		delete g_CurrentAdvFile;
+		g_CurrentAdvFile = NULL;
+	}
+	
+	g_FileStarted = false;
+}
+
+unsigned int AdvVer2_AddMainStreamTag(const char* tagName, const char* tagValue)
+{
+	AdvProfiling_StartProcessing();
+	int tagId = g_Adv2File->AddMainStreamTag(tagName, tagValue);
+	AdvProfiling_EndProcessing();
+
+	return tagId;
+}
+
+unsigned int AdvVer2_AddCalibrationStreamTag(const char* tagName, const char* tagValue)
+{
+	AdvProfiling_StartProcessing();
+	int tagId = g_Adv2File->AddCalibrationStreamTag(tagName, tagValue);
+	AdvProfiling_EndProcessing();
+
+	return tagId;
+}
+
+bool AdvVer2_BeginFrame(unsigned char streamId, long long timeStamp, unsigned int elapsedTime, unsigned int exposure)
+{
+	AdvProfiling_StartProcessing();
+	if (!g_FileStarted)
+	{
+		bool success = g_Adv2File->BeginFile(g_CurrentAdvFile);
+		if (success)
+		{
+			g_FileStarted = true;	
+		}
+		else
+		{
+			g_FileStarted = false;
+			return false;
+		}		
+	}
+	
+	g_Adv2File->BeginFrame(streamId, timeStamp, elapsedTime, exposure);
+	AdvProfiling_EndProcessing();
+	return true;
+}
+
+void AdvVer2_EndFrame()
+{
+	AdvProfiling_StartProcessing();
+	g_Adv2File->EndFrame();
+	AdvProfiling_EndProcessing();
 }

@@ -30,16 +30,17 @@ void Adv2ImageSection::BeginFrame()
 
 int Adv2ImageSection::MaxFrameBufferSize()
 {
-
+	return 0;
 }
 
 unsigned char* Adv2ImageSection::GetDataBytes(unsigned char layoutId, unsigned short* currFramePixels, unsigned int *bytesCount, char* byteMode, unsigned char pixelsBpp)
 {
+	return 0;
 }
 
 AdvLib2::Adv2ImageLayout* Adv2ImageSection::GetImageLayoutById(unsigned char layoutId)
 {
-
+	return NULL;
 }
 
 
