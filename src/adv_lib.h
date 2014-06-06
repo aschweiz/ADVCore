@@ -37,10 +37,10 @@ DLL_PUBLIC void AdvVer1_FrameAddStatusTag64(unsigned int tagIndex, long long tag
 DLL_PUBLIC void AdvVer1_EndFrame();
 
 DLL_PUBLIC void AdvVer2_NewFile(const char* fileName);
-DLL_PUBLIC void AdvVer2_SetTimingPrecision(__int64 mainClockFrequency, int mainStreamAccuracy, __int64 calibrationClockFrequency, int calibrationStreamAccuracy);
+DLL_PUBLIC void AdvVer2_SetTimingPrecision(__int64 mainClockFrequency, long mainStreamAccuracy, __int64 calibrationClockFrequency, long calibrationStreamAccuracy);
 DLL_PUBLIC unsigned int AdvVer2_AddMainStreamTag(const char* tagName, const char* tagValue);
 DLL_PUBLIC unsigned int AdvVer2_AddCalibrationStreamTag(const char* tagName, const char* tagValue);
-DLL_PUBLIC bool AdvVer2_BeginFrame(unsigned char streamId, long long timeStamp, unsigned int elapsedTime, unsigned int exposure);
+DLL_PUBLIC bool AdvVer2_BeginFrame(unsigned int streamId, long long timeStamp, unsigned int elapsedTime, unsigned int exposure);
 DLL_PUBLIC void AdvVer2_EndFrame();
 DLL_PUBLIC void AdvVer2_EndFile();
 

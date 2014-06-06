@@ -43,12 +43,12 @@ namespace AdvLib2
 			__int64 m_MainFrameCountPosition;
 			__int64 m_CalibrationFrameCountPosition;
 
-			unsigned int m_MainFrameNo;
-			unsigned int m_CalibrationFrameNo;
+			unsigned long m_MainFrameNo;
+			unsigned long m_CalibrationFrameNo;
 
 			unsigned char *m_FrameBytes;
-			unsigned int m_FrameBufferIndex; 
-			unsigned int m_ElapedTime;
+			unsigned long m_FrameBufferIndex; 
+			unsigned long m_ElapedTime;
 
 			map<string, string> m_UserMetadataTags;
 
@@ -56,9 +56,9 @@ namespace AdvLib2
 			map<string, string> m_CalibrationStreamTags;
 
 			__int64 m_MainStreamClockFrequency;
-			unsigned int m_MainStreamTickAccuracy;
+			unsigned long m_MainStreamTickAccuracy;
 			__int64 m_CalibrationStreamClockFrequency;
-			unsigned int m_CalibrationStreamTickAccuracy;
+			unsigned long m_CalibrationStreamTickAccuracy;
 
 			void InitFileState();
 		public:
@@ -66,7 +66,7 @@ namespace AdvLib2
 			~Adv2File();
 			
 			bool BeginFile(const char* fileName);
-			void SetTimingPrecision(__int64 mainClockFrequency, int mainStreamAccuracy, __int64 calibrationClockFrequency, int calibrationStreamAccuracy);
+			void SetTimingPrecision(__int64 mainClockFrequency, long mainStreamAccuracy, __int64 calibrationClockFrequency, long calibrationStreamAccuracy);
 			void EndFile();
 			
 			void AddImageSection(AdvLib2::Adv2ImageSection* section);
@@ -77,7 +77,7 @@ namespace AdvLib2
 			int AddMainStreamTag(const char* tagName, const char* tagValue);
 			int AddCalibrationStreamTag(const char* tagName, const char* tagValue);
 			
-			void BeginFrame(unsigned char streamId, long long timeStamp, unsigned int elapsedTime, unsigned int exposure);
+			void BeginFrame(unsigned char streamId, long long timeStamp, unsigned long elapsedTime, unsigned long exposure);
 			void EndFrame();
 
 			void AddFrameStatusTag(unsigned int tagIndex, const char* tagValue);

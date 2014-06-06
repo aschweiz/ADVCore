@@ -256,7 +256,7 @@ bool Adv2File::BeginFile(const char* fileName)
 	return true;
 }
 
-void Adv2File::SetTimingPrecision(__int64 mainClockFrequency, int mainStreamAccuracy, __int64 calibrationClockFrequency, int calibrationStreamAccuracy)
+void Adv2File::SetTimingPrecision(__int64 mainClockFrequency, long mainStreamAccuracy, __int64 calibrationClockFrequency, long calibrationStreamAccuracy)
 {
 	m_MainStreamClockFrequency = mainClockFrequency;
 	m_MainStreamTickAccuracy = mainStreamAccuracy;
@@ -353,7 +353,7 @@ int Adv2File::AddUserTag(const char* tagName, const char* tagValue)
 	return m_UserMetadataTags.size();	
 }
 
-void Adv2File::BeginFrame(unsigned char streamId, long long timeStamp, unsigned int elapsedTime, unsigned int exposure)
+void Adv2File::BeginFrame(unsigned char streamId, long long timeStamp, unsigned long elapsedTime, unsigned long exposure)
 {
 	AdvProfiling_StartBytesOperation();
 

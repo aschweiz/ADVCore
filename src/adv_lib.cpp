@@ -269,7 +269,7 @@ void AdvVer2_NewFile(const char* fileName)
 	AdvProfiling_EndProcessing();
 }
 
-void AdvVer2_SetTimingPrecision(__int64 mainClockFrequency, int mainStreamAccuracy, __int64 calibrationClockFrequency, int calibrationStreamAccuracy)
+void AdvVer2_SetTimingPrecision(__int64 mainClockFrequency, long mainStreamAccuracy, __int64 calibrationClockFrequency, long calibrationStreamAccuracy)
 {
 	if (NULL != g_Adv2File)
 	{
@@ -314,7 +314,7 @@ unsigned int AdvVer2_AddCalibrationStreamTag(const char* tagName, const char* ta
 	return tagId;
 }
 
-bool AdvVer2_BeginFrame(unsigned char streamId, long long timeStamp, unsigned int elapsedTime, unsigned int exposure)
+bool AdvVer2_BeginFrame(unsigned int streamId, long long timeStamp, unsigned int elapsedTime, unsigned int exposure)
 {
 	AdvProfiling_StartProcessing();
 	if (!g_FileStarted)
