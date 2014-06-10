@@ -32,7 +32,6 @@
     <ClCompile Include="src\adv2_image_layout.cpp" />
     <ClCompile Include="src\adv2_image_section.cpp" />
     <ClCompile Include="src\adv2_status_section.cpp" />
-    <ClCompile Include="src\adv2_stream.cpp" />
     <ClCompile Include="src\AdvLib.Core.cpp" />
     <ClCompile Include="src\adv_file.cpp" />
     <ClCompile Include="src\adv_frames_index.cpp" />
@@ -63,7 +62,6 @@
     <ClInclude Include="src\adv2_image_layout.h" />
     <ClInclude Include="src\adv2_image_section.h" />
     <ClInclude Include="src\adv2_status_section.h" />
-    <ClInclude Include="src\adv2_stream.h" />
     <ClInclude Include="src\adv_file.h" />
     <ClInclude Include="src\adv_frames_index.h" />
     <ClInclude Include="src\adv_image_layout.h" />

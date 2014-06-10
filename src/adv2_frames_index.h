@@ -5,16 +5,34 @@
 #ifndef ADV_FRAME_INDEX2_H
 #define ADV_FRAME_INDEX2_H
 
+#include <vector>
+#include <stdio.h>
+
+using namespace std;
+
 namespace AdvLib2
 {
+
+	class Index2Entry
+	{
+		public:
+			__int64 ElapsedTicks;
+			__int64 FrameOffset;
+			unsigned int  BytesCount;
+	};
+
 	class Adv2FramesIndex {
+
+	private:
+		vector<Index2Entry*>* m_MainIndexEntries;
+		vector<Index2Entry*>* m_CalibrationIndexEntries;
 
 		public:
 			Adv2FramesIndex();
 			~Adv2FramesIndex();
 
 			void WriteIndex(FILE *file);
-			void AddFrame(unsigned char streamId, unsigned int frameNo, unsigned int elapedTime, __int64 frameOffset, unsigned int  bytesCount);
+			void AddFrame(unsigned char streamId, unsigned int frameNo, __int64 elapsedTicks, __int64 frameOffset, unsigned int  bytesCount);
 	};
 }
 

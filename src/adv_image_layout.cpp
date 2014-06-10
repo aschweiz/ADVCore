@@ -161,7 +161,7 @@ void AdvImageLayout::AddOrUpdateTag(const char* tagName, const char* tagValue)
 		m_BytesLayout = FullImageRaw;
 		if (0 == strcmp("FULL-IMAGE-DIFFERENTIAL-CODING", tagValue)) m_BytesLayout = FullImageDiffCorrWithSigns;
 		IsDiffCorrLayout = m_BytesLayout == FullImageDiffCorrWithSigns;
-	}	
+	}
 }
 
 

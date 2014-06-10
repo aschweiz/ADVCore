@@ -8,9 +8,19 @@
 #include <stdio.h>
 #include "adv2_image_layout.h"
 
+#include <map>
+#include <string>
+
+using namespace std;
+using std::string;
+
 namespace AdvLib2
 {
 	class Adv2ImageSection {
+
+	private:
+		map<string, string> m_ImageTags;
+		map<unsigned char, Adv2ImageLayout*> m_ImageLayouts;
 
 		public:
 			unsigned int Width;
@@ -27,6 +37,8 @@ namespace AdvLib2
 
 			unsigned char* GetDataBytes(unsigned char layoutId, unsigned short* currFramePixels, unsigned int *bytesCount, char* byteMode, unsigned char pixelsBpp);
 			AdvLib2::Adv2ImageLayout* GetImageLayoutById(unsigned char layoutId);
+			void AddOrUpdateTag(const char* tagName, const char* tagValue);
+			Adv2ImageLayout* AddImageLayout(unsigned char layoutId, const char* layoutType, const char* compression, unsigned char bpp, int keyFrame);
 
 			int MaxFrameBufferSize();
 	};

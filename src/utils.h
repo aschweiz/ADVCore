@@ -21,6 +21,8 @@ enum AdvTagType
 	Real = 4, // IEEE/REAL*4
 	AnsiString255 = 5,
 	List16OfAnsiString255 = 6,
+	UTF8String = 7,
+	List16OfUTF8String = 8,
 };
 
 enum GetByteMode

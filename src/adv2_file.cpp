@@ -22,9 +22,6 @@ FILE* m_Adv2File;
 Adv2File::Adv2File()
 {
 	StatusSection = new AdvLib2::Adv2StatusSection();
-	
-	MainStream = new Adv2Stream();
-	CalibrationStream = new Adv2Stream();
 
 	crc32_init();
 	
@@ -49,18 +46,6 @@ Adv2File::~Adv2File()
 	{
 		delete StatusSection;
 		StatusSection = NULL;
-	}
-
-	if (NULL != MainStream)
-	{
-		delete MainStream;
-		MainStream = NULL;
-	}
-
-	if (NULL != CalibrationStream)
-	{
-		delete CalibrationStream;
-		CalibrationStream = NULL;
 	}
 	
 	if (NULL != m_Index)
@@ -353,7 +338,7 @@ int Adv2File::AddUserTag(const char* tagName, const char* tagValue)
 	return m_UserMetadataTags.size();	
 }
 
-void Adv2File::BeginFrame(unsigned char streamId, long long timeStamp, unsigned long elapsedTime, unsigned long exposure)
+void Adv2File::BeginFrame(unsigned char streamId, __int64 timeStamp, __int64 elapsedTicks, unsigned long exposure)
 {
 	AdvProfiling_StartBytesOperation();
 
@@ -362,7 +347,7 @@ void Adv2File::BeginFrame(unsigned char streamId, long long timeStamp, unsigned 
 	m_FrameBufferIndex = 0;
 	m_CurrentStreamId = streamId;
 
-	m_ElapedTime = elapsedTime;
+	m_CurrentFrameElapsedTicks = elapsedTicks;
 		
 	if (m_FrameBytes == NULL)
 	{
@@ -402,9 +387,9 @@ void Adv2File::BeginFrame(unsigned char streamId, long long timeStamp, unsigned 
 	AdvProfiling_EndBytesOperation();
 }
 
-void Adv2File::AddFrameStatusTag(unsigned int tagIndex, const char* tagValue)
+void Adv2File::AddFrameStatusTagUTF8String(unsigned int tagIndex, const char* tagValue)
 {
-	StatusSection->AddFrameStatusTag(tagIndex, tagValue);
+	StatusSection->AddFrameStatusTagUTF8String(tagIndex, tagValue);
 }
 
 void Adv2File::AddFrameStatusTagMessage(unsigned int tagIndex, const char* tagValue)
@@ -456,9 +441,10 @@ void Adv2File::AddFrameImage(unsigned char layoutId, unsigned short* pixels, uns
 	m_FrameBufferIndex+=4;
 	
 	// It is faster to write the layoutId and byteMode directly here
-	m_FrameBytes[m_FrameBufferIndex] = m_CurrentImageLayout->LayoutId;
-	m_FrameBytes[m_FrameBufferIndex + 1] = byteMode;
-	m_FrameBufferIndex+=2;	
+	m_FrameBytes[m_FrameBufferIndex] = m_CurrentStreamId;
+	m_FrameBytes[m_FrameBufferIndex + 1] = m_CurrentImageLayout->LayoutId;
+	m_FrameBytes[m_FrameBufferIndex + 2] = byteMode;
+	m_FrameBufferIndex+=3;	
 		
 	memcpy(&m_FrameBytes[m_FrameBufferIndex], &imageBytes[0], imageBytesCount);
 	m_FrameBufferIndex+= imageBytesCount;
@@ -477,7 +463,7 @@ void Adv2File::AddFrameImage(unsigned char layoutId, unsigned short* pixels, uns
 		memcpy(&m_FrameBytes[m_FrameBufferIndex], &statusBytes[0], statusBytesCount);
 		m_FrameBufferIndex+=statusBytesCount;
 
-		delete statusBytes;		
+		delete statusBytes;
 	}
 	
 	AdvProfiling_EndBytesOperation();
@@ -497,7 +483,7 @@ void Adv2File::EndFrame()
 	
 	advfwrite(m_FrameBytes, m_FrameBufferIndex, 1, m_Adv2File);
 
-	m_Index->AddFrame(m_CurrentStreamId, m_CurrentStreamId == 0 ? m_MainFrameNo : m_CalibrationFrameNo, m_ElapedTime, frameOffset, m_FrameBufferIndex);
+	m_Index->AddFrame(m_CurrentStreamId, m_CurrentStreamId == 0 ? m_MainFrameNo : m_CalibrationFrameNo, m_CurrentFrameElapsedTicks, frameOffset, m_FrameBufferIndex);
 	
 	advfflush(m_Adv2File);
 	

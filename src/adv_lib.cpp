@@ -314,7 +314,7 @@ unsigned int AdvVer2_AddCalibrationStreamTag(const char* tagName, const char* ta
 	return tagId;
 }
 
-bool AdvVer2_BeginFrame(unsigned int streamId, long long timeStamp, unsigned int elapsedTime, unsigned int exposure)
+bool AdvVer2_BeginFrame(unsigned int streamId, long long timeStamp, long long elapsedTicks, unsigned int exposure)
 {
 	AdvProfiling_StartProcessing();
 	if (!g_FileStarted)
@@ -331,7 +331,7 @@ bool AdvVer2_BeginFrame(unsigned int streamId, long long timeStamp, unsigned int
 		}		
 	}
 	
-	g_Adv2File->BeginFrame(streamId, timeStamp, elapsedTime, exposure);
+	g_Adv2File->BeginFrame(streamId, timeStamp, elapsedTicks, exposure);
 	AdvProfiling_EndProcessing();
 	return true;
 }
@@ -341,4 +341,109 @@ void AdvVer2_EndFrame()
 	AdvProfiling_StartProcessing();
 	g_Adv2File->EndFrame();
 	AdvProfiling_EndProcessing();
+}
+
+void AdvVer2_DefineImageSection(unsigned short width, unsigned short height, unsigned char dataBpp)
+{
+	AdvProfiling_StartProcessing();
+	AdvLib2::Adv2ImageSection* imageSection = new AdvLib2::Adv2ImageSection(width, height, dataBpp);
+	g_Adv2File->AddImageSection(imageSection);
+	AdvProfiling_EndProcessing();
+}
+
+void AdvVer2_DefineImageLayout(unsigned char layoutId, const char* layoutType, const char* compression, unsigned char layoutBpp, int keyFrame, const char* diffCorrFromBaseFrame)
+{
+	AdvProfiling_StartProcessing();
+	AdvLib2::Adv2ImageLayout* imageLayout = g_Adv2File->ImageSection->AddImageLayout(layoutId, layoutType, compression, layoutBpp, keyFrame);
+	if (diffCorrFromBaseFrame != NULL)
+		imageLayout->AddOrUpdateTag("DIFFCODE-BASE-FRAME", diffCorrFromBaseFrame);
+		
+	AdvProfiling_EndProcessing();
+}
+
+unsigned int AdvVer2_DefineStatusSectionTag(const char* tagName, int tagType)
+{
+	AdvProfiling_StartProcessing();
+	unsigned int statusTagId = g_Adv2File->StatusSection->DefineTag(tagName, (AdvTagType)tagType);
+	AdvProfiling_EndProcessing();
+	return statusTagId;
+}
+
+unsigned int AdvVer2_AddFileTag(const char* tagName, const char* tagValue)
+{
+	AdvProfiling_StartProcessing();
+	unsigned int fileTagId = g_Adv2File->AddFileTag(tagName, tagValue);
+	AdvProfiling_EndProcessing();
+	return fileTagId;
+}
+
+void AdvVer2_AddOrUpdateImageSectionTag(const char* tagName, const char* tagValue)
+{
+	AdvProfiling_StartProcessing();
+	return g_Adv2File->ImageSection->AddOrUpdateTag(tagName, tagValue);
+	AdvProfiling_EndProcessing();
+}
+
+void AdvVer2_FrameAddStatusTagUTF8String(unsigned int tagIndex, const char* tagValue)
+{
+	AdvProfiling_StartProcessing();
+	g_Adv2File->AddFrameStatusTagUTF8String(tagIndex, tagValue);
+	AdvProfiling_EndProcessing();
+}
+
+void AdvVer2_FrameAddStatusTagMessage(unsigned int tagIndex, const char* tagValue)
+{
+	AdvProfiling_StartProcessing();
+	g_Adv2File->AddFrameStatusTagMessage(tagIndex, tagValue);
+	AdvProfiling_EndProcessing();
+}
+
+void AdvVer2_FrameAddStatusTagUInt8(unsigned int tagIndex, unsigned char tagValue)
+{
+	AdvProfiling_StartProcessing();
+	g_Adv2File->AddFrameStatusTagUInt8(tagIndex, tagValue);
+	AdvProfiling_EndProcessing();
+}
+
+void AdvVer2_FrameAddStatusTag16(unsigned int tagIndex, unsigned short tagValue)
+{
+	AdvProfiling_StartProcessing();
+	g_Adv2File->AddFrameStatusTagUInt16(tagIndex, tagValue);
+	AdvProfiling_EndProcessing();
+}
+
+void AdvVer2_FrameAddStatusTagReal(unsigned int tagIndex, float tagValue)
+{
+	AdvProfiling_StartProcessing();
+	g_Adv2File->AddFrameStatusTagReal(tagIndex, tagValue);
+	AdvProfiling_EndProcessing();
+}
+
+void AdvVer2_FrameAddStatusTag32(unsigned int tagIndex, unsigned long tagValue)
+{
+	AdvProfiling_StartProcessing();
+	g_Adv2File->AddFrameStatusTagUInt32(tagIndex, tagValue);
+	AdvProfiling_EndProcessing();
+}
+
+void AdvVer2_FrameAddStatusTag64(unsigned int tagIndex, long long tagValue)
+{
+	AdvProfiling_StartProcessing();
+	g_Adv2File->AddFrameStatusTagUInt64(tagIndex, tagValue);
+	AdvProfiling_EndProcessing();
+}
+
+void AdvVer2_FrameAddImage(unsigned char layoutId, unsigned short* pixels, unsigned char pixelsBpp)
+{
+	AdvProfiling_StartProcessing();
+	g_AdvFile->AddFrameImage(layoutId, pixels, pixelsBpp);
+	AdvProfiling_EndProcessing();
+}
+
+void AdvVer2_FrameAddImageBytes(unsigned char layoutId, unsigned char* pixels, unsigned char pixelsBpp)
+{
+	AdvProfiling_StartProcessing();
+	g_AdvFile->AddFrameImage(layoutId, (unsigned short*)pixels, pixelsBpp);
+	AdvProfiling_EndProcessing();
+
 }

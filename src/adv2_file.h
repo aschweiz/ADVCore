@@ -5,7 +5,6 @@
 #ifndef ADVFILE2_H
 #define ADVFILE2_H
 
-#include "adv2_stream.h"
 #include "adv2_image_section.h"
 #include "adv2_status_section.h"
 #include "adv2_image_layout.h"
@@ -27,9 +26,6 @@ namespace AdvLib2
 			AdvLib2::Adv2ImageSection* ImageSection;
 			AdvLib2::Adv2StatusSection* StatusSection;
 
-			AdvLib2::Adv2Stream* MainStream;
-			AdvLib2::Adv2Stream* CalibrationStream;
-
 		protected:
 			AdvLib2::Adv2FramesIndex* m_Index;
 			map<string, string> m_FileTags;
@@ -48,7 +44,7 @@ namespace AdvLib2
 
 			unsigned char *m_FrameBytes;
 			unsigned long m_FrameBufferIndex; 
-			unsigned long m_ElapedTime;
+			__int64 m_CurrentFrameElapsedTicks;
 
 			map<string, string> m_UserMetadataTags;
 
@@ -77,10 +73,10 @@ namespace AdvLib2
 			int AddMainStreamTag(const char* tagName, const char* tagValue);
 			int AddCalibrationStreamTag(const char* tagName, const char* tagValue);
 			
-			void BeginFrame(unsigned char streamId, long long timeStamp, unsigned long elapsedTime, unsigned long exposure);
+			void BeginFrame(unsigned char streamId, __int64 timeStamp, __int64 elapsedTicks, unsigned long exposure);
 			void EndFrame();
 
-			void AddFrameStatusTag(unsigned int tagIndex, const char* tagValue);
+			void AddFrameStatusTagUTF8String(unsigned int tagIndex, const char* tagValue);
 			void AddFrameStatusTagMessage(unsigned int tagIndex, const char* tagValue);
 			void AddFrameStatusTagUInt8(unsigned int tagIndex, unsigned char tagValue);
 			void AddFrameStatusTagUInt16(unsigned int tagIndex, unsigned short tagValue);
