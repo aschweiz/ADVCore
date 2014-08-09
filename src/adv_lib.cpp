@@ -213,7 +213,7 @@ void AdvVer1_EndFrame()
 
 void GetLibraryVersion(char* version)
 {
-	strcpy(version, "2.0a");
+	strcpy(version, "2.0c");
 }
 
 void GetLibraryPlatformId(char* platform)
@@ -314,7 +314,7 @@ unsigned int AdvVer2_AddCalibrationStreamTag(const char* tagName, const char* ta
 	return tagId;
 }
 
-bool AdvVer2_BeginFrame(unsigned int streamId, long long timeStamp, long long elapsedTicks, unsigned int exposure)
+bool AdvVer2_BeginFrame(unsigned int streamId, __int64 startFrameTicks, __int64 endFrameTicks,__int64 elapsedTicksSinceFirstFrame)
 {
 	AdvProfiling_StartProcessing();
 	if (!g_FileStarted)
@@ -331,7 +331,7 @@ bool AdvVer2_BeginFrame(unsigned int streamId, long long timeStamp, long long el
 		}		
 	}
 	
-	g_Adv2File->BeginFrame(streamId, timeStamp, elapsedTicks, exposure);
+	g_Adv2File->BeginFrame(streamId, startFrameTicks, endFrameTicks, elapsedTicksSinceFirstFrame);
 	AdvProfiling_EndProcessing();
 	return true;
 }
@@ -426,7 +426,7 @@ void AdvVer2_FrameAddStatusTag32(unsigned int tagIndex, unsigned long tagValue)
 	AdvProfiling_EndProcessing();
 }
 
-void AdvVer2_FrameAddStatusTag64(unsigned int tagIndex, long long tagValue)
+void AdvVer2_FrameAddStatusTag64(unsigned int tagIndex, __int64 tagValue)
 {
 	AdvProfiling_StartProcessing();
 	g_Adv2File->AddFrameStatusTagUInt64(tagIndex, tagValue);
@@ -436,14 +436,14 @@ void AdvVer2_FrameAddStatusTag64(unsigned int tagIndex, long long tagValue)
 void AdvVer2_FrameAddImage(unsigned char layoutId, unsigned short* pixels, unsigned char pixelsBpp)
 {
 	AdvProfiling_StartProcessing();
-	g_AdvFile->AddFrameImage(layoutId, pixels, pixelsBpp);
+	g_Adv2File->AddFrameImage(layoutId, pixels, pixelsBpp);
 	AdvProfiling_EndProcessing();
 }
 
 void AdvVer2_FrameAddImageBytes(unsigned char layoutId, unsigned char* pixels, unsigned char pixelsBpp)
 {
 	AdvProfiling_StartProcessing();
-	g_AdvFile->AddFrameImage(layoutId, (unsigned short*)pixels, pixelsBpp);
+	g_Adv2File->AddFrameImage(layoutId, (unsigned short*)pixels, pixelsBpp);
 	AdvProfiling_EndProcessing();
 
 }

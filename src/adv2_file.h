@@ -73,7 +73,7 @@ namespace AdvLib2
 			int AddMainStreamTag(const char* tagName, const char* tagValue);
 			int AddCalibrationStreamTag(const char* tagName, const char* tagValue);
 			
-			void BeginFrame(unsigned char streamId, __int64 timeStamp, __int64 elapsedTicks, unsigned long exposure);
+			void BeginFrame(unsigned char streamId, __int64 startFrameTicks, __int64 endFrameTicks,__int64 elapsedTicksSinceFirstFrame);
 			void EndFrame();
 
 			void AddFrameStatusTagUTF8String(unsigned int tagIndex, const char* tagValue);

@@ -338,7 +338,7 @@ int Adv2File::AddUserTag(const char* tagName, const char* tagValue)
 	return m_UserMetadataTags.size();	
 }
 
-void Adv2File::BeginFrame(unsigned char streamId, __int64 timeStamp, __int64 elapsedTicks, unsigned long exposure)
+void Adv2File::BeginFrame(unsigned char streamId, __int64 startFrameTicks, __int64 endFrameTicks,__int64 elapsedTicksSinceFirstFrame)
 {
 	AdvProfiling_StartBytesOperation();
 
@@ -347,7 +347,7 @@ void Adv2File::BeginFrame(unsigned char streamId, __int64 timeStamp, __int64 ela
 	m_FrameBufferIndex = 0;
 	m_CurrentStreamId = streamId;
 
-	m_CurrentFrameElapsedTicks = elapsedTicks;
+	m_CurrentFrameElapsedTicks = elapsedTicksSinceFirstFrame;
 		
 	if (m_FrameBytes == NULL)
 	{
@@ -363,23 +363,29 @@ void Adv2File::BeginFrame(unsigned char streamId, __int64 timeStamp, __int64 ela
 		m_FrameBytes = new unsigned char[maxUncompressedBufferSize];
 	};		
 	
-	// Add the timestamp
-	m_FrameBytes[0] = (unsigned char)(timeStamp & 0xFF);
-	m_FrameBytes[1] = (unsigned char)((timeStamp >> 8) & 0xFF);
-	m_FrameBytes[2] = (unsigned char)((timeStamp >> 16) & 0xFF);
-	m_FrameBytes[3] = (unsigned char)((timeStamp >> 24) & 0xFF);
-	m_FrameBytes[4] = (unsigned char)((timeStamp >> 32) & 0xFF);
-	m_FrameBytes[5] = (unsigned char)((timeStamp >> 40) & 0xFF);
-	m_FrameBytes[6] = (unsigned char)((timeStamp >> 48) & 0xFF);
-	m_FrameBytes[7] = (unsigned char)((timeStamp >> 56) & 0xFF);
+	m_FrameBytes[0] = streamId;
+
+	// Add the start timestamp
+	m_FrameBytes[1] = (unsigned char)(startFrameTicks & 0xFF);
+	m_FrameBytes[2] = (unsigned char)((startFrameTicks >> 8) & 0xFF);
+	m_FrameBytes[3] = (unsigned char)((startFrameTicks >> 16) & 0xFF);
+	m_FrameBytes[4] = (unsigned char)((startFrameTicks >> 24) & 0xFF);
+	m_FrameBytes[5] = (unsigned char)((startFrameTicks >> 32) & 0xFF);
+	m_FrameBytes[6] = (unsigned char)((startFrameTicks >> 40) & 0xFF);
+	m_FrameBytes[7] = (unsigned char)((startFrameTicks >> 48) & 0xFF);
+	m_FrameBytes[8] = (unsigned char)((startFrameTicks >> 56) & 0xFF);
 	
-	// Add the exposure
-	m_FrameBytes[8] = (unsigned char)(exposure & 0xFF);
-	m_FrameBytes[9] = (unsigned char)((exposure >> 8) & 0xFF);
-	m_FrameBytes[10] = (unsigned char)((exposure >> 16) & 0xFF);
-	m_FrameBytes[11] = (unsigned char)((exposure >> 24) & 0xFF);
+	// Add the end timestamp
+	m_FrameBytes[9] = (unsigned char)(endFrameTicks & 0xFF);
+	m_FrameBytes[10] = (unsigned char)((endFrameTicks >> 8) & 0xFF);
+	m_FrameBytes[11] = (unsigned char)((endFrameTicks >> 16) & 0xFF);
+	m_FrameBytes[12] = (unsigned char)((endFrameTicks >> 24) & 0xFF);
+	m_FrameBytes[13] = (unsigned char)((endFrameTicks >> 32) & 0xFF);
+	m_FrameBytes[14] = (unsigned char)((endFrameTicks >> 40) & 0xFF);
+	m_FrameBytes[15] = (unsigned char)((endFrameTicks >> 48) & 0xFF);
+	m_FrameBytes[16] = (unsigned char)((endFrameTicks >> 56) & 0xFF);
 	
-	m_FrameBufferIndex = 12;
+	m_FrameBufferIndex = 17;
 	
 	StatusSection->BeginFrame();
 	ImageSection->BeginFrame();	
@@ -441,10 +447,9 @@ void Adv2File::AddFrameImage(unsigned char layoutId, unsigned short* pixels, uns
 	m_FrameBufferIndex+=4;
 	
 	// It is faster to write the layoutId and byteMode directly here
-	m_FrameBytes[m_FrameBufferIndex] = m_CurrentStreamId;
-	m_FrameBytes[m_FrameBufferIndex + 1] = m_CurrentImageLayout->LayoutId;
-	m_FrameBytes[m_FrameBufferIndex + 2] = byteMode;
-	m_FrameBufferIndex+=3;	
+	m_FrameBytes[m_FrameBufferIndex] = m_CurrentImageLayout->LayoutId;
+	m_FrameBytes[m_FrameBufferIndex + 1] = byteMode;
+	m_FrameBufferIndex+=2;
 		
 	memcpy(&m_FrameBytes[m_FrameBufferIndex], &imageBytes[0], imageBytesCount);
 	m_FrameBufferIndex+= imageBytesCount;
