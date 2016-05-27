@@ -4,6 +4,8 @@
 
 #include "StdAfx.h"
 #include "utils.h"
+#include <string>
+#include <stdlib.h>
 
 void WriteString(FILE* pFile, const char* str)
 {
@@ -21,6 +23,28 @@ void WriteUTF8String(FILE* pFile, const char* str)
 	
 	fwrite(&len, 2, 1, pFile);
 	fputs(str, pFile);
+}
+
+char* ReadString(FILE* pFile)
+{
+	unsigned char len;
+	
+	fread(&len, 1, 1, pFile);
+	char* str = (char*)malloc(len + 1);
+	fread(&str[0], len, 1, pFile);
+	*(str + len) = 0;
+	return str;
+}
+
+char* ReadUTF8String(FILE* pFile)
+{
+	unsigned short len;
+	
+	fread(&len, 2, 1, pFile);
+	char* str = (char*)malloc(len + 1);
+	fread(&str[0], len, 1, pFile);
+	*(str + len) = 0;
+	return str;
 }
 
 unsigned int crctab[256];

@@ -245,7 +245,124 @@ bool Adv2File::BeginFile(const char* fileName)
 
 bool Adv2File::LoadFile(const char* fileName)
 {
-	return false;
+	m_Adv2File = advfopen(fileName, "rb");
+	if (m_Adv2File == 0) return false;
+	
+	unsigned int buffInt;
+	unsigned long buffLong;
+	unsigned char buffChar;
+	
+	unsigned char dataformatVersion;
+	advfread(&buffInt, 4, 1, m_Adv2File);
+	advfread(&dataformatVersion, 1, 1, m_Adv2File);
+
+	if (buffInt != 0x46545346 || dataformatVersion != 2)
+	{
+		// Unsuported stream formar
+		return 0;
+	}
+
+	advfread(&buffInt, 4, 1, m_Adv2File); // 0x00000000 (Reserved)
+
+	__int64 systemMetadataTablePosition;
+	__int64 indexTableOffset;		
+	__int64 userMetaTableOffset;
+
+	advfread(&indexTableOffset, 8, 1, m_Adv2File); // Offset of index table (will be saved later) 
+	advfread(&systemMetadataTablePosition, 8, 1, m_Adv2File); // Offset of system metadata table (will be saved later) 
+	advfread(&userMetaTableOffset, 8, 1, m_Adv2File); // Offset of user metadata table (will be saved later) 
+
+	unsigned char numberOfStreams;
+	advfread(&numberOfStreams, 1, 1, m_Adv2File); // Number of streams (must be 2: main and calibration) 
+
+	__int64 streamHeaderOffsetPositions[2];
+	__int64 streamHeaderOffsets[2];
+
+
+	char* mainStreamName = ReadUTF8String(m_Adv2File);
+	// TODO: CHECK Stream Name	
+	delete mainStreamName;
+
+	int numberOfMainFrames;
+	advfread(&numberOfMainFrames, 4, 1, m_Adv2File); // Number of frames saved in the Main stream
+	advfread(&m_MainStreamClockFrequency, 8, 1, m_Adv2File);
+	advfread(&m_MainStreamTickAccuracy, 4, 1, m_Adv2File);
+	advfread(&streamHeaderOffsetPositions[0], 8, 1, m_Adv2File); // Offset of main stream metadata table (will be saved later)
+
+	char* calibrationStreamName = ReadUTF8String(m_Adv2File);
+	// TODO: CHECK Stream Name
+	delete calibrationStreamName;
+
+	// NOTE: These must be the same as the MAIN stream ones (or may be not?)
+	__int64 calibrationStreamClockFrequency;
+	int calibrationStreamTickAccuracy;
+
+	int numberOfCalibrationFrames;
+	advfread(&numberOfCalibrationFrames, 4, 1, m_Adv2File); // Number of frames saved in the Main stream
+	advfread(&calibrationStreamClockFrequency, 8, 1, m_Adv2File);
+	advfread(&calibrationStreamTickAccuracy, 4, 1, m_Adv2File);
+	advfread(&streamHeaderOffsetPositions[1], 8, 1, m_Adv2File); // Offset of main stream metadata table (will be saved later)
+
+	/*
+
+	
+	advfgetpos64(m_Adv2File, &m_MainFrameCountPosition);
+	buffInt = 0;
+	advfwrite(&buffInt, 4, 1, m_Adv2File); // Number of frames saved in the Main stream
+
+	buffLong = m_MainStreamClockFrequency;
+	advfwrite(&buffLong, 8, 1, m_Adv2File);
+	buffInt = m_MainStreamTickAccuracy;
+	advfwrite(&buffInt, 4, 1, m_Adv2File);
+	advfgetpos64(m_Adv2File, &streamHeaderOffsetPositions[0]);
+	buffLong = 0;
+	advfwrite(&buffLong, 8, 1, m_Adv2File); // Offset of main stream metadata table (will be saved later) 
+
+	WriteUTF8String(m_Adv2File, "CALIBRATION");
+	advfgetpos64(m_Adv2File, &m_CalibrationFrameCountPosition);
+	buffInt = 0;
+	advfwrite(&buffInt, 4, 1, m_Adv2File); // Number of frames saved in the Calibration stream
+	buffLong = m_MainStreamClockFrequency;
+	advfwrite(&buffLong, 8, 1, m_Adv2File);
+	buffInt = m_MainStreamTickAccuracy;
+	advfwrite(&buffInt, 4, 1, m_Adv2File);
+	advfgetpos64(m_Adv2File, &streamHeaderOffsetPositions[1]);
+	buffLong = 0;
+	advfwrite(&buffLong, 8, 1, m_Adv2File); // Offset of main stream metadata table (will be saved later) 
+
+	buffChar = (unsigned char)2;
+	advfwrite(&buffChar, 1, 1, m_Adv2File); // Number of sections (image and status) 
+
+	__int64 sectionHeaderOffsetPositions[2];
+	
+	WriteString(m_Adv2File, "IMAGE");
+	advfgetpos64(m_Adv2File, &sectionHeaderOffsetPositions[0]);
+	buffLong = 0;
+	advfwrite(&buffLong, 8, 1, m_Adv2File);
+	
+	WriteString(m_Adv2File, "STATUS");
+	advfgetpos64(m_Adv2File, &sectionHeaderOffsetPositions[1]);
+	buffLong = 0;
+	advfwrite(&buffLong, 8, 1, m_Adv2File);
+
+	// Write section headers
+	__int64 sectionHeaderOffsets[2];
+	advfgetpos64(m_Adv2File, &sectionHeaderOffsets[0]);
+	ImageSection->WriteHeader(m_Adv2File);
+	advfgetpos64(m_Adv2File, &sectionHeaderOffsets[1]);
+	StatusSection->WriteHeader(m_Adv2File);
+
+	// Write section headers positions
+	advfsetpos64(m_Adv2File, &sectionHeaderOffsetPositions[0]);
+	advfwrite(&sectionHeaderOffsets[0], 8, 1, m_Adv2File);
+	advfsetpos64(m_Adv2File, &sectionHeaderOffsetPositions[1]);
+	advfwrite(&sectionHeaderOffsets[1], 8, 1, m_Adv2File);
+	
+	advfseek(m_Adv2File, 0, SEEK_END);
+
+	*/
+
+	return true;
 }
 
 void Adv2File::SetTimingPrecision(__int64 mainClockFrequency, long mainStreamAccuracy, __int64 calibrationClockFrequency, long calibrationStreamAccuracy)

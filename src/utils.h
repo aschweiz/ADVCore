@@ -12,6 +12,9 @@
 void WriteString(FILE* pFile, const char* str);
 void WriteUTF8String(FILE* pFile, const char* str);
 
+char* ReadString(FILE* pFile);
+char* ReadUTF8String(FILE* pFile);
+
 enum AdvTagType
 {
 	UInt8 = 0,
