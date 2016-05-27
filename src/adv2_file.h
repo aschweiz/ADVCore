@@ -56,6 +56,9 @@ namespace AdvLib2
 			__int64 m_CalibrationStreamClockFrequency;
 			unsigned long m_CalibrationStreamTickAccuracy;
 
+			int m_NumberOfMainFrames;
+			int m_NumberOfCalibrationFrames;
+
 			void InitFileState();
 		public:
 			Adv2File();
@@ -86,6 +89,9 @@ namespace AdvLib2
 			void AddFrameStatusTagUInt64(unsigned int tagIndex, long long tagValue);
 			void AddFrameStatusTagReal(unsigned int tagIndex, float tagValue);
 			void AddFrameImage(unsigned char layoutId, unsigned short* pixels, unsigned char pixelsBpp);
+
+			void GetMainStreamInfo(long* numFrames, __int64* mainClockFrequency, long* mainStreamAccuracy);
+			void GetCalibrationStreamInfo(long* numFrames, __int64* calibrationClockFrequency, long* calibrationStreamAccuracy);
 		};
 
 }

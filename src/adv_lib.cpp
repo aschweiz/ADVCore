@@ -540,5 +540,15 @@ void AdvVer2_FrameAddImageBytes(unsigned char layoutId, unsigned char* pixels, u
 	AdvProfiling_StartProcessing();
 	g_Adv2File->AddFrameImage(layoutId, (unsigned short*)pixels, pixelsBpp);
 	AdvProfiling_EndProcessing();
-
 }
+
+void AdvVer2_GetMainStreamInfo(long* numFrames, __int64* mainClockFrequency, long* mainStreamAccuracy)
+{
+	g_Adv2File->GetMainStreamInfo(numFrames, mainClockFrequency, mainStreamAccuracy);
+}
+
+void AdvVer2_GetCalibrationStreamInfo(long* numFrames, __int64* calibrationClockFrequency, long* calibrationStreamAccuracy)
+{
+	g_Adv2File->GetCalibrationStreamInfo(numFrames, calibrationClockFrequency, calibrationStreamAccuracy);
+}
+
