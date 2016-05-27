@@ -151,6 +151,11 @@ bool AdvFile::BeginFile(const char* fileName)
 	return true;
 }
 
+bool AdvFile::LoadFile(const char* fileName)
+{
+	return false;
+}
+
 void AdvFile::EndFile()
 {
 	__int64 indexTableOffset;

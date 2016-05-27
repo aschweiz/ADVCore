@@ -65,6 +65,8 @@ namespace AdvLib2
 			void SetTimingPrecision(__int64 mainClockFrequency, long mainStreamAccuracy, __int64 calibrationClockFrequency, long calibrationStreamAccuracy);
 			void EndFile();
 			
+			bool LoadFile(const char* fileName);
+			
 			void AddImageSection(AdvLib2::Adv2ImageSection* section);
 			
 			int AddFileTag(const char* tagName, const char* tagValue);

@@ -51,6 +51,7 @@
 
 FILE* advfopen(const char* fileName, const char* modes);
 size_t advfwrite(const void* pData, size_t size, size_t count, FILE* file);
+void advfread(void* pData, size_t size, size_t count, FILE* file);
 void advfgetpos64(FILE* file, __int64* pos);
 int advfsetpos64(FILE* file, const __int64* pos);
 int advfsetpos64(FILE* file, const __int64* pos, int origin);

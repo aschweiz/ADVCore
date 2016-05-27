@@ -31,6 +31,13 @@ size_t advfwrite(const void* pData, size_t size, size_t count, FILE* file)
 	return written;
 }
 
+void advfread(void* pData, size_t size, size_t count, FILE* file)
+{
+	AdvProfiling_StartHddOperation();
+	fread(pData, size, count, file);
+	AdvProfiling_EndHddOperation();
+}
+
 void advfgetpos64(FILE* file, __int64* pos)
 {
 	AdvProfiling_StartHddOperation();

@@ -29,6 +29,94 @@ char* AdvGetCurrentFilePath(void)
 	return g_CurrentAdvFile;
 }
 
+unsigned int AdvGetFileVersion(const char* fileName)
+{
+	FILE* probe = advfopen(fileName, "rb");
+	if (probe == 0) return 0;
+	
+	unsigned int buffInt;
+	unsigned char buffChar;
+
+	advfread(&buffInt, 4, 1, probe);
+	advfread(&buffChar, 1, 1, probe);
+	advfclose(probe);	
+	
+	if (buffInt != 0x46545346) return 0;
+	return (unsigned int)buffChar;
+}
+
+unsigned int AdvOpenFile(const char* fileName)
+{
+	FILE* probe = advfopen(fileName, "rb");
+	if (probe == 0) return 0;
+	
+	unsigned int buffInt;
+	unsigned char buffChar;
+
+	advfread(&buffInt, 4, 1, probe);
+	advfread(&buffChar, 1, 1, probe);
+	advfclose(probe);
+	
+	if (buffInt != 0x46545346) return 0;
+	
+	if (buffChar == 1)
+	{
+		if (NULL != g_AdvFile)
+		{
+			delete g_AdvFile;
+			g_AdvFile = NULL;		
+		}
+		
+		g_FileStarted = false;
+		
+		int len = strlen(fileName);	
+		if (len > 0)
+		{
+			g_CurrentAdvFile = new char[len + 1];
+			strncpy(g_CurrentAdvFile, fileName, len + 1);
+		
+			g_AdvFile = new AdvLib::AdvFile();
+			if (!g_AdvFile->LoadFile(fileName))
+			{
+				delete g_AdvFile;
+				g_AdvFile = NULL;
+				return 0;
+			}
+		}
+		
+		return 1;
+	}
+	else if (buffChar == 2)
+	{
+		if (NULL != g_Adv2File)
+		{
+			delete g_Adv2File;
+			g_Adv2File = NULL;
+		}
+		
+		g_FileStarted = false;
+		
+		int len = strlen(fileName);	
+		if (len > 0)
+		{
+			g_CurrentAdvFile = new char[len + 1];
+			strncpy(g_CurrentAdvFile, fileName, len + 1);
+		
+			g_Adv2File = new AdvLib2::Adv2File();	
+			if (!g_Adv2File->LoadFile(fileName))
+			{
+				delete g_Adv2File;
+				g_Adv2File = NULL;
+				return 0;
+			}			
+		}
+		
+		return 2;
+	}
+
+	return 0;
+}
+
 void AdvVer1_NewFile(const char* fileName)
 {
 	AdvProfiling_ResetPerformanceCounters();

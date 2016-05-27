@@ -26,6 +26,8 @@ Adv2File::Adv2File()
 	crc32_init();
 	
 	m_FrameBytes = NULL;
+	ImageSection = NULL;
+	m_Index = NULL;
 }
 
 Adv2File::~Adv2File()
@@ -239,6 +241,11 @@ bool Adv2File::BeginFile(const char* fileName)
 	m_UserMetadataTags.clear();
 
 	return true;
+}
+
+bool Adv2File::LoadFile(const char* fileName)
+{
+	return false;
 }
 
 void Adv2File::SetTimingPrecision(__int64 mainClockFrequency, long mainStreamAccuracy, __int64 calibrationClockFrequency, long calibrationStreamAccuracy)

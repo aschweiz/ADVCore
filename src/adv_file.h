@@ -49,6 +49,8 @@ namespace AdvLib
 			bool BeginFile(const char* fileName);
 			void EndFile();
 			
+			bool LoadFile(const char* fileName);
+			
 			void AddImageSection(AdvLib::AdvImageSection* section);
 			
 			int AddFileTag(const char* tagName, const char* tagValue);
