@@ -136,10 +136,10 @@ void Adv2StatusSection::WriteHeader(FILE* pFile)
 	unsigned char buffChar;
 	
 	buffChar = 1;
-	fwrite(&buffChar, 1, 1, pFile); /* Version */
+	advfwrite(&buffChar, 1, 1, pFile); /* Version */
 	
 	buffChar = m_TagDefinitionNames.size();
-	fwrite(&buffChar, 1, 1, pFile);
+	advfwrite(&buffChar, 1, 1, pFile);
 	int tagCount = buffChar;
 	
 	for(int i = 0; i<tagCount; i++)
@@ -148,7 +148,7 @@ void Adv2StatusSection::WriteHeader(FILE* pFile)
 		WriteUTF8String(pFile, tagName);
 		
 		buffChar = (unsigned char)(int)(m_TagDefinitionTypes.front());
-		fwrite(&buffChar, 1, 1, pFile);		
+		advfwrite(&buffChar, 1, 1, pFile);		
 		
 		m_TagDefinitionNames.pop_front();
 		m_TagDefinitionTypes.pop_front();

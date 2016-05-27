@@ -26,16 +26,16 @@ Adv2FramesIndex::~Adv2FramesIndex()
 void Adv2FramesIndex::WriteIndex(FILE *file)
 {
 	unsigned char buffInt8 = 2;
-	fwrite(&buffInt8, 1, 1, file);
+	advfwrite(&buffInt8, 1, 1, file);
 
 	unsigned int buffOffset = 9;
-	fwrite(&buffOffset, 4, 1, file);
+	advfwrite(&buffOffset, 4, 1, file);
 
 	buffOffset = m_MainIndexEntries->size() * 20 + 10;
-	fwrite(&buffOffset, 4, 1, file);
+	advfwrite(&buffOffset, 4, 1, file);
 
 	unsigned int framesCount = m_MainIndexEntries->size();
-	fwrite(&framesCount, 4, 1, file);
+	advfwrite(&framesCount, 4, 1, file);
 
 	vector<Index2Entry*>::iterator curr = m_MainIndexEntries->begin();
 	while (curr != m_MainIndexEntries->end()) 
@@ -44,16 +44,16 @@ void Adv2FramesIndex::WriteIndex(FILE *file)
 		__int64 frameOffset = (*curr)->FrameOffset;
 		unsigned int  bytesCount = (*curr)->BytesCount;
 		
-		fwrite(&elapedTime, 8, 1, file);
-		fwrite(&frameOffset, 8, 1, file);
-		fwrite(&bytesCount, 4, 1, file);
+		advfwrite(&elapedTime, 8, 1, file);
+		advfwrite(&frameOffset, 8, 1, file);
+		advfwrite(&bytesCount, 4, 1, file);
 		
 		curr++;
 	}
 
 
 	framesCount = m_CalibrationIndexEntries->size();
-	fwrite(&framesCount, 4, 1, file);
+	advfwrite(&framesCount, 4, 1, file);
 
 	curr = m_CalibrationIndexEntries->begin();
 	while (curr != m_CalibrationIndexEntries->end()) 
@@ -62,9 +62,9 @@ void Adv2FramesIndex::WriteIndex(FILE *file)
 		__int64 frameOffset = (*curr)->FrameOffset;
 		unsigned int  bytesCount = (*curr)->BytesCount;
 		
-		fwrite(&elapedTime, 8, 1, file);
-		fwrite(&frameOffset, 8, 1, file);
-		fwrite(&bytesCount, 4, 1, file);
+		advfwrite(&elapedTime, 8, 1, file);
+		advfwrite(&frameOffset, 8, 1, file);
+		advfwrite(&bytesCount, 4, 1, file);
 		
 		curr++;
 	}

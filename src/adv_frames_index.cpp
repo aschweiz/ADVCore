@@ -33,7 +33,7 @@ void AdvFramesIndex::AddFrame(unsigned int frameNo, unsigned int elapedTime, __i
 void AdvFramesIndex::WriteIndex(FILE *pFile)
 {
 	unsigned int framesCount = m_IndexEntries->size();
-	fwrite(&framesCount, 4, 1, pFile);
+	advfwrite(&framesCount, 4, 1, pFile);
 
 	vector<IndexEntry*>::iterator curr = m_IndexEntries->begin();
 	while (curr != m_IndexEntries->end()) 
@@ -42,9 +42,9 @@ void AdvFramesIndex::WriteIndex(FILE *pFile)
 		__int64 frameOffset = (*curr)->FrameOffset;
 		unsigned int  bytesCount = (*curr)->BytesCount;
 		
-		fwrite(&elapedTime, 4, 1, pFile);
-		fwrite(&frameOffset, 8, 1, pFile);
-		fwrite(&bytesCount, 4, 1, pFile);
+		advfwrite(&elapedTime, 4, 1, pFile);
+		advfwrite(&frameOffset, 8, 1, pFile);
+		advfwrite(&bytesCount, 4, 1, pFile);
 		
 		curr++;
 	}

@@ -68,21 +68,21 @@ void Adv2ImageSection::WriteHeader(FILE* pFile)
 	unsigned char buffChar;
 	
 	buffChar = 2;
-	fwrite(&buffChar, 1, 1, pFile); /* Version */
+	advfwrite(&buffChar, 1, 1, pFile); /* Version */
 
 	
-	fwrite(&Width, 4, 1, pFile);
-	fwrite(&Height, 4, 1, pFile);
-	fwrite(&DataBpp, 1, 1, pFile);	
+	advfwrite(&Width, 4, 1, pFile);
+	advfwrite(&Height, 4, 1, pFile);
+	advfwrite(&DataBpp, 1, 1, pFile);	
 	
 	buffChar = (unsigned char)m_ImageLayouts.size();
-	fwrite(&buffChar, 1, 1, pFile);
+	advfwrite(&buffChar, 1, 1, pFile);
 	
 	map<unsigned char, Adv2ImageLayout*>::iterator currIml = m_ImageLayouts.begin();
 	while (currIml != m_ImageLayouts.end()) 
 	{
 		char layoutId = currIml->first;	
-		fwrite(&layoutId, 1, 1, pFile);
+		advfwrite(&layoutId, 1, 1, pFile);
 		
 		Adv2ImageLayout* imageLayout = currIml->second;	
 		imageLayout->WriteHeader(pFile);
@@ -91,7 +91,7 @@ void Adv2ImageSection::WriteHeader(FILE* pFile)
 	}
 	
 	buffChar = (unsigned char)m_ImageTags.size();
-	fwrite(&buffChar, 1, 1, pFile);
+	advfwrite(&buffChar, 1, 1, pFile);
 	
 	map<string, string>::iterator curr = m_ImageTags.begin();
 	while (curr != m_ImageTags.end()) 

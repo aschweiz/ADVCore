@@ -197,13 +197,13 @@ void Adv2ImageLayout::WriteHeader(FILE* pFile)
 	unsigned char buffChar;
 	
 	buffChar = 2;
-	fwrite(&buffChar, 1, 1, pFile); /* Version */
+	advfwrite(&buffChar, 1, 1, pFile); /* Version */
 
-	fwrite(&Bpp, 1, 1, pFile);	
+	advfwrite(&Bpp, 1, 1, pFile);	
 
 	
 	buffChar = (unsigned char)m_LayoutTags.size();
-	fwrite(&buffChar, 1, 1, pFile);
+	advfwrite(&buffChar, 1, 1, pFile);
 	
 	map<string, string>::iterator curr = m_LayoutTags.begin();
 	while (curr != m_LayoutTags.end()) 
