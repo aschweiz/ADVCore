@@ -49,7 +49,7 @@ namespace AdvLib
 			bool BeginFile(const char* fileName);
 			void EndFile();
 			
-			bool LoadFile(const char* fileName);
+			int LoadFile(const char* fileName);
 			
 			void AddImageSection(AdvLib::AdvImageSection* section);
 			

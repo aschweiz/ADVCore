@@ -128,6 +128,25 @@ unsigned int FloatToIntBits(const float x)
     return u.i;
 }
 
+Adv2StatusSection::Adv2StatusSection(FILE* pFile)
+{
+	MaxFrameBufferSize = 0;
+
+	unsigned char version;
+	advfread(&version, 1, 1, pFile); /* Version */
+
+	unsigned char tagsCount;
+	advfread(&tagsCount, 1, 1, pFile);
+
+	for (int i = 0; i < tagsCount; i++)
+	{
+		char* tagName = ReadUTF8String(pFile);
+		unsigned char tagType;
+		advfread(&tagType, 1, 1, pFile);
+
+		DefineTag(tagName, (AdvTagType)tagType);
+	}
+}
 
 void Adv2StatusSection::WriteHeader(FILE* pFile)
 {

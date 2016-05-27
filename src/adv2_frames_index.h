@@ -29,6 +29,7 @@ namespace AdvLib2
 
 		public:
 			Adv2FramesIndex();
+			Adv2FramesIndex(FILE* pFile);
 			~Adv2FramesIndex();
 
 			void WriteIndex(FILE *file);

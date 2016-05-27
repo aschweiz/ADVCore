@@ -35,6 +35,7 @@ namespace AdvLib2
 
 		public:
 			Adv2StatusSection();
+			Adv2StatusSection(FILE* pFile);
 			~Adv2StatusSection();
 
 			unsigned int DefineTag(const char* tagName, enum AdvTagType tagType);

@@ -63,8 +63,10 @@ namespace AdvLib2
 
 		enum DiffCorrBaseFrame BaseFrameType;
 
+
 	public:
 		Adv2ImageLayout(Adv2ImageSection* imageSection, unsigned int width, unsigned int height, unsigned char layoutId, const char* layoutType, const char* compression, unsigned char dataBpp, int keyFrame);
+		Adv2ImageLayout(char layoutId, FILE* pFile);
 		~Adv2ImageLayout();
 
 		void AddOrUpdateTag(const char* tagName, const char* tagValue);

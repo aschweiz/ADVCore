@@ -63,6 +63,39 @@ void Adv2ImageSection::AddOrUpdateTag(const char* tagName, const char* tagValue)
 	m_ImageTags.insert(make_pair(string(tagName), string(tagValue == NULL ? "" : tagValue)));
 }
 
+Adv2ImageSection::Adv2ImageSection(FILE* pFile)
+{
+	unsigned char version;
+	advfread(&version, 1, 1, pFile); /* Version */
+
+	advfread(&Width, 4, 1, pFile);
+	advfread(&Height, 4, 1, pFile);
+	advfread(&DataBpp, 1, 1, pFile);
+
+	unsigned char imageLayouts;
+	advfread(&imageLayouts, 1, 1, pFile);
+
+	for (int i = 0; i < imageLayouts; i++)
+	{
+		char layoutId;
+		advfread(&layoutId, 1, 1, pFile);
+
+		Adv2ImageLayout* imageLayout = new AdvLib2::Adv2ImageLayout(layoutId, pFile);
+		m_ImageLayouts.insert(make_pair(layoutId, imageLayout));
+	}
+
+	unsigned char tagsCount;
+	advfread(&tagsCount, 1, 1, pFile);
+
+	for (int i = 0; i < tagsCount; i++)
+	{
+		char* tagName = ReadUTF8String(pFile);
+		char* tagValue = ReadUTF8String(pFile);
+
+		m_ImageTags.insert(make_pair(tagName, tagValue));
+	}
+}
+
 void Adv2ImageSection::WriteHeader(FILE* pFile)
 {
 	unsigned char buffChar;
@@ -73,7 +106,7 @@ void Adv2ImageSection::WriteHeader(FILE* pFile)
 	
 	advfwrite(&Width, 4, 1, pFile);
 	advfwrite(&Height, 4, 1, pFile);
-	advfwrite(&DataBpp, 1, 1, pFile);	
+	advfwrite(&DataBpp, 1, 1, pFile);
 	
 	buffChar = (unsigned char)m_ImageLayouts.size();
 	advfwrite(&buffChar, 1, 1, pFile);

@@ -32,6 +32,7 @@ namespace AdvLib2
 		public:
 
 			Adv2ImageSection(unsigned int width, unsigned int height, unsigned char dataBpp);
+			Adv2ImageSection(FILE* pfile);
 			~Adv2ImageSection();
 
 			void WriteHeader(FILE* pfile);

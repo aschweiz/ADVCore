@@ -45,7 +45,7 @@ unsigned int AdvGetFileVersion(const char* fileName)
 	return (unsigned int)buffChar;
 }
 
-unsigned int AdvOpenFile(const char* fileName)
+int AdvOpenFile(const char* fileName)
 {
 	FILE* probe = advfopen(fileName, "rb");
 	if (probe == 0) return 0;
@@ -64,23 +64,24 @@ unsigned int AdvOpenFile(const char* fileName)
 		if (NULL != g_AdvFile)
 		{
 			delete g_AdvFile;
-			g_AdvFile = NULL;		
+			g_AdvFile = NULL;
 		}
 		
 		g_FileStarted = false;
 		
-		int len = strlen(fileName);	
+		int len = strlen(fileName);
 		if (len > 0)
 		{
 			g_CurrentAdvFile = new char[len + 1];
 			strncpy(g_CurrentAdvFile, fileName, len + 1);
 		
 			g_AdvFile = new AdvLib::AdvFile();
-			if (!g_AdvFile->LoadFile(fileName))
+			int res = !g_AdvFile->LoadFile(fileName);
+			if (res < 0)
 			{
 				delete g_AdvFile;
 				g_AdvFile = NULL;
-				return 0;
+				return res;
 			}
 		}
 		
@@ -96,19 +97,20 @@ unsigned int AdvOpenFile(const char* fileName)
 		
 		g_FileStarted = false;
 		
-		int len = strlen(fileName);	
+		int len = strlen(fileName);
 		if (len > 0)
 		{
 			g_CurrentAdvFile = new char[len + 1];
 			strncpy(g_CurrentAdvFile, fileName, len + 1);
 		
-			g_Adv2File = new AdvLib2::Adv2File();	
-			if (!g_Adv2File->LoadFile(fileName))
+			g_Adv2File = new AdvLib2::Adv2File();
+			int res = !g_Adv2File->LoadFile(fileName);
+			if (res < 0)
 			{
 				delete g_Adv2File;
 				g_Adv2File = NULL;
-				return 0;
-			}			
+				return res;
+			}
 		}
 		
 		return 2;

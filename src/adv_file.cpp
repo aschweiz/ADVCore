@@ -151,9 +151,9 @@ bool AdvFile::BeginFile(const char* fileName)
 	return true;
 }
 
-bool AdvFile::LoadFile(const char* fileName)
+int AdvFile::LoadFile(const char* fileName)
 {
-	return false;
+	return 0;
 }
 
 void AdvFile::EndFile()

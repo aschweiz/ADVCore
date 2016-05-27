@@ -20,7 +20,7 @@ extern "C"
 
 DLL_PUBLIC char* AdvGetCurrentFilePath(void);
 DLL_PUBLIC unsigned int AdvGetFileVersion(const char* fileName);
-DLL_PUBLIC unsigned int AdvOpenFile(const char* fileName);
+DLL_PUBLIC int AdvOpenFile(const char* fileName);
 
 DLL_PUBLIC void AdvVer1_NewFile(const char* fileName);
 DLL_PUBLIC void AdvVer1_DefineImageSection(unsigned short width, unsigned short height, unsigned char dataBpp);
