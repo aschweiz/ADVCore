@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <CodeLite_Project Name="AdvLib_Win32" InternalType="Library">
   <Plugins>
+    <Plugin Name="qmake">
+      <![CDATA[00030001N0005Debug0000000000000001N0007Release0000000000000001N0010Release_64000000000000]]>
+    </Plugin>
     <Plugin Name="CMakePlugin">
       <![CDATA[[{
   "name": "Release",
@@ -12,9 +15,6 @@
   "arguments": [],
   "parentProject": ""
  }]]]>
-    </Plugin>
-    <Plugin Name="qmake">
-      <![CDATA[00030001N0005Debug0000000000000001N0007Release0000000000000001N0010Release_64000000000000]]>
     </Plugin>
   </Plugins>
   <Description/>
@@ -33,11 +33,14 @@
     <File Name="src/dllmain.cpp"/>
     <File Name="src/stdafx.cpp"/>
     <File Name="src/utils.cpp"/>
-	<File Name="src/adv2_file.cpp"/>
+    <File Name="src/adv2_file.cpp"/>
     <File Name="src/adv2_frames_index.cpp"/>
     <File Name="src/adv2_image_layout.cpp"/>
-    <File Name="src/adv2_image_section.cpp"/>	
-    <File Name="src/adv2_status_section.cpp"/>	
+    <File Name="src/adv2_image_section.cpp"/>
+    <File Name="src/adv2_status_section.cpp"/>
+    <File Name="src/Compressor.cpp"/>
+    <File Name="src/ProbabilityCoder.cpp"/>
+    <File Name="src/RangeCoder.cpp"/>
   </VirtualDirectory>
   <VirtualDirectory Name="include">
     <File Name="src/adv_file.h"/>
@@ -56,6 +59,9 @@
     <File Name="src/adv2_image_layout.h"/>
     <File Name="src/adv2_image_section.h"/>
     <File Name="src/adv2_status_section.h"/>
+    <File Name="src/Compressor.h"/>
+    <File Name="src/ProbabilityCoder.h"/>
+    <File Name="src/RangeCoder.h"/>
   </VirtualDirectory>
   <Settings Type="Dynamic Library">
     <GlobalSettings>

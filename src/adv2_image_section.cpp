@@ -39,7 +39,7 @@ Adv2ImageSection::~Adv2ImageSection()
 
 Adv2ImageLayout* Adv2ImageSection::AddImageLayout(unsigned char layoutId, const char* layoutType, const char* compression, unsigned char bpp, int keyFrame)
 {
-	AdvLib2::Adv2ImageLayout* layout = new AdvLib2::Adv2ImageLayout(Width, Height, layoutId, layoutType, compression, bpp, keyFrame); 
+	AdvLib2::Adv2ImageLayout* layout = new AdvLib2::Adv2ImageLayout(this, Width, Height, layoutId, layoutType, compression, bpp, keyFrame); 
 	m_ImageLayouts.insert(make_pair(layoutId, layout));
 	return layout;
 }

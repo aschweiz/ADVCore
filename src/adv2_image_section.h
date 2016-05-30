@@ -16,6 +16,8 @@ using std::string;
 
 namespace AdvLib2
 {
+	class Adv2ImageLayout;
+
 	class Adv2ImageSection {
 
 	private:
