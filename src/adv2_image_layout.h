@@ -39,10 +39,11 @@ namespace AdvLib2
 		unsigned int m_MaxSignsBytesCount;
 		unsigned int m_MaxPixelArrayLengthWithoutSigns;
 
-		char* m_DecompressedPixels;
-		qlz_state_decompress* m_StateDecompress;
-		Compressor* m_Lagarith16Decompressor;
+		char* m_CompressedPixels;
+		qlz_state_compress* m_StateCompress;
+		Compressor* m_Lagarith16Compressor;
 		bool m_UsesCompression;
+		bool m_UsesLagarith16Compression;
 
 		void InitialiseBuffers();
 		void ResetBuffers();
@@ -63,11 +64,24 @@ namespace AdvLib2
 		enum DiffCorrBaseFrame BaseFrameType;
 
 	public:
-			Adv2ImageLayout(Adv2ImageSection* imageSection, unsigned int width, unsigned int height, unsigned char layoutId, const char* layoutType, const char* compression, unsigned char dataBpp, int keyFrame);
-			~Adv2ImageLayout();
+		Adv2ImageLayout(Adv2ImageSection* imageSection, unsigned int width, unsigned int height, unsigned char layoutId, const char* layoutType, const char* compression, unsigned char dataBpp, int keyFrame);
+		~Adv2ImageLayout();
 
-			void AddOrUpdateTag(const char* tagName, const char* tagValue);
-			void WriteHeader(FILE* pfile);
+		void AddOrUpdateTag(const char* tagName, const char* tagValue);
+		void WriteHeader(FILE* pfile);
+		void StartNewDiffCorrSequence();
+		unsigned char* GetDataBytes(unsigned short* currFramePixels, enum GetByteMode mode, unsigned int *bytesCount, unsigned char dataPixelsBpp);
+	
+	private:
+		unsigned char* GetFullImageDiffCorrWithSignsDataBytes(unsigned short* currFramePixels, enum GetByteMode mode, unsigned int *bytesCount, unsigned char dataPixelsBpp);
+		unsigned char* GetFullImageRawDataBytes(unsigned short* currFramePixels, unsigned int *bytesCount, unsigned char dataPixelsBpp);
+		
+		void GetDataBytes12Bpp(unsigned short* currFramePixels, enum GetByteMode mode, unsigned int pixelsCRC32, unsigned int *bytesCount, unsigned char dataPixelsBpp);
+		void GetDataBytes16Bpp(unsigned short* currFramePixels, enum GetByteMode mode, unsigned int pixelsCRC32, unsigned int *bytesCount, unsigned char dataPixelsBpp);
+		
+		void GetDataBytes12BppIndex12BppWords(unsigned short* currFramePixels, enum GetByteMode mode, unsigned int pixelsCRC32, unsigned int *bytesCount, unsigned char dataPixelsBpp);
+		void GetDataBytes12BppIndex16BppWords(unsigned short* currFramePixels, enum GetByteMode mode, unsigned int pixelsCRC32, unsigned int *bytesCount, unsigned char dataPixelsBpp);
+		void GetDataBytes12BppIndexBytes(unsigned short* currFramePixels, enum GetByteMode mode, unsigned int pixelsCRC32, unsigned int *bytesCount, unsigned char dataPixelsBpp);
 	};
 }
 

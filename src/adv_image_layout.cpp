@@ -346,7 +346,7 @@ unsigned char* AdvImageLayout::GetFullImageRawDataBytes(unsigned short* currFram
 		memcpy(&m_PixelArrayBuffer[0], &currFramePixels[0], buffLen);
 	}
 	else
-		throw "12Bpp not supported in Raw layout";
+		throw new exception("12Bpp not supported in Raw layout");
 	
 	*bytesCount = buffLen;
 	return m_PixelArrayBuffer;

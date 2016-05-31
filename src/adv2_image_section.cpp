@@ -135,7 +135,42 @@ int Adv2ImageSection::MaxFrameBufferSize()
 
 unsigned char* Adv2ImageSection::GetDataBytes(unsigned char layoutId, unsigned short* currFramePixels, unsigned int *bytesCount, char* byteMode, unsigned char pixelsBpp)
 {
-	return 0;
+	Adv2ImageLayout* currentLayout = GetImageLayoutById(layoutId);
+	
+	if (m_PreviousLayoutId == layoutId)
+		m_NumFramesInThisLayoutId++;
+	else
+	{
+		m_NumFramesInThisLayoutId = 0;
+		currentLayout->StartNewDiffCorrSequence();
+	}
+	
+	enum GetByteMode mode = Normal;
+	
+	if (currentLayout->IsDiffCorrLayout)
+	{
+		bool isKeyFrame = (m_NumFramesInThisLayoutId % currentLayout->KeyFrame) == 0;
+		bool diffCorrFromPrevFramePixels = isKeyFrame || currentLayout->BaseFrameType == DiffCorrPrevFrame;
+		
+		if (isKeyFrame)
+		{
+			// this is a key frame
+			mode = KeyFrameBytes;		
+		}
+		else
+		{
+			// this is not a key frame, compute and save the diff corr
+			mode = DiffCorrBytes;
+		}
+	}	
+	
+	unsigned char* pixels = currentLayout->GetDataBytes(currFramePixels, mode, bytesCount, pixelsBpp);
+	
+	
+	m_PreviousLayoutId = layoutId;
+	*byteMode = (char)mode;
+	
+	return pixels;
 }
 
 AdvLib2::Adv2ImageLayout* Adv2ImageSection::GetImageLayoutById(unsigned char layoutId)

@@ -7,6 +7,7 @@
 #include "utils.h"
 #include "math.h"
 #include <stdlib.h>
+#include "adv_profiling.h"
 
 namespace AdvLib2
 {
@@ -20,9 +21,23 @@ Adv2ImageLayout::Adv2ImageLayout(Adv2ImageSection* imageSection, unsigned int wi
 	Compression = NULL;
 	DataBpp = dataBpp;
 
-	InitialiseBuffers();
-
+	AddOrUpdateTag("DATA-LAYOUT", layoutType);
 	AddOrUpdateTag("SECTION-DATA-COMPRESSION", compression);
+
+	Compression = new char[strlen(compression) + 1];
+	strcpy(const_cast<char*>(Compression), compression);
+	m_UsesCompression = 0 != strcmp(compression, "UNCOMPRESSED");
+	m_UsesLagarith16Compression = 0 != strcmp(compression, "LAGARITH16");
+	
+	if (keyFrame > 0)
+	{
+		char keyFrameStr [5];
+		snprintf(keyFrameStr, 5, "%d", keyFrame);
+		AddOrUpdateTag("DIFFCODE-KEY-FRAME-FREQUENCY", keyFrameStr);		
+		AddOrUpdateTag("DIFFCODE-BASE-FRAME", "KEY-FRAME");		
+	}
+
+	InitialiseBuffers();
 }
 
 void Adv2ImageLayout::InitialiseBuffers()
@@ -55,7 +70,9 @@ void Adv2ImageLayout::InitialiseBuffers()
 	else 
 		MaxFrameBufferSize = Width * Height * 4 + 1 + 4 + 2 * signsBytesCount + 16;
 
-	
+	// In accordance with Lagarith16 specs
+	if (m_UsesLagarith16Compression) MaxFrameBufferSize += 0x20000;
+
 	m_MaxSignsBytesCount = (unsigned int)ceil(Width * Height / 8.0);
 
 	if (Bpp == 8)
@@ -74,8 +91,8 @@ void Adv2ImageLayout::InitialiseBuffers()
 	m_PrevFramePixelsTemp = NULL;
 	m_PixelArrayBuffer = NULL;
 	m_SignsBuffer = NULL;
-	m_DecompressedPixels = NULL;	
-	m_StateDecompress = NULL;
+	m_CompressedPixels = NULL;	
+	m_StateCompress = NULL;
 	
 	m_PixelArrayBuffer = (unsigned char*)malloc(m_MaxPixelArrayLengthWithoutSigns + m_MaxSignsBytesCount);
 	m_PrevFramePixels = (unsigned short*)malloc(m_KeyFrameBytesCount);		
@@ -83,10 +100,10 @@ void Adv2ImageLayout::InitialiseBuffers()
 	
 	m_PrevFramePixelsTemp = (unsigned short*)malloc(m_KeyFrameBytesCount);	
 	m_SignsBuffer = (unsigned char*)malloc(m_MaxSignsBytesCount);
-	m_DecompressedPixels = (char*)malloc(MaxFrameBufferSize);
+	m_CompressedPixels = (char*)malloc(MaxFrameBufferSize);
 	
-	m_StateDecompress = (qlz_state_decompress *)malloc(sizeof(qlz_state_decompress));
-	m_Lagarith16Decompressor = new Compressor(Width, Height);
+	m_StateCompress = (qlz_state_compress *)malloc(sizeof(qlz_state_compress));
+	m_Lagarith16Compressor = new Compressor(Width, Height);
 }
 
 Adv2ImageLayout::~Adv2ImageLayout()
@@ -108,22 +125,22 @@ void Adv2ImageLayout::ResetBuffers()
 	if (NULL != m_SignsBuffer)
 		delete m_SignsBuffer;
 
-	if (NULL != m_DecompressedPixels)
-		delete m_DecompressedPixels;
+	if (NULL != m_CompressedPixels)
+		delete m_CompressedPixels;
 	
-	if (NULL != m_StateDecompress)
-		delete m_StateDecompress;	
+	if (NULL != m_StateCompress)
+		delete m_StateCompress;	
 
-	if (NULL != m_Lagarith16Decompressor)
-		delete m_Lagarith16Decompressor;
+	if (NULL != m_Lagarith16Compressor)
+		delete m_Lagarith16Compressor;
 		
 	m_PrevFramePixels = NULL;
 	m_PrevFramePixelsTemp = NULL;
 	m_PixelArrayBuffer = NULL;
 	m_SignsBuffer = NULL;
-	m_DecompressedPixels = NULL;	
-	m_StateDecompress = NULL;
-	m_Lagarith16Decompressor = NULL;
+	m_CompressedPixels = NULL;	
+	m_StateCompress = NULL;
+	m_Lagarith16Compressor = NULL;
 }
 
 
@@ -199,6 +216,358 @@ void Adv2ImageLayout::WriteHeader(FILE* pFile)
 		
 		curr++;
 	}		
+}
+
+void Adv2ImageLayout::StartNewDiffCorrSequence()
+{
+   //TODO: Reset the prev frame buffer (do we need to do anything??)
+}
+
+unsigned char* Adv2ImageLayout::GetDataBytes(unsigned short* currFramePixels, enum GetByteMode mode, unsigned int *bytesCount, unsigned char dataPixelsBpp)
+{
+	unsigned char* bytesToCompress;
+	
+	if (m_BytesLayout == FullImageDiffCorrWithSigns)
+		bytesToCompress = GetFullImageDiffCorrWithSignsDataBytes(currFramePixels, mode, bytesCount, dataPixelsBpp);
+	else if (m_BytesLayout == FullImageRaw)
+		bytesToCompress = GetFullImageRawDataBytes(currFramePixels, bytesCount, dataPixelsBpp);
+
+	
+	if (0 == strcmp(Compression, "QUICKLZ"))
+	{
+		unsigned int frameSize = 0;
+				
+		AdvProfiling_StartFrameCompression();
+
+		// compress and write result 
+		size_t len2 = qlz_compress(bytesToCompress, m_CompressedPixels, *bytesCount, m_StateCompress); 		
+		
+		AdvProfiling_EndFrameCompression();
+	
+		*bytesCount = len2;
+		return (unsigned char*)(m_CompressedPixels);
+	}
+	if (0 == strcmp(Compression, "LAGARITH16"))
+	{
+		*bytesCount = m_Lagarith16Compressor->CompressData(currFramePixels, m_CompressedPixels);
+		return (unsigned char*)(m_CompressedPixels);
+	}
+	else if (0 == strcmp(Compression, "UNCOMPRESSED"))
+	{
+		return bytesToCompress;
+	}
+	
+		
+	return NULL;
+}
+
+
+
+unsigned char* Adv2ImageLayout::GetFullImageDiffCorrWithSignsDataBytes(unsigned short* currFramePixels, enum GetByteMode mode, unsigned int *bytesCount, unsigned char dataPixelsBpp)
+{
+	bool isKeyFrame = mode == KeyFrameBytes;
+	bool diffCorrFromPrevFramePixels = isKeyFrame || this->BaseFrameType == DiffCorrPrevFrame;
+	
+	if (diffCorrFromPrevFramePixels)
+	{
+		// STEP1 from maintaining the old pixels for DiffCorr
+		if (mode == DiffCorrBytes)
+			memcpy(&m_PrevFramePixelsTemp[0], &currFramePixels[0], m_KeyFrameBytesCount);
+		else
+			memcpy(&m_PrevFramePixels[0], &currFramePixels[0], m_KeyFrameBytesCount);
+	}	
+
+    // NOTE: The CRC computation is a huge overhead and is currently disabled
+	//unsigned int pixelsCrc = ComputePixelsCRC32(currFramePixels);
+	unsigned int pixelsCrc = 0;
+	
+	if (mode == KeyFrameBytes)
+	{
+		*bytesCount = 0;
+	}
+	else if (mode == DiffCorrBytes)
+	{					
+		*bytesCount = 0;
+	
+		AdvProfiling_StartTestingOperation();	
+
+		unsigned int* pCurrFramePixels = (unsigned int*)currFramePixels;
+		unsigned int* pPrevFramePixels = (unsigned int*)m_PrevFramePixels;
+		for (int j = 0; j < Height; ++j)
+		{
+			for (int i = 0; i < Width / 2; ++i)
+			{
+				int wordCurr = (int)*pCurrFramePixels;
+				int wordOld = (int)*pPrevFramePixels;
+				
+				unsigned int pixLo = (unsigned int)((unsigned short)((wordCurr & 0xFFFF) - (wordOld & 0xFFFF)));
+				unsigned int pixHi = (unsigned int)((unsigned short)(((wordCurr & 0xFFFF0000) >> 16) - ((wordOld & 0xFFFF0000) >> 16)));
+				
+				*pCurrFramePixels = (pixHi << 16) + pixLo;
+				
+				pCurrFramePixels++;
+				pPrevFramePixels++;
+			}
+		}
+		AdvProfiling_EndTestingOperation();
+	}
+	
+	if (diffCorrFromPrevFramePixels && mode == DiffCorrBytes)
+		// STEP2 from maintaining the old pixels for DiffCorr
+		memcpy(&m_PrevFramePixels[0], &m_PrevFramePixelsTemp[0], m_KeyFrameBytesCount);
+	
+	if (Bpp == 12)
+	{		
+		GetDataBytes12Bpp(currFramePixels, mode, pixelsCrc, bytesCount, dataPixelsBpp);
+		return m_PixelArrayBuffer;
+	}
+	else if (Bpp = 16)
+	{
+		GetDataBytes16Bpp(currFramePixels, mode, pixelsCrc, bytesCount, dataPixelsBpp);
+		return m_PixelArrayBuffer;
+	}
+	else
+	{
+		*bytesCount = 0;
+		return NULL;
+	}
+}
+
+unsigned char* Adv2ImageLayout::GetFullImageRawDataBytes(unsigned short* currFramePixels, unsigned int *bytesCount, unsigned char dataPixelsBpp)
+{
+	int buffLen = 0;
+	if (dataPixelsBpp == 16)
+	{
+		buffLen = Width * Height * 2;
+		memcpy(&m_PixelArrayBuffer[0], &currFramePixels[0], buffLen);		
+	}
+	else if (dataPixelsBpp == 8)
+	{
+		buffLen = Width * Height;
+		memcpy(&m_PixelArrayBuffer[0], &currFramePixels[0], buffLen);
+	}
+	else
+		throw new exception("12Bpp not supported in Raw layout");
+	
+	*bytesCount = buffLen;
+	return m_PixelArrayBuffer;
+}
+
+void Adv2ImageLayout::GetDataBytes12BppIndex12BppWords(unsigned short* pixels, enum GetByteMode mode, unsigned int pixelsCRC32, unsigned int *bytesCount, unsigned char dataPixelsBpp)
+{	
+	// NOTE: This code has never been tested or used !!!
+
+	// Flags: 0 - no key frame used, 1 - key frame follows, 2 - diff corr data follows
+	bool isKeyFrame = mode == KeyFrameBytes;
+	bool noKeyFrameUsed = mode == Normal;
+	bool isDiffCorrFrame = mode == DiffCorrBytes;
+
+	// Every 2 12-bit values can be encoded in 3 bytes
+	// xxxxxxxx|xxxxyyyy|yyyyyyy
+
+	//int arrayLength = 1 + 4 + 3 * (Width * Height) / 2 + 2 * ((Width * Height) % 2) + *bytesCount;
+
+	//unsigned char *imageData = (unsigned char*)malloc(arrayLength);
+	
+	//int signsBytesCnt = *bytesCount;
+	
+	unsigned int bytesCounter = *bytesCount;
+	
+	m_PixelArrayBuffer[0] = noKeyFrameUsed ? (unsigned char)0 : (isKeyFrame ? (unsigned char)1 : (unsigned char)2);
+	bytesCounter++;
+		
+	unsigned int* pPixelArrayWords =  (unsigned int*)(&m_PixelArrayBuffer[0] + bytesCounter);
+	unsigned int* pPixels = (unsigned int*)pixels;
+	
+	int counter = 0;
+	int pixel8GroupCount = Height * Width / 8;
+	for (int idx = 0; idx < pixel8GroupCount; ++idx)
+	{
+		unsigned int word1 = *pPixels;
+		unsigned int word2 = *pPixels;pPixels++;
+		unsigned int word3 = *pPixels;pPixels++;
+		unsigned int word4 = *pPixels;pPixels++;
+				
+		//         word1                 word2                 word3                 word4
+		// | 00aa aaaa 00bb bbbb | 00cc cccc 00dd dddd | 00ee eeee 00ff ffff | 00gg gggg 00hh hhhh|
+        // | aaaa aabb bbbb cccc | ccdd dddd eeee eeff | ffff gggg gghh hhhh |
+		//       encoded1               encoded2             encoded3
+		
+		unsigned int encodedPixelWord1 = ((word1 << 4) && 0xFFF00000) + ((word1 << 8) && 0x000FFF00) + (word2 >> 20);
+		unsigned int encodedPixelWord2 = ((word2 << 12) && 0xF0000000) + (word2 << 16) + ((word3 >> 12) && 0x0000FFF0)+ ((word3 >> 8) && 0x0000000F);
+		unsigned int encodedPixelWord3 = (word4 << 24) + ((word4 >> 4) && 0x00FFF000) + (word4 && 0x00000FFF);
+		
+		*pPixelArrayWords = encodedPixelWord1;pPixelArrayWords++;
+		*pPixelArrayWords = encodedPixelWord2;pPixelArrayWords++;
+		*pPixelArrayWords = encodedPixelWord3;pPixelArrayWords++;
+		
+		bytesCounter += 12;
+	};
+
+	*pPixelArrayWords = pixelsCRC32; pPixelArrayWords++;	
+	(*bytesCount) = bytesCounter + 4;
+
+	//if (isDiffCorrFrame)
+	//	memcpy(&m_PixelArrayBuffer[1], &m_SignsBuffer[0], signsBytesCnt);
+}
+
+void Adv2ImageLayout::GetDataBytes12BppIndex16BppWords(unsigned short* pixels, enum GetByteMode mode, unsigned int pixelsCRC32, unsigned int *bytesCount, unsigned char dataPixelsBpp)
+{	
+	// Flags: 0 - no key frame used, 1 - key frame follows, 2 - diff corr data follows
+	bool isKeyFrame = mode == KeyFrameBytes;
+	bool noKeyFrameUsed = mode == Normal;
+	bool isDiffCorrFrame = mode == DiffCorrBytes;
+
+	// Every 2 12-bit values can be encoded in 3 bytes
+	// xxxxxxxx|xxxxyyyy|yyyyyyy
+
+	//int arrayLength = 1 + 4 + 3 * (Width * Height) / 2 + 2 * ((Width * Height) % 2) + *bytesCount;
+
+	//unsigned char *imageData = (unsigned char*)malloc(arrayLength);
+	
+	//int signsBytesCnt = *bytesCount;
+	
+	unsigned int bytesCounter = *bytesCount;
+	
+	m_PixelArrayBuffer[0] = noKeyFrameUsed ? (unsigned char)0 : (isKeyFrame ? (unsigned char)1 : (unsigned char)2);
+	bytesCounter++;
+		
+	unsigned int* pPixelArrayWords =  (unsigned int*)(&m_PixelArrayBuffer[0] + bytesCounter);
+	unsigned int* pPixels = (unsigned int*)pixels;
+	
+	int counter = 0;
+	int pixel8GroupCount = Height * Width / 8;
+	for (int idx = 0; idx < pixel8GroupCount; ++idx)
+	{
+		unsigned int word1 = *pPixels;
+		unsigned int word2 = *pPixels;pPixels++;
+		unsigned int word3 = *pPixels;pPixels++;
+		unsigned int word4 = *pPixels;pPixels++;
+		
+		//(int)(pixels[x + y * Width] * 4095 / 65535)
+		
+		//         word1                 word2                 word3                 word4
+		// | 00aa aaaa 00bb bbbb | 00cc cccc 00dd dddd | 00ee eeee 00ff ffff | 00gg gggg 00hh hhhh|
+        // | aaaa aabb bbbb cccc | ccdd dddd eeee eeff | ffff gggg gghh hhhh |
+		//       encoded1               encoded2             encoded3
+		
+		unsigned int encodedPixelWord1 = ((word1 << 4) && 0xFFF00000) + ((word1 << 8) && 0x000FFF00) + (word2 >> 20);
+		unsigned int encodedPixelWord2 = ((word2 << 12) && 0xF0000000) + (word2 << 16) + ((word3 >> 12) && 0x0000FFF0)+ ((word3 >> 8) && 0x0000000F);
+		unsigned int encodedPixelWord3 = (word4 << 24) + ((word4 >> 4) && 0x00FFF000) + (word4 && 0x00000FFF);
+		
+		*pPixelArrayWords = encodedPixelWord1;pPixelArrayWords++;
+		*pPixelArrayWords = encodedPixelWord2;pPixelArrayWords++;
+		*pPixelArrayWords = encodedPixelWord3;pPixelArrayWords++;
+		
+		bytesCounter += 12;
+	};
+
+	*pPixelArrayWords = pixelsCRC32; pPixelArrayWords++;	
+	(*bytesCount) = bytesCounter + 4;
+
+	//if (isDiffCorrFrame)
+	//	memcpy(&m_PixelArrayBuffer[1], &m_SignsBuffer[0], signsBytesCnt);
+}
+
+void Adv2ImageLayout::GetDataBytes12BppIndexBytes(unsigned short* pixels, enum GetByteMode mode, unsigned int pixelsCRC32, unsigned int *bytesCount, unsigned char dataPixelsBpp)
+{	
+	// Flags: 0 - no key frame used, 1 - key frame follows, 2 - diff corr data follows
+	bool isKeyFrame = mode == KeyFrameBytes;
+	bool noKeyFrameUsed = mode == Normal;
+	bool isDiffCorrFrame = mode == DiffCorrBytes;
+
+	// Every 2 12-bit values can be encoded in 3 bytes
+	// xxxxxxxx|xxxxyyyy|yyyyyyy
+
+	unsigned int bytesCounter = *bytesCount;
+	
+	//m_PixelArrayBuffer[0] = noKeyFrameUsed ? (unsigned char)0 : (isKeyFrame ? (unsigned char)1 : (unsigned char)2);
+	//bytesCounter++;
+		
+	int counter = 0;
+	for (int y = 0; y < Height; ++y)
+	{
+		for (int x = 0; x < Width; ++x)
+		{					
+			unsigned short value =  dataPixelsBpp == 12 
+				? (unsigned short)(pixels[x + y * Width] & 0xFFF)
+				: (unsigned short)(pixels[x + y * Width] >> 4);
+				
+			counter++;
+
+			switch (counter % 2)
+			{
+				case 1:
+					m_PixelArrayBuffer[bytesCounter] = (unsigned char)(value >> 4);
+					bytesCounter++;
+					
+					m_PixelArrayBuffer[bytesCounter] = (unsigned char)((value & 0x0F) << 4);
+					break;
+
+				case 0:
+					m_PixelArrayBuffer[bytesCounter] += (unsigned char)(value >> 8);
+					bytesCounter++;
+					m_PixelArrayBuffer[bytesCounter] = (unsigned char)(value & 0xFF);
+					bytesCounter++;
+					break;
+			}
+		}
+	}
+
+	//m_PixelArrayBuffer[bytesCounter] = (unsigned char)(pixelsCRC32 & 0xFF);
+	//m_PixelArrayBuffer[bytesCounter + 1] = (unsigned char)((pixelsCRC32 >> 8) & 0xFF);
+	//m_PixelArrayBuffer[bytesCounter + 2] = (unsigned char)((pixelsCRC32 >> 16) & 0xFF);
+	//m_PixelArrayBuffer[bytesCounter + 3] = (unsigned char)((pixelsCRC32 >> 24) & 0xFF);
+	(*bytesCount) = bytesCounter;
+}
+
+void Adv2ImageLayout::GetDataBytes12Bpp(unsigned short* pixels, enum GetByteMode mode, unsigned int pixelsCRC32, unsigned int *bytesCount, unsigned char dataPixelsBpp)
+{
+	GetDataBytes12BppIndexBytes(pixels, mode, pixelsCRC32, bytesCount, dataPixelsBpp);
+}
+
+void Adv2ImageLayout::GetDataBytes16Bpp(unsigned short* pixels, enum GetByteMode mode, unsigned int pixelsCRC32, unsigned int *bytesCount, unsigned char dataPixelsBpp)
+{
+	/*
+	// Flags: 0 - no key frame used, 1 - key frame follows, 2 - diff corr data follows
+	bool isKeyFrame = mode == KeyFrameBytes;
+	bool noKeyFrameUsed = mode == Normal;
+	bool isDiffCorrFrame = mode == DiffCorrBytes;
+	
+	//int arrayLength = 1 + 4 + 2 * Width * Height + *bytesCount;
+
+	//unsigned char *imageData = (unsigned char*)malloc(arrayLength);
+	
+	int signsBytesCnt = *bytesCount;
+	
+	unsigned int bytesCounter = *bytesCount;
+	
+	m_PixelArrayBuffer[0] = noKeyFrameUsed ? (unsigned char)0 : (isKeyFrame ? (unsigned char)1 : (unsigned char)2);
+	bytesCounter++;
+
+	for (int y = 0; y < Height; ++y)
+	{
+		for (int x = 0; x < Width; ++x)
+		{
+			unsigned char lo = (unsigned char)(pixels[x + y * Width] & 0xFF);
+			unsigned char hi = (unsigned char)(pixels[x + y * Width] >> 8);
+
+			m_PixelArrayBuffer[bytesCounter] = hi;
+			bytesCounter++;
+			m_PixelArrayBuffer[bytesCounter] = lo;
+			bytesCounter++;
+		}
+	}
+
+	m_PixelArrayBuffer[bytesCounter] = (unsigned char)(pixelsCRC32 & 0xFF);
+	m_PixelArrayBuffer[bytesCounter + 1] = (unsigned char)((pixelsCRC32 >> 8) & 0xFF);
+	m_PixelArrayBuffer[bytesCounter + 2] = (unsigned char)((pixelsCRC32 >> 16) & 0xFF);
+	m_PixelArrayBuffer[bytesCounter + 3] = (unsigned char)((pixelsCRC32 >> 24) & 0xFF);
+	*bytesCount = bytesCounter + 4;
+
+	if (isDiffCorrFrame)
+		memcpy(&m_PixelArrayBuffer[1], &m_SignsBuffer[0], signsBytesCnt);
+	*/
 }
 
 }
