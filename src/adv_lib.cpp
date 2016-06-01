@@ -301,7 +301,12 @@ void AdvVer1_EndFrame()
 
 void GetLibraryVersion(char* version)
 {
-	strcpy(version, "2.0d");
+	strcpy(version, CORE_VERSION);
+}
+
+int GetLibraryBitness()
+{
+	return sizeof(long) * 8;
 }
 
 void GetLibraryPlatformId(char* platform)

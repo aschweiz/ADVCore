@@ -11,6 +11,8 @@ extern char* g_CurrentAdvFile;
 extern AdvLib::AdvFile* g_AdvFile;
 extern bool g_FileStarted;
 
+#define CORE_VERSION "2.0d"
+
 #ifdef __cplusplus
 extern "C"
 {
@@ -66,6 +68,7 @@ DLL_PUBLIC void AdvVer2_EndFrame();
 
 DLL_PUBLIC void GetLibraryVersion(char* version);
 DLL_PUBLIC void GetLibraryPlatformId(char* platform);
+DLL_PUBLIC int GetLibraryBitness();
 
 #ifdef __cplusplus
 }
