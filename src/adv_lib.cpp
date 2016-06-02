@@ -119,6 +119,29 @@ int AdvOpenFile(const char* fileName)
 	return 0;
 }
 
+unsigned int AdvCloseFile()
+{
+	unsigned int rv = 0;
+
+	if (NULL != g_AdvFile)
+	{
+		g_AdvFile->CloseFile();
+		delete g_AdvFile;
+		g_AdvFile = NULL;
+		rv += 1;
+	}
+
+	if (NULL != g_Adv2File)
+	{
+		g_Adv2File->CloseFile();
+		delete g_Adv2File;
+		g_Adv2File = NULL;
+		rv += 2;
+	}
+
+	return rv;
+}
+
 void AdvVer1_NewFile(const char* fileName)
 {
 	AdvProfiling_ResetPerformanceCounters();

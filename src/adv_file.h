@@ -50,7 +50,8 @@ namespace AdvLib
 			void EndFile();
 			
 			int LoadFile(const char* fileName);
-			
+			bool CloseFile();
+
 			void AddImageSection(AdvLib::AdvImageSection* section);
 			
 			int AddFileTag(const char* tagName, const char* tagValue);

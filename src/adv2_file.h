@@ -69,6 +69,7 @@ namespace AdvLib2
 			void EndFile();
 			
 			int LoadFile(const char* fileName);
+			bool CloseFile();
 			
 			void AddImageSection(AdvLib2::Adv2ImageSection* section);
 			

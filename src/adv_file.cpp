@@ -156,6 +156,16 @@ int AdvFile::LoadFile(const char* fileName)
 	return 0;
 }
 
+bool AdvFile::CloseFile()
+{
+	if (m_File != 0)
+	{
+		advfclose(m_File);
+		return true;
+	}
+	return false;
+}
+
 void AdvFile::EndFile()
 {
 	__int64 indexTableOffset;

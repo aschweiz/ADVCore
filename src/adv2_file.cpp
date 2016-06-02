@@ -390,6 +390,16 @@ int Adv2File::LoadFile(const char* fileName)
 	return true;
 }
 
+bool Adv2File::CloseFile()
+{
+	if (m_Adv2File != 0)
+	{
+		advfclose(m_Adv2File);
+		return true;
+	}
+	return false;
+}
+
 void Adv2File::SetTimingPrecision(__int64 mainClockFrequency, long mainStreamAccuracy, __int64 calibrationClockFrequency, long calibrationStreamAccuracy)
 {
 	m_MainStreamClockFrequency = mainClockFrequency;
