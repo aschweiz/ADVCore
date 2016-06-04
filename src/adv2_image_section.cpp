@@ -80,7 +80,7 @@ Adv2ImageSection::Adv2ImageSection(FILE* pFile)
 		char layoutId;
 		advfread(&layoutId, 1, 1, pFile);
 
-		Adv2ImageLayout* imageLayout = new AdvLib2::Adv2ImageLayout(layoutId, pFile);
+		Adv2ImageLayout* imageLayout = new AdvLib2::Adv2ImageLayout(this, Width, Height, DataBpp, layoutId, pFile);
 		m_ImageLayouts.insert(make_pair(layoutId, imageLayout));
 	}
 
@@ -188,7 +188,7 @@ unsigned char* Adv2ImageSection::GetDataBytes(unsigned char layoutId, unsigned s
 		if (isKeyFrame)
 		{
 			// this is a key frame
-			mode = KeyFrameBytes;		
+			mode = KeyFrameBytes;
 		}
 		else
 		{

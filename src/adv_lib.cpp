@@ -47,6 +47,8 @@ unsigned int AdvGetFileVersion(const char* fileName)
 
 int AdvOpenFile(const char* fileName)
 {
+	AdvCloseFile();
+
 	FILE* probe = advfopen(fileName, "rb");
 	if (probe == 0) return 0;
 	
@@ -137,6 +139,12 @@ unsigned int AdvCloseFile()
 		delete g_Adv2File;
 		g_Adv2File = NULL;
 		rv += 2;
+	}
+
+	if (NULL != g_CurrentAdvFile)
+	{
+		delete g_CurrentAdvFile;
+		g_CurrentAdvFile = NULL;
 	}
 
 	return rv;

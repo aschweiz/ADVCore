@@ -35,40 +35,7 @@ Adv2File::Adv2File()
 
 Adv2File::~Adv2File()
 {
-	if (NULL != m_Adv2File)
-	{
-		advfclose(m_Adv2File);
-		m_Adv2File = NULL;
-	}
-	
-	if (NULL != ImageSection)
-	{
-		delete ImageSection;
-		ImageSection = NULL;
-	}
-	
-	if (NULL != StatusSection)
-	{
-		delete StatusSection;
-		StatusSection = NULL;
-	}
-	
-	if (NULL != m_Index)
-	{
-		delete m_Index;
-		m_Index = NULL;
-	}
-	
-	if (NULL != m_FrameBytes)
-	{
-		delete m_FrameBytes;
-		m_FrameBytes = NULL;
-	}
-
-	m_UserMetadataTags.clear();
-	m_FileTags.clear();
-	m_MainStreamTags.clear();
-	m_CalibrationStreamTags.clear();
+	CloseFile();
 }
 
 unsigned char CURRENT_DATAFORMAT_VERSION = 2;
@@ -392,12 +359,44 @@ int Adv2File::LoadFile(const char* fileName)
 
 bool Adv2File::CloseFile()
 {
-	if (m_Adv2File != 0)
+	bool fileClosed = false;
+	if (NULL != m_Adv2File)
 	{
 		advfclose(m_Adv2File);
-		return true;
+		m_Adv2File = NULL;
+		fileClosed = true;
 	}
-	return false;
+	
+	if (NULL != ImageSection)
+	{
+		delete ImageSection;
+		ImageSection = NULL;
+	}
+	
+	if (NULL != StatusSection)
+	{
+		delete StatusSection;
+		StatusSection = NULL;
+	}
+	
+	if (NULL != m_Index)
+	{
+		delete m_Index;
+		m_Index = NULL;
+	}
+	
+	if (NULL != m_FrameBytes)
+	{
+		delete m_FrameBytes;
+		m_FrameBytes = NULL;
+	}
+
+	m_UserMetadataTags.clear();
+	m_FileTags.clear();
+	m_MainStreamTags.clear();
+	m_CalibrationStreamTags.clear();
+
+	return fileClosed;
 }
 
 void Adv2File::SetTimingPrecision(__int64 mainClockFrequency, long mainStreamAccuracy, __int64 calibrationClockFrequency, long calibrationStreamAccuracy)

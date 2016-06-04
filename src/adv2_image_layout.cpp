@@ -33,16 +33,58 @@ Adv2ImageLayout::Adv2ImageLayout(Adv2ImageSection* imageSection, unsigned int wi
 	{
 		char keyFrameStr [5];
 		snprintf(keyFrameStr, 5, "%d", keyFrame);
-		AddOrUpdateTag("DIFFCODE-KEY-FRAME-FREQUENCY", keyFrameStr);		
-		AddOrUpdateTag("DIFFCODE-BASE-FRAME", "KEY-FRAME");		
+		AddOrUpdateTag("DIFFCODE-KEY-FRAME-FREQUENCY", keyFrameStr);
+		AddOrUpdateTag("DIFFCODE-BASE-FRAME", "KEY-FRAME");
 	}
 
 	InitialiseBuffers();
 }
 
-Adv2ImageLayout::Adv2ImageLayout(char layoutId, FILE* pFile)
+Adv2ImageLayout::Adv2ImageLayout(Adv2ImageSection* imageSection, unsigned int width, unsigned int height, char layoutId, unsigned char dataBpp, FILE* pFile)
 {
-	// TODO:
+	m_ImageSection = imageSection;
+	LayoutId = layoutId;
+	Width = width;
+	Height = height;
+	DataBpp = dataBpp;
+
+	m_PrevFramePixels = NULL;
+	m_PrevFramePixelsTemp = NULL;
+	m_PixelArrayBuffer = NULL;
+	m_SignsBuffer = NULL;
+	m_CompressedPixels = NULL;
+	m_StateCompress = NULL;
+	m_Lagarith16Compressor = NULL;
+
+	m_UsesCompression = false;
+	m_UsesLagarith16Compression = false;
+
+	unsigned char version;
+	advfread(&version, 1, 1, pFile); /* Version */
+
+	advfread(&Bpp, 1, 1, pFile);
+
+	unsigned char tagsCount;
+	advfread(&tagsCount, 1, 1, pFile);
+
+	for (int i = 0; i < tagsCount; i++)
+	{
+		char* tagName = ReadUTF8String(pFile);
+		char* tagValue = ReadUTF8String(pFile);
+
+		m_LayoutTags.insert(make_pair(tagName, tagValue));
+
+		if (strcmp("SECTION-DATA-COMPRESSION", tagName) == 0)
+		{
+			Compression = new char[strlen(tagValue) + 1];
+			strcpy(const_cast<char*>(Compression), tagValue);
+
+			m_UsesCompression = 0 != strcmp(Compression, "UNCOMPRESSED");
+			m_UsesLagarith16Compression = 0 != strcmp(Compression, "LAGARITH16");
+		}
+	}
+
+	InitialiseBuffers();
 }
 
 void Adv2ImageLayout::InitialiseBuffers()
@@ -56,7 +98,6 @@ void Adv2ImageLayout::InitialiseBuffers()
 	SIGNS_MASK[5] = 0x20;
 	SIGNS_MASK[6] = 0x40;
 	SIGNS_MASK[7] = 0x80;
-	
 	
 	int signsBytesCount = (unsigned int)ceil(Width * Height / 8.0);
 	
@@ -81,48 +122,60 @@ void Adv2ImageLayout::InitialiseBuffers()
 	m_MaxSignsBytesCount = (unsigned int)ceil(Width * Height / 8.0);
 
 	if (Bpp == 8)
-		m_MaxPixelArrayLengthWithoutSigns = 1 + 4 + Width * Height;	
+		m_MaxPixelArrayLengthWithoutSigns = 1 + 4 + Width * Height;
 	else if (Bpp == 12)
 		m_MaxPixelArrayLengthWithoutSigns = 1 + 4 + 3 * (Width * Height) / 2 + 2 * ((Width * Height) % 2);	
 	else if (Bpp == 16)
-		m_MaxPixelArrayLengthWithoutSigns = 1 + 4 + 2 * Width * Height;	
+		m_MaxPixelArrayLengthWithoutSigns = 1 + 4 + 2 * Width * Height;
 	else
-		m_MaxPixelArrayLengthWithoutSigns = 1 + 4 + 4 * Width * Height;	
+		m_MaxPixelArrayLengthWithoutSigns = 1 + 4 + 4 * Width * Height;
 		
-	m_MaxPixelArrayLengthWithoutSigns = 1 + 4 + 4 * Width * Height;	
+	m_MaxPixelArrayLengthWithoutSigns = 1 + 4 + 4 * Width * Height;
 	m_KeyFrameBytesCount = Width * Height * sizeof(unsigned short);
 	
 	m_PrevFramePixels = NULL;
 	m_PrevFramePixelsTemp = NULL;
 	m_PixelArrayBuffer = NULL;
 	m_SignsBuffer = NULL;
-	m_CompressedPixels = NULL;	
+	m_CompressedPixels = NULL;
 	m_StateCompress = NULL;
-	
+	m_Lagarith16Compressor = NULL;
+
 	m_PixelArrayBuffer = (unsigned char*)malloc(m_MaxPixelArrayLengthWithoutSigns + m_MaxSignsBytesCount);
-	m_PrevFramePixels = (unsigned short*)malloc(m_KeyFrameBytesCount);		
+	m_PrevFramePixels = (unsigned short*)malloc(m_KeyFrameBytesCount);
 	memset(m_PrevFramePixels, 0, m_KeyFrameBytesCount);
 	
-	m_PrevFramePixelsTemp = (unsigned short*)malloc(m_KeyFrameBytesCount);	
+	m_PrevFramePixelsTemp = (unsigned short*)malloc(m_KeyFrameBytesCount);
 	m_SignsBuffer = (unsigned char*)malloc(m_MaxSignsBytesCount);
 	m_CompressedPixels = (char*)malloc(MaxFrameBufferSize);
-	
-	m_StateCompress = (qlz_state_compress *)malloc(sizeof(qlz_state_compress));
-	m_Lagarith16Compressor = new Compressor(Width, Height);
+
+	if (m_UsesCompression)
+	{
+		m_StateCompress = (qlz_state_compress *)malloc(sizeof(qlz_state_compress));
+
+		if (m_UsesLagarith16Compression)
+			m_Lagarith16Compressor = new Compressor(Width, Height);
+	}
 }
 
 Adv2ImageLayout::~Adv2ImageLayout()
 {
 	ResetBuffers();
+
+	if (NULL != Compression)
+	{
+		delete Compression;
+		Compression = NULL;
+	}
 }
 
 void Adv2ImageLayout::ResetBuffers()
 {
 	if (NULL != m_PrevFramePixels)
-		delete m_PrevFramePixels;		
+		delete m_PrevFramePixels;
 
 	if (NULL != m_PrevFramePixelsTemp)
-		delete m_PrevFramePixelsTemp;		
+		delete m_PrevFramePixelsTemp;
 
 	if (NULL != m_PixelArrayBuffer)
 		delete m_PixelArrayBuffer;
@@ -134,7 +187,7 @@ void Adv2ImageLayout::ResetBuffers()
 		delete m_CompressedPixels;
 	
 	if (NULL != m_StateCompress)
-		delete m_StateCompress;	
+		delete m_StateCompress;
 
 	if (NULL != m_Lagarith16Compressor)
 		delete m_Lagarith16Compressor;
@@ -143,7 +196,7 @@ void Adv2ImageLayout::ResetBuffers()
 	m_PrevFramePixelsTemp = NULL;
 	m_PixelArrayBuffer = NULL;
 	m_SignsBuffer = NULL;
-	m_CompressedPixels = NULL;	
+	m_CompressedPixels = NULL;
 	m_StateCompress = NULL;
 	m_Lagarith16Compressor = NULL;
 }
@@ -204,9 +257,8 @@ void Adv2ImageLayout::WriteHeader(FILE* pFile)
 	buffChar = 2;
 	advfwrite(&buffChar, 1, 1, pFile); /* Version */
 
-	advfwrite(&Bpp, 1, 1, pFile);	
+	advfwrite(&Bpp, 1, 1, pFile);
 
-	
 	buffChar = (unsigned char)m_LayoutTags.size();
 	advfwrite(&buffChar, 1, 1, pFile);
 	
@@ -220,7 +272,7 @@ void Adv2ImageLayout::WriteHeader(FILE* pFile)
 		WriteUTF8String(pFile, tagValue);
 		
 		curr++;
-	}		
+	}
 }
 
 void Adv2ImageLayout::StartNewDiffCorrSequence()
