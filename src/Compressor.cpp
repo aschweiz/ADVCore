@@ -193,7 +193,7 @@ int Compressor::DecompressData(void * compressed,unsigned short * uncompressed){
 	int compressed_size = LoadDecompressionTable(compressed);
 	if ( compressed_size > 0 ){
 		if ( table_entries > 1 ){
-			compressed_size += RangeDecompress(((unsigned char*)compressed)+compressed_size,uncompressed,width*height,decoder_table,NULL);
+			compressed_size += RangeDecompress(((unsigned char*)compressed)+compressed_size,uncompressed,width*height,decoder_table, nullptr);
 		} else {
 			const int v = decoder_table[0].decoded_value;
 			for ( int a=0;a<width*height;a++){

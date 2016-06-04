@@ -75,11 +75,11 @@ AdvImageLayout::AdvImageLayout(unsigned int width, unsigned int height, unsigned
 	m_MaxPixelArrayLengthWithoutSigns = 1 + 4 + 4 * Width * Height;	
 	m_KeyFrameBytesCount = Width * Height * sizeof(unsigned short);
 	
-	m_PrevFramePixels = NULL;
-	m_PrevFramePixelsTemp = NULL;
-	m_PixelArrayBuffer = NULL;
-	m_CompressedPixels = NULL;	
-	m_StateCompress = NULL;
+	m_PrevFramePixels = nullptr;
+	m_PrevFramePixelsTemp = nullptr;
+	m_PixelArrayBuffer = nullptr;
+	m_CompressedPixels = nullptr;	
+	m_StateCompress = nullptr;
 	
 	m_PixelArrayBuffer = (unsigned char*)malloc(m_MaxPixelArrayLengthWithoutSigns + m_MaxSignsBytesCount);
 	m_PrevFramePixels = (unsigned short*)malloc(m_KeyFrameBytesCount);		
@@ -98,26 +98,26 @@ AdvImageLayout::~AdvImageLayout()
 
 void AdvImageLayout::ResetBuffers()
 {
-	if (NULL != m_PrevFramePixels)
+	if (nullptr != m_PrevFramePixels)
 		delete m_PrevFramePixels;		
 
-	if (NULL != m_PrevFramePixelsTemp)
+	if (nullptr != m_PrevFramePixelsTemp)
 		delete m_PrevFramePixelsTemp;		
 
-	if (NULL != m_PixelArrayBuffer)
+	if (nullptr != m_PixelArrayBuffer)
 		delete m_PixelArrayBuffer;
 
-	if (NULL != m_CompressedPixels)
+	if (nullptr != m_CompressedPixels)
 		delete m_CompressedPixels;
 	
-	if (NULL != m_StateCompress)
+	if (nullptr != m_StateCompress)
 		delete m_StateCompress;	
 	
-	m_PrevFramePixels = NULL;
-	m_PrevFramePixelsTemp = NULL;
-	m_PixelArrayBuffer = NULL;
-	m_CompressedPixels = NULL;	
-	m_StateCompress = NULL;
+	m_PrevFramePixels = nullptr;
+	m_PrevFramePixelsTemp = nullptr;
+	m_PixelArrayBuffer = nullptr;
+	m_CompressedPixels = nullptr;	
+	m_StateCompress = nullptr;
 }
 
 
@@ -329,7 +329,7 @@ unsigned char* AdvImageLayout::GetDataBytes(unsigned short* currFramePixels, enu
 	}
 	
 		
-	return NULL;
+	return nullptr;
 }
 
 unsigned char* AdvImageLayout::GetFullImageRawDataBytes(unsigned short* currFramePixels, unsigned int *bytesCount, unsigned char dataPixelsBpp)
@@ -346,7 +346,8 @@ unsigned char* AdvImageLayout::GetFullImageRawDataBytes(unsigned short* currFram
 		memcpy(&m_PixelArrayBuffer[0], &currFramePixels[0], buffLen);
 	}
 	else
-		throw new exception("12Bpp not supported in Raw layout");
+		// "12Bpp not supported in Raw layout"
+		throw new exception();
 	
 	*bytesCount = buffLen;
 	return m_PixelArrayBuffer;
@@ -432,7 +433,7 @@ unsigned char* AdvImageLayout::GetFullImageDiffCorrWithSignsDataBytes(unsigned s
 	else
 	{
 		*bytesCount = 0;
-		return NULL;
+		return nullptr;
 	}
 }
 

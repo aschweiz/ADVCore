@@ -25,39 +25,39 @@ AdvFile::AdvFile()
 	
 	crc32_init();	
 	
-	m_FrameBytes = NULL;
+	m_FrameBytes = nullptr;
 }
 
 AdvFile::~AdvFile()
 {
-	if (NULL != m_File)
+	if (nullptr != m_File)
 	{
 		advfclose(m_File);
-		m_File = NULL;
+		m_File = nullptr;
 	}
 	
-	if (NULL != ImageSection)
+	if (nullptr != ImageSection)
 	{
 		delete ImageSection;
-		ImageSection = NULL;
+		ImageSection = nullptr;
 	}
 	
-	if (NULL != StatusSection)
+	if (nullptr != StatusSection)
 	{
 		delete StatusSection;
-		StatusSection = NULL;
+		StatusSection = nullptr;
 	}
 	
-	if (NULL != m_Index)
+	if (nullptr != m_Index)
 	{
 		delete m_Index;
-		m_Index = NULL;
+		m_Index = nullptr;
 	}
 	
-	if (NULL != m_FrameBytes)
+	if (nullptr != m_FrameBytes)
 	{
 		delete m_FrameBytes;
-		m_FrameBytes = NULL;
+		m_FrameBytes = nullptr;
 	}
 
 	m_UserMetadataTags.clear();
@@ -204,7 +204,7 @@ void AdvFile::EndFile()
 	advfflush(m_File);
 	advfclose(m_File);	
 	
-	m_File = NULL;
+	m_File = nullptr;
 }
 
 void AdvFile::AddImageSection(AdvLib::AdvImageSection* section)
@@ -224,14 +224,14 @@ void AdvFile::AddImageSection(AdvLib::AdvImageSection* section)
 
 int AdvFile::AddFileTag(const char* tagName, const char* tagValue)
 {	
-	m_FileTags.insert((make_pair(string(tagName == NULL ? "" : tagName), string(tagValue == NULL ? "" : tagValue))));
+	m_FileTags.insert((make_pair(string(tagName == nullptr ? "" : tagName), string(tagValue == nullptr ? "" : tagValue))));
 	
 	return m_FileTags.size();	
 }
 
 int AdvFile::AddUserTag(const char* tagName, const char* tagValue)
 {
-	m_UserMetadataTags.insert((make_pair(string(tagName == NULL ? "" : tagName), string(tagValue == NULL ? "" : tagValue))));
+	m_UserMetadataTags.insert((make_pair(string(tagName == nullptr ? "" : tagName), string(tagValue == nullptr ? "" : tagValue))));
 	
 	return m_UserMetadataTags.size();	
 }
@@ -246,7 +246,7 @@ void AdvFile::BeginFrame(long long timeStamp, unsigned int elapsedTime, unsigned
 	
 	m_ElapedTime = elapsedTime;
 		
-	if (m_FrameBytes == NULL)
+	if (m_FrameBytes == nullptr)
 	{
 		int maxUncompressedBufferSize = 
 			4 + // frame start magic

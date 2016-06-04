@@ -76,7 +76,7 @@ void AdvStatusSection::BeginFrame()
 void AdvStatusSection::AddFrameStatusTag(unsigned int tagIndex, const char* tagValue)
 {
 	// TODO: Do a check of the max length of a string (255) and copy only the first 255 chars	
-	m_FrameStatusTags.insert(make_pair(tagIndex, string(tagValue == NULL ? "" : tagValue)));
+	m_FrameStatusTags.insert(make_pair(tagIndex, string(tagValue == nullptr ? "" : tagValue)));
 }
 
 void AdvStatusSection::AddFrameStatusTagMessage(unsigned int tagIndex, const char* tagValue)
@@ -86,7 +86,7 @@ void AdvStatusSection::AddFrameStatusTagMessage(unsigned int tagIndex, const cha
 	if (messageList.size() == 16) messageList.pop_front();
 	
 	// TODO: Do a check of the max length of a string (255) and copy only the first 255 chars
-	messageList.push_back(string(tagValue == NULL ? "" : tagValue));
+	messageList.push_back(string(tagValue == nullptr ? "" : tagValue));
 	
 	m_FrameStatusTagsMessages[tagIndex] = messageList;
 }

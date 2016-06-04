@@ -25,9 +25,9 @@ Adv2File::Adv2File()
 
 	crc32_init();
 	
-	m_FrameBytes = NULL;
-	ImageSection = NULL;
-	m_Index = NULL;
+	m_FrameBytes = nullptr;
+	ImageSection = nullptr;
+	m_Index = nullptr;
 
 	m_NumberOfMainFrames = 0;
 	m_NumberOfCalibrationFrames = 0;
@@ -360,35 +360,35 @@ int Adv2File::LoadFile(const char* fileName)
 bool Adv2File::CloseFile()
 {
 	bool fileClosed = false;
-	if (NULL != m_Adv2File)
+	if (nullptr != m_Adv2File)
 	{
 		advfclose(m_Adv2File);
-		m_Adv2File = NULL;
+		m_Adv2File = nullptr;
 		fileClosed = true;
 	}
 	
-	if (NULL != ImageSection)
+	if (nullptr != ImageSection)
 	{
 		delete ImageSection;
-		ImageSection = NULL;
+		ImageSection = nullptr;
 	}
 	
-	if (NULL != StatusSection)
+	if (nullptr != StatusSection)
 	{
 		delete StatusSection;
-		StatusSection = NULL;
+		StatusSection = nullptr;
 	}
 	
-	if (NULL != m_Index)
+	if (nullptr != m_Index)
 	{
 		delete m_Index;
-		m_Index = NULL;
+		m_Index = nullptr;
 	}
 	
-	if (NULL != m_FrameBytes)
+	if (nullptr != m_FrameBytes)
 	{
 		delete m_FrameBytes;
-		m_FrameBytes = NULL;
+		m_FrameBytes = nullptr;
 	}
 
 	m_UserMetadataTags.clear();
@@ -450,7 +450,7 @@ void Adv2File::EndFile()
 	advfflush(m_Adv2File);
 	advfclose(m_Adv2File);	
 	
-	m_Adv2File = NULL;
+	m_Adv2File = nullptr;
 }
 
 void Adv2File::AddImageSection(AdvLib2::Adv2ImageSection* section)
@@ -470,28 +470,28 @@ void Adv2File::AddImageSection(AdvLib2::Adv2ImageSection* section)
 
 int Adv2File::AddMainStreamTag(const char* tagName, const char* tagValue)
 {
-	m_MainStreamTags.insert((make_pair(string(tagName == NULL ? "" : tagName), string(tagValue == NULL ? "" : tagValue))));
+	m_MainStreamTags.insert((make_pair(string(tagName == nullptr ? "" : tagName), string(tagValue == nullptr ? "" : tagValue))));
 	
 	return m_MainStreamTags.size();
 }
 
 int Adv2File::AddCalibrationStreamTag(const char* tagName, const char* tagValue)
 {
-	m_CalibrationStreamTags.insert((make_pair(string(tagName == NULL ? "" : tagName), string(tagValue == NULL ? "" : tagValue))));
+	m_CalibrationStreamTags.insert((make_pair(string(tagName == nullptr ? "" : tagName), string(tagValue == nullptr ? "" : tagValue))));
 	
 	return m_CalibrationStreamTags.size();
 }
 
 int Adv2File::AddFileTag(const char* tagName, const char* tagValue)
 {	
-	m_FileTags.insert((make_pair(string(tagName == NULL ? "" : tagName), string(tagValue == NULL ? "" : tagValue))));
+	m_FileTags.insert((make_pair(string(tagName == nullptr ? "" : tagName), string(tagValue == nullptr ? "" : tagValue))));
 	
 	return m_FileTags.size();
 }
 
 int Adv2File::AddUserTag(const char* tagName, const char* tagValue)
 {
-	m_UserMetadataTags.insert((make_pair(string(tagName == NULL ? "" : tagName), string(tagValue == NULL ? "" : tagValue))));
+	m_UserMetadataTags.insert((make_pair(string(tagName == nullptr ? "" : tagName), string(tagValue == nullptr ? "" : tagValue))));
 	
 	return m_UserMetadataTags.size();	
 }
@@ -507,7 +507,7 @@ void Adv2File::BeginFrame(unsigned char streamId, __int64 startFrameTicks, __int
 
 	m_CurrentFrameElapsedTicks = elapsedTicksSinceFirstFrame;
 		
-	if (m_FrameBytes == NULL)
+	if (m_FrameBytes == nullptr)
 	{
 		int maxUncompressedBufferSize = 
 			4 + // frame start magic

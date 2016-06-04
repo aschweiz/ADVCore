@@ -18,7 +18,7 @@ Adv2ImageLayout::Adv2ImageLayout(Adv2ImageSection* imageSection, unsigned int wi
 	LayoutId = layoutId;
 	Width = width;
 	Height = height;
-	Compression = NULL;
+	Compression = nullptr;
 	DataBpp = dataBpp;
 
 	AddOrUpdateTag("DATA-LAYOUT", layoutType);
@@ -48,13 +48,13 @@ Adv2ImageLayout::Adv2ImageLayout(Adv2ImageSection* imageSection, unsigned int wi
 	Height = height;
 	DataBpp = dataBpp;
 
-	m_PrevFramePixels = NULL;
-	m_PrevFramePixelsTemp = NULL;
-	m_PixelArrayBuffer = NULL;
-	m_SignsBuffer = NULL;
-	m_CompressedPixels = NULL;
-	m_StateCompress = NULL;
-	m_Lagarith16Compressor = NULL;
+	m_PrevFramePixels = nullptr;
+	m_PrevFramePixelsTemp = nullptr;
+	m_PixelArrayBuffer = nullptr;
+	m_SignsBuffer = nullptr;
+	m_CompressedPixels = nullptr;
+	m_StateCompress = nullptr;
+	m_Lagarith16Compressor = nullptr;
 
 	m_UsesCompression = false;
 	m_UsesLagarith16Compression = false;
@@ -133,13 +133,13 @@ void Adv2ImageLayout::InitialiseBuffers()
 	m_MaxPixelArrayLengthWithoutSigns = 1 + 4 + 4 * Width * Height;
 	m_KeyFrameBytesCount = Width * Height * sizeof(unsigned short);
 	
-	m_PrevFramePixels = NULL;
-	m_PrevFramePixelsTemp = NULL;
-	m_PixelArrayBuffer = NULL;
-	m_SignsBuffer = NULL;
-	m_CompressedPixels = NULL;
-	m_StateCompress = NULL;
-	m_Lagarith16Compressor = NULL;
+	m_PrevFramePixels = nullptr;
+	m_PrevFramePixelsTemp = nullptr;
+	m_PixelArrayBuffer = nullptr;
+	m_SignsBuffer = nullptr;
+	m_CompressedPixels = nullptr;
+	m_StateCompress = nullptr;
+	m_Lagarith16Compressor = nullptr;
 
 	m_PixelArrayBuffer = (unsigned char*)malloc(m_MaxPixelArrayLengthWithoutSigns + m_MaxSignsBytesCount);
 	m_PrevFramePixels = (unsigned short*)malloc(m_KeyFrameBytesCount);
@@ -162,43 +162,43 @@ Adv2ImageLayout::~Adv2ImageLayout()
 {
 	ResetBuffers();
 
-	if (NULL != Compression)
+	if (nullptr != Compression)
 	{
 		delete Compression;
-		Compression = NULL;
+		Compression = nullptr;
 	}
 }
 
 void Adv2ImageLayout::ResetBuffers()
 {
-	if (NULL != m_PrevFramePixels)
+	if (nullptr != m_PrevFramePixels)
 		delete m_PrevFramePixels;
 
-	if (NULL != m_PrevFramePixelsTemp)
+	if (nullptr != m_PrevFramePixelsTemp)
 		delete m_PrevFramePixelsTemp;
 
-	if (NULL != m_PixelArrayBuffer)
+	if (nullptr != m_PixelArrayBuffer)
 		delete m_PixelArrayBuffer;
 
-	if (NULL != m_SignsBuffer)
+	if (nullptr != m_SignsBuffer)
 		delete m_SignsBuffer;
 
-	if (NULL != m_CompressedPixels)
+	if (nullptr != m_CompressedPixels)
 		delete m_CompressedPixels;
 	
-	if (NULL != m_StateCompress)
+	if (nullptr != m_StateCompress)
 		delete m_StateCompress;
 
-	if (NULL != m_Lagarith16Compressor)
+	if (nullptr != m_Lagarith16Compressor)
 		delete m_Lagarith16Compressor;
 		
-	m_PrevFramePixels = NULL;
-	m_PrevFramePixelsTemp = NULL;
-	m_PixelArrayBuffer = NULL;
-	m_SignsBuffer = NULL;
-	m_CompressedPixels = NULL;
-	m_StateCompress = NULL;
-	m_Lagarith16Compressor = NULL;
+	m_PrevFramePixels = nullptr;
+	m_PrevFramePixelsTemp = nullptr;
+	m_PixelArrayBuffer = nullptr;
+	m_SignsBuffer = nullptr;
+	m_CompressedPixels = nullptr;
+	m_StateCompress = nullptr;
+	m_Lagarith16Compressor = nullptr;
 }
 
 
@@ -218,7 +218,7 @@ void Adv2ImageLayout::AddOrUpdateTag(const char* tagName, const char* tagValue)
 		curr++;
 	}
 	
-	m_LayoutTags.insert(make_pair(string(tagName), string(tagValue == NULL ? "" : tagValue)));
+	m_LayoutTags.insert(make_pair(string(tagName), string(tagValue == nullptr ? "" : tagValue)));
 
 	if (0 == strcmp("DIFFCODE-BASE-FRAME", tagName))
 	{
@@ -241,7 +241,7 @@ void Adv2ImageLayout::AddOrUpdateTag(const char* tagName, const char* tagValue)
 
 	if (0 == strcmp("SECTION-DATA-COMPRESSION", tagName))
 	{
-		if (Compression == NULL) delete Compression;
+		if (Compression == nullptr) delete Compression;
 
 		Compression = new char[strlen(tagValue) + 1];
 		strcpy(const_cast<char*>(Compression), tagValue);
@@ -315,7 +315,7 @@ unsigned char* Adv2ImageLayout::GetDataBytes(unsigned short* currFramePixels, en
 	}
 	
 		
-	return NULL;
+	return nullptr;
 }
 
 
@@ -386,7 +386,7 @@ unsigned char* Adv2ImageLayout::GetFullImageDiffCorrWithSignsDataBytes(unsigned 
 	else
 	{
 		*bytesCount = 0;
-		return NULL;
+		return nullptr;
 	}
 }
 
@@ -404,7 +404,8 @@ unsigned char* Adv2ImageLayout::GetFullImageRawDataBytes(unsigned short* currFra
 		memcpy(&m_PixelArrayBuffer[0], &currFramePixels[0], buffLen);
 	}
 	else
-		throw new exception("12Bpp not supported in Raw layout");
+		// "12Bpp not supported in Raw layout"
+		throw new exception();
 	
 	*bytesCount = buffLen;
 	return m_PixelArrayBuffer;

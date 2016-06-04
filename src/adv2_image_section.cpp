@@ -60,7 +60,7 @@ void Adv2ImageSection::AddOrUpdateTag(const char* tagName, const char* tagValue)
 		curr++;
 	}
 	
-	m_ImageTags.insert(make_pair(string(tagName), string(tagValue == NULL ? "" : tagValue)));
+	m_ImageTags.insert(make_pair(string(tagName), string(tagValue == nullptr ? "" : tagValue)));
 }
 
 Adv2ImageSection::Adv2ImageSection(FILE* pFile)
@@ -219,7 +219,7 @@ AdvLib2::Adv2ImageLayout* Adv2ImageSection::GetImageLayoutById(unsigned char lay
 		curr++;
 	}
 	
-	return NULL;
+	return nullptr;
 }
 
 

@@ -63,10 +63,10 @@ int AdvOpenFile(const char* fileName)
 	
 	if (buffChar == 1)
 	{
-		if (NULL != g_AdvFile)
+		if (nullptr != g_AdvFile)
 		{
 			delete g_AdvFile;
-			g_AdvFile = NULL;
+			g_AdvFile = nullptr;
 		}
 		
 		g_FileStarted = false;
@@ -82,7 +82,7 @@ int AdvOpenFile(const char* fileName)
 			if (res < 0)
 			{
 				delete g_AdvFile;
-				g_AdvFile = NULL;
+				g_AdvFile = nullptr;
 				return res;
 			}
 		}
@@ -91,10 +91,10 @@ int AdvOpenFile(const char* fileName)
 	}
 	else if (buffChar == 2)
 	{
-		if (NULL != g_Adv2File)
+		if (nullptr != g_Adv2File)
 		{
 			delete g_Adv2File;
-			g_Adv2File = NULL;
+			g_Adv2File = nullptr;
 		}
 		
 		g_FileStarted = false;
@@ -110,7 +110,7 @@ int AdvOpenFile(const char* fileName)
 			if (res < 0)
 			{
 				delete g_Adv2File;
-				g_Adv2File = NULL;
+				g_Adv2File = nullptr;
 				return res;
 			}
 		}
@@ -125,26 +125,26 @@ unsigned int AdvCloseFile()
 {
 	unsigned int rv = 0;
 
-	if (NULL != g_AdvFile)
+	if (nullptr != g_AdvFile)
 	{
 		g_AdvFile->CloseFile();
 		delete g_AdvFile;
-		g_AdvFile = NULL;
+		g_AdvFile = nullptr;
 		rv += 1;
 	}
 
-	if (NULL != g_Adv2File)
+	if (nullptr != g_Adv2File)
 	{
 		g_Adv2File->CloseFile();
 		delete g_Adv2File;
-		g_Adv2File = NULL;
+		g_Adv2File = nullptr;
 		rv += 2;
 	}
 
-	if (NULL != g_CurrentAdvFile)
+	if (nullptr != g_CurrentAdvFile)
 	{
 		delete g_CurrentAdvFile;
-		g_CurrentAdvFile = NULL;
+		g_CurrentAdvFile = nullptr;
 	}
 
 	return rv;
@@ -155,16 +155,16 @@ void AdvVer1_NewFile(const char* fileName)
 	AdvProfiling_ResetPerformanceCounters();
 	AdvProfiling_StartProcessing();
 	
-    if (NULL != g_AdvFile)
+    if (nullptr != g_AdvFile)
 	{
 		delete g_AdvFile;
-		g_AdvFile = NULL;		
+		g_AdvFile = nullptr;		
 	}
 	
-	if (NULL != g_CurrentAdvFile)
+	if (nullptr != g_CurrentAdvFile)
 	{
 		delete g_CurrentAdvFile;
-		g_CurrentAdvFile = NULL;
+		g_CurrentAdvFile = nullptr;
 	}
 	
 	g_FileStarted = false;
@@ -182,18 +182,18 @@ void AdvVer1_NewFile(const char* fileName)
 
 void AdvVer1_EndFile()
 {
-	if (NULL != g_AdvFile)
+	if (nullptr != g_AdvFile)
 	{
 		g_AdvFile->EndFile();
 		
 		delete g_AdvFile;
-		g_AdvFile = NULL;		
+		g_AdvFile = nullptr;		
 	}
 	
-	if (NULL != g_CurrentAdvFile)
+	if (nullptr != g_CurrentAdvFile)
 	{
 		delete g_CurrentAdvFile;
-		g_CurrentAdvFile = NULL;
+		g_CurrentAdvFile = nullptr;
 	}
 	
 	g_FileStarted = false;
@@ -211,7 +211,7 @@ void AdvVer1_DefineImageLayout(unsigned char layoutId, const char* layoutType, c
 {	
 	AdvProfiling_StartProcessing();
 	AdvLib::AdvImageLayout* imageLayout = g_AdvFile->ImageSection->AddImageLayout(layoutId, layoutType, compression, bpp, keyFrame);
-	if (diffCorrFromBaseFrame != NULL)
+	if (diffCorrFromBaseFrame != nullptr)
 		imageLayout->AddOrUpdateTag("DIFFCODE-BASE-FRAME", diffCorrFromBaseFrame);
 		
 	AdvProfiling_EndProcessing();
@@ -370,16 +370,16 @@ void AdvVer2_NewFile(const char* fileName)
 	AdvProfiling_ResetPerformanceCounters();
 	AdvProfiling_StartProcessing();
 	
-    if (NULL != g_Adv2File)
+    if (nullptr != g_Adv2File)
 	{
 		delete g_Adv2File;
-		g_Adv2File = NULL;
+		g_Adv2File = nullptr;
 	}
 	
-	if (NULL != g_CurrentAdvFile)
+	if (nullptr != g_CurrentAdvFile)
 	{
 		delete g_CurrentAdvFile;
-		g_CurrentAdvFile = NULL;
+		g_CurrentAdvFile = nullptr;
 	}
 	
 	g_FileStarted = false;
@@ -397,7 +397,7 @@ void AdvVer2_NewFile(const char* fileName)
 
 void AdvVer2_SetTimingPrecision(__int64 mainClockFrequency, long mainStreamAccuracy, __int64 calibrationClockFrequency, long calibrationStreamAccuracy)
 {
-	if (NULL != g_Adv2File)
+	if (nullptr != g_Adv2File)
 	{
 		g_Adv2File->SetTimingPrecision(mainClockFrequency, mainStreamAccuracy, calibrationClockFrequency, calibrationStreamAccuracy);
 	}
@@ -405,18 +405,18 @@ void AdvVer2_SetTimingPrecision(__int64 mainClockFrequency, long mainStreamAccur
 
 void AdvVer2_EndFile()
 {
-	if (NULL != g_Adv2File)
+	if (nullptr != g_Adv2File)
 	{
 		g_Adv2File->EndFile();
 		
 		delete g_Adv2File;
-		g_Adv2File = NULL;
+		g_Adv2File = nullptr;
 	}
 	
-	if (NULL != g_CurrentAdvFile)
+	if (nullptr != g_CurrentAdvFile)
 	{
 		delete g_CurrentAdvFile;
-		g_CurrentAdvFile = NULL;
+		g_CurrentAdvFile = nullptr;
 	}
 	
 	g_FileStarted = false;
@@ -481,7 +481,7 @@ void AdvVer2_DefineImageLayout(unsigned char layoutId, const char* layoutType, c
 {
 	AdvProfiling_StartProcessing();
 	AdvLib2::Adv2ImageLayout* imageLayout = g_Adv2File->ImageSection->AddImageLayout(layoutId, layoutType, compression, layoutBpp, keyFrame);
-	if (diffCorrFromBaseFrame != NULL)
+	if (diffCorrFromBaseFrame != nullptr)
 		imageLayout->AddOrUpdateTag("DIFFCODE-BASE-FRAME", diffCorrFromBaseFrame);
 		
 	AdvProfiling_EndProcessing();

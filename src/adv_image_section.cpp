@@ -88,7 +88,7 @@ void AdvImageSection::AddOrUpdateTag(const char* tagName, const char* tagValue)
 		curr++;
 	}
 	
-	m_ImageTags.insert(make_pair(string(tagName), string(tagValue == NULL ? "" : tagValue)));
+	m_ImageTags.insert(make_pair(string(tagName), string(tagValue == nullptr ? "" : tagValue)));
 }
 
 void AdvImageSection::BeginFrame()
@@ -109,7 +109,7 @@ AdvImageLayout* AdvImageSection::GetImageLayoutById(unsigned char layoutId)
 		curr++;
 	}
 	
-	return NULL;
+	return nullptr;
 }
 
 unsigned char* AdvImageSection::GetDataBytes(unsigned char layoutId, unsigned short* currFramePixels, unsigned int *bytesCount, char* byteMode, unsigned char pixelsBpp)

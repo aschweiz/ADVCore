@@ -77,7 +77,7 @@ void Adv2StatusSection::BeginFrame()
 
 void Adv2StatusSection::AddFrameStatusTagUTF8String(unsigned int tagIndex, const char* tagValue)
 {
-	m_FrameStatusTags.insert(make_pair(tagIndex, string(tagValue == NULL ? "" : tagValue)));
+	m_FrameStatusTags.insert(make_pair(tagIndex, string(tagValue == nullptr ? "" : tagValue)));
 }
 
 void Adv2StatusSection::AddFrameStatusTagMessage(unsigned int tagIndex, const char* tagValue)
@@ -86,7 +86,7 @@ void Adv2StatusSection::AddFrameStatusTagMessage(unsigned int tagIndex, const ch
 	
 	if (messageList.size() == 16) messageList.pop_front();
 	
-	messageList.push_back(string(tagValue == NULL ? "" : tagValue));
+	messageList.push_back(string(tagValue == nullptr ? "" : tagValue));
 	
 	m_FrameStatusTagsMessages[tagIndex] = messageList;
 }
