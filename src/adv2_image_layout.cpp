@@ -40,6 +40,11 @@ Adv2ImageLayout::Adv2ImageLayout(Adv2ImageSection* imageSection, unsigned int wi
 	InitialiseBuffers();
 }
 
+Adv2ImageLayout::Adv2ImageLayout(char layoutId, FILE* pFile)
+{
+	// TODO:
+}
+
 void Adv2ImageLayout::InitialiseBuffers()
 {
 	SIGNS_MASK = new unsigned char(8);

@@ -28,7 +28,7 @@ namespace AdvLib2
 	private:
 		Adv2ImageSection* m_ImageSection;
 		unsigned char *SIGNS_MASK;
-		map<string, string> m_LayoutTags;			
+		map<string, string> m_LayoutTags;
 		ImageBytesLayout m_BytesLayout;
 
 		int m_KeyFrameBytesCount;
