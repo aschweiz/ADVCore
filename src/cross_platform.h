@@ -10,7 +10,14 @@
 
 #ifndef _WIN32
 typedef int long __int64;
-typedef unsigned int long __uint64;
+typedef unsigned int long __uint64;		
+#endif
+
+#if __GNUC__
+#define strcpy_s(x, y, z) strcpy(x, z)
+#define strncpy_s(x, y, z, t) strcpy(x, z)
+#define _snprintf_s(x, y, z, t) snprintf(x, y, z, t);
+void fopen_s(FILE **f, const char *name, const char *mode);
 #endif
 
 #if _MSC_VER

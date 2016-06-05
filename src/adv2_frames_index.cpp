@@ -86,10 +86,10 @@ void Adv2FramesIndex::WriteIndex(FILE *file)
 	unsigned int buffOffset = 9;
 	advfwrite(&buffOffset, 4, 1, file);
 
-	buffOffset = m_MainIndexEntries->size() * 20 + 10;
+	buffOffset = (unsigned int)m_MainIndexEntries->size() * 20 + 10;
 	advfwrite(&buffOffset, 4, 1, file);
 
-	unsigned int framesCount = m_MainIndexEntries->size();
+	unsigned int framesCount = (unsigned int)m_MainIndexEntries->size();
 	advfwrite(&framesCount, 4, 1, file);
 
 	vector<Index2Entry*>::iterator curr = m_MainIndexEntries->begin();
@@ -107,7 +107,7 @@ void Adv2FramesIndex::WriteIndex(FILE *file)
 	}
 
 
-	framesCount = m_CalibrationIndexEntries->size();
+	framesCount = (unsigned int)m_CalibrationIndexEntries->size();
 	advfwrite(&framesCount, 4, 1, file);
 
 	curr = m_CalibrationIndexEntries->begin();

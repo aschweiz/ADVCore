@@ -120,7 +120,7 @@ bool AdvFile::BeginFile(const char* fileName)
 	__int64 systemMetadataTablePosition;
 	advfgetpos64(m_File, &systemMetadataTablePosition);
 	
-	unsigned int fileTagsCount = m_FileTags.size();
+	unsigned int fileTagsCount = (unsigned int)m_FileTags.size();
 	advfwrite(&fileTagsCount, 4, 1, m_File);
 	
 	map<string, string>::iterator curr = m_FileTags.begin();
@@ -185,7 +185,7 @@ void AdvFile::EndFile()
 	// Write the metadata table
 	advfseek(m_File, 0, SEEK_END);	
 
-	unsigned int userTagsCount = m_UserMetadataTags.size();
+	unsigned int userTagsCount = (unsigned int)m_UserMetadataTags.size();
 	advfwrite(&userTagsCount, 4, 1, m_File);
 	
 	map<string, string>::iterator curr = m_UserMetadataTags.begin();
@@ -212,13 +212,13 @@ void AdvFile::AddImageSection(AdvLib::AdvImageSection* section)
 	ImageSection = section;	
 
 	char convStr [10];
-	snprintf(convStr, 10, "%d", section->Width);
+	_snprintf_s(convStr, 10, "%d", section->Width);
 	m_FileTags.insert(make_pair(string("WIDTH"), string(convStr)));
 	
-	snprintf(convStr, 10, "%d", section->Height);
+	_snprintf_s(convStr, 10, "%d", section->Height);
 	m_FileTags.insert(make_pair(string("HEIGHT"), string(convStr)));
 	
-	snprintf(convStr, 10, "%d", section->DataBpp);
+	_snprintf_s(convStr, 10, "%d", section->DataBpp);
 	m_FileTags.insert(make_pair(string("BITPIX"), string(convStr)));
 }
 
@@ -226,14 +226,14 @@ int AdvFile::AddFileTag(const char* tagName, const char* tagValue)
 {	
 	m_FileTags.insert((make_pair(string(tagName == nullptr ? "" : tagName), string(tagValue == nullptr ? "" : tagValue))));
 	
-	return m_FileTags.size();	
+	return (int)m_FileTags.size();	
 }
 
 int AdvFile::AddUserTag(const char* tagName, const char* tagValue)
 {
 	m_UserMetadataTags.insert((make_pair(string(tagName == nullptr ? "" : tagName), string(tagValue == nullptr ? "" : tagValue))));
 	
-	return m_UserMetadataTags.size();	
+	return (int)m_UserMetadataTags.size();	
 }
 
 void AdvFile::BeginFrame(__int64 timeStamp, unsigned int elapsedTime, unsigned int exposure)

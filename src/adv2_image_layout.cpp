@@ -25,14 +25,14 @@ Adv2ImageLayout::Adv2ImageLayout(Adv2ImageSection* imageSection, unsigned int wi
 	AddOrUpdateTag("SECTION-DATA-COMPRESSION", compression);
 
 	Compression = new char[strlen(compression) + 1];
-	strcpy(const_cast<char*>(Compression), compression);
+	strcpy_s(const_cast<char*>(Compression), strlen(compression) + 1, compression);
 	m_UsesCompression = 0 != strcmp(compression, "UNCOMPRESSED");
 	m_UsesLagarith16Compression = 0 != strcmp(compression, "LAGARITH16");
 	
 	if (keyFrame > 0)
 	{
 		char keyFrameStr [5];
-		snprintf(keyFrameStr, 5, "%d", keyFrame);
+		_snprintf_s(keyFrameStr, 5, "%d", keyFrame);
 		AddOrUpdateTag("DIFFCODE-KEY-FRAME-FREQUENCY", keyFrameStr);
 		AddOrUpdateTag("DIFFCODE-BASE-FRAME", "KEY-FRAME");
 	}
@@ -77,7 +77,8 @@ Adv2ImageLayout::Adv2ImageLayout(Adv2ImageSection* imageSection, unsigned int wi
 		if (strcmp("SECTION-DATA-COMPRESSION", tagName) == 0)
 		{
 			Compression = new char[strlen(tagValue) + 1];
-			strcpy(const_cast<char*>(Compression), tagValue);
+			//strcpy(const_cast<char*>(Compression), tagValue);
+			strcpy_s(const_cast<char*>(Compression), strlen(tagValue) + 1, tagValue);
 
 			m_UsesCompression = 0 != strcmp(Compression, "UNCOMPRESSED");
 			m_UsesLagarith16Compression = 0 != strcmp(Compression, "LAGARITH16");
@@ -244,7 +245,7 @@ void Adv2ImageLayout::AddOrUpdateTag(const char* tagName, const char* tagValue)
 		if (Compression == nullptr) delete Compression;
 
 		Compression = new char[strlen(tagValue) + 1];
-		strcpy(const_cast<char*>(Compression), tagValue);
+		strcpy_s(const_cast<char*>(Compression), strlen(tagValue) + 1, tagValue);
 
 		m_UsesCompression = 0 != strcmp(tagValue, "UNCOMPRESSED");
 	}
@@ -301,7 +302,7 @@ unsigned char* Adv2ImageLayout::GetDataBytes(unsigned short* currFramePixels, en
 		
 		AdvProfiling_EndFrameCompression();
 	
-		*bytesCount = len2;
+		*bytesCount = (unsigned int)len2;
 		return (unsigned char*)(m_CompressedPixels);
 	}
 	if (0 == strcmp(Compression, "LAGARITH16"))
@@ -350,9 +351,9 @@ unsigned char* Adv2ImageLayout::GetFullImageDiffCorrWithSignsDataBytes(unsigned 
 
 		unsigned int* pCurrFramePixels = (unsigned int*)currFramePixels;
 		unsigned int* pPrevFramePixels = (unsigned int*)m_PrevFramePixels;
-		for (int j = 0; j < Height; ++j)
+		for (unsigned int j = 0; j < Height; ++j)
 		{
-			for (int i = 0; i < Width / 2; ++i)
+			for (unsigned int i = 0; i < Width / 2; ++i)
 			{
 				int wordCurr = (int)*pCurrFramePixels;
 				int wordOld = (int)*pPrevFramePixels;
@@ -543,10 +544,10 @@ void Adv2ImageLayout::GetDataBytes12BppIndexBytes(unsigned short* pixels, enum G
 	//bytesCounter++;
 		
 	int counter = 0;
-	for (int y = 0; y < Height; ++y)
+	for (unsigned int y = 0; y < Height; ++y)
 	{
-		for (int x = 0; x < Width; ++x)
-		{					
+		for (unsigned int x = 0; x < Width; ++x)
+		{
 			unsigned short value =  dataPixelsBpp == 12 
 				? (unsigned short)(pixels[x + y * Width] & 0xFFF)
 				: (unsigned short)(pixels[x + y * Width] >> 4);

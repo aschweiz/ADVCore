@@ -52,13 +52,13 @@ AdvImageLayout::AdvImageLayout(unsigned int width, unsigned int height, unsigned
 	AddOrUpdateTag("SECTION-DATA-COMPRESSION", compression);
 
 	Compression = new char[strlen(compression) + 1];
-	strcpy(const_cast<char*>(Compression), compression);
+	strncpy_s(const_cast<char*>(Compression), strlen(compression) + 1, compression, strlen(compression) + 1);
 	m_UsesCompression = 0 != strcmp(compression, "UNCOMPRESSED");
 	
 	if (keyFrame > 0)
 	{
 		char keyFrameStr [5];
-		snprintf(keyFrameStr, 5, "%d", keyFrame);
+		_snprintf_s(keyFrameStr, 5, "%d", keyFrame);
 		AddOrUpdateTag("DIFFCODE-KEY-FRAME-FREQUENCY", keyFrameStr);		
 		AddOrUpdateTag("DIFFCODE-BASE-FRAME", "KEY-FRAME");		
 	}
@@ -320,7 +320,7 @@ unsigned char* AdvImageLayout::GetDataBytes(unsigned short* currFramePixels, enu
 		
 		AdvProfiling_EndFrameCompression();
 	
-		*bytesCount = len2;
+		*bytesCount = (unsigned int)len2;
 		return (unsigned char*)(m_CompressedPixels);
 	}
 	else if (0 == strcmp(Compression, "UNCOMPRESSED"))
@@ -383,9 +383,9 @@ unsigned char* AdvImageLayout::GetFullImageDiffCorrWithSignsDataBytes(unsigned s
 
 		unsigned int* pCurrFramePixels = (unsigned int*)currFramePixels;
 		unsigned int* pPrevFramePixels = (unsigned int*)m_PrevFramePixels;
-		for (int j = 0; j < Height; ++j)
+		for (unsigned int j = 0; j < Height; ++j)
 		{
-			for (int i = 0; i < Width / 2; ++i)
+			for (unsigned int i = 0; i < Width / 2; ++i)
 			{
 				int wordCurr = (int)*pCurrFramePixels;
 				int wordOld = (int)*pPrevFramePixels;
@@ -569,9 +569,9 @@ void AdvImageLayout::GetDataBytes12BppIndexBytes(unsigned short* pixels, enum Ge
 	//bytesCounter++;
 		
 	int counter = 0;
-	for (int y = 0; y < Height; ++y)
+	for (unsigned int y = 0; y < Height; ++y)
 	{
-		for (int x = 0; x < Width; ++x)
+		for (unsigned int x = 0; x < Width; ++x)
 		{					
 			unsigned short value =  dataPixelsBpp == 12 
 				? (unsigned short)(pixels[x + y * Width] & 0xFFF)

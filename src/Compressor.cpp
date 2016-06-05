@@ -157,7 +157,7 @@ int Compressor::LoadDecompressionTable(void * comp){
 
 int Compressor::CompressData(unsigned short * uncompressed, void * compressed){
 	
-	int compressed_size = 0;
+	unsigned int compressed_size = 0;
 	PrepareTables(uncompressed,width*height);
 	compressed_size = StoreDecompressionTable(compressed);
 	if ( table_entries > 1){

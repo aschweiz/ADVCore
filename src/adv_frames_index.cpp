@@ -32,7 +32,7 @@ void AdvFramesIndex::AddFrame(unsigned int frameNo, unsigned int elapedTime, __i
 
 void AdvFramesIndex::WriteIndex(FILE *pFile)
 {
-	unsigned int framesCount = m_IndexEntries->size();
+	unsigned int framesCount = (unsigned int)m_IndexEntries->size();
 	advfwrite(&framesCount, 4, 1, pFile);
 
 	vector<IndexEntry*>::iterator curr = m_IndexEntries->begin();

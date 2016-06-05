@@ -58,7 +58,7 @@ unsigned int AdvStatusSection::DefineTag(const char* tagName, AdvTagType tagType
 			break;
 	}
 	
-	return m_TagDefinitionNames.size() - 1;
+	return (unsigned int)(m_TagDefinitionNames.size() - 1);
 }
 
 void AdvStatusSection::BeginFrame()
@@ -138,7 +138,7 @@ unsigned char* AdvStatusSection::GetDataBytes(unsigned int *bytesCount)
 	{
 		char* tagValue = const_cast<char*>(curr->second.c_str());
 		
-		arrayLength+=strlen(tagValue) + 1 /* TagId*/  + 1 /* length */ ;
+		arrayLength += (int)strlen(tagValue) + 1 /* TagId*/  + 1 /* length */ ;
 		curr++;
 		numTagEntries++;
 	}
@@ -152,7 +152,7 @@ unsigned char* AdvStatusSection::GetDataBytes(unsigned int *bytesCount)
 		{
 			char* tagValue = const_cast<char*>(currMsg->c_str());
 			
-			arrayLength+=strlen(tagValue) + 1 /* length*/;
+			arrayLength += (int)strlen(tagValue) + 1 /* length*/;
 			currMsg++;
 		}
 		arrayLength+= (1 /* TagId*/ + 1 /* num messages*/);
@@ -160,16 +160,16 @@ unsigned char* AdvStatusSection::GetDataBytes(unsigned int *bytesCount)
 		numTagEntries++;
 	}
 	
-	arrayLength+=m_FrameStatusTagsUInt8.size() * (1 /*sizeof(unsigned char)*/ + 1 /* TagId*/ );
-	numTagEntries+=m_FrameStatusTagsUInt8.size();
-	arrayLength+=m_FrameStatusTagsUInt16.size() * (2 /*sizeof(unsigned short)*/ + 1 /* TagId*/ );
-	numTagEntries+=m_FrameStatusTagsUInt16.size();
-	arrayLength+=m_FrameStatusTagsUInt64.size() * (8 /*sizeof(__int64)*/ + 1 /* TagId*/ );
-	numTagEntries+=m_FrameStatusTagsUInt64.size();
-	arrayLength+=m_FrameStatusTagsUInt32.size() * (4 /*sizeof(unsinged int)*/ + 1 /* TagId*/ );
-	numTagEntries+=m_FrameStatusTagsUInt32.size();
-	arrayLength+=m_FrameStatusTagsReal.size() * (4 /*sizeof(float)*/ + 1 /* TagId*/ );
-	numTagEntries+=m_FrameStatusTagsReal.size();
+	arrayLength += (int)m_FrameStatusTagsUInt8.size() * (1 /*sizeof(unsigned char)*/ + 1 /* TagId*/ );
+	numTagEntries += (int)m_FrameStatusTagsUInt8.size();
+	arrayLength += (int)m_FrameStatusTagsUInt16.size() * (2 /*sizeof(unsigned short)*/ + 1 /* TagId*/ );
+	numTagEntries += (int)m_FrameStatusTagsUInt16.size();
+	arrayLength += (int)m_FrameStatusTagsUInt64.size() * (8 /*sizeof(__int64)*/ + 1 /* TagId*/ );
+	numTagEntries += (int)m_FrameStatusTagsUInt64.size();
+	arrayLength += (int)m_FrameStatusTagsUInt32.size() * (4 /*sizeof(unsinged int)*/ + 1 /* TagId*/ );
+	numTagEntries += (int)m_FrameStatusTagsUInt32.size();
+	arrayLength += (int)m_FrameStatusTagsReal.size() * (4 /*sizeof(float)*/ + 1 /* TagId*/ );
+	numTagEntries += (int)m_FrameStatusTagsReal.size();
 	
 	size = arrayLength + 1;
 	
@@ -274,7 +274,7 @@ unsigned char* AdvStatusSection::GetDataBytes(unsigned int *bytesCount)
 			
 			char* tagValue = const_cast<char*>(curr->second.c_str());
 			
-			int strLen = strlen(tagValue);
+			int strLen = (int)strlen(tagValue);
 			statusData[dataPos + 1] = strLen;
 			memcpy(&statusData[dataPos + 2], tagValue, strLen);
 			dataPos+= strLen + 2;
@@ -289,7 +289,7 @@ unsigned char* AdvStatusSection::GetDataBytes(unsigned int *bytesCount)
 			statusData[dataPos] = tagId;
 			
 			list<string> lst = currLst->second;
-			statusData[dataPos + 1] = lst.size();
+			statusData[dataPos + 1] = (unsigned char)lst.size();
 			
 			dataPos+=2;
 			
@@ -298,7 +298,7 @@ unsigned char* AdvStatusSection::GetDataBytes(unsigned int *bytesCount)
 			{
 				char* tagValue = const_cast<char*>(currMsg->c_str());
 				
-				int strLen = strlen(tagValue);
+				int strLen = (int)strlen(tagValue);
 				statusData[dataPos] = strLen;
 				memcpy(&statusData[dataPos + 1], tagValue, strLen);
 				dataPos+= strLen + 1;
@@ -321,7 +321,7 @@ void AdvStatusSection::WriteHeader(FILE* pFile)
 	buffChar = 1;
 	advfwrite(&buffChar, 1, 1, pFile); /* Version */
 	
-	buffChar = m_TagDefinitionNames.size();
+	buffChar = (unsigned char)m_TagDefinitionNames.size();
 	advfwrite(&buffChar, 1, 1, pFile);
 	int tagCount = buffChar;
 	

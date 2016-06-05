@@ -71,11 +71,11 @@ int AdvOpenFile(const char* fileName)
 		
 		g_FileStarted = false;
 		
-		int len = strlen(fileName);
+		int len = (int)strlen(fileName);
 		if (len > 0)
 		{
 			g_CurrentAdvFile = new char[len + 1];
-			strncpy(g_CurrentAdvFile, fileName, len + 1);
+			strncpy_s(g_CurrentAdvFile, len + 1, fileName, len + 1);
 		
 			g_AdvFile = new AdvLib::AdvFile();
 			int res = !g_AdvFile->LoadFile(fileName);
@@ -99,11 +99,11 @@ int AdvOpenFile(const char* fileName)
 		
 		g_FileStarted = false;
 		
-		int len = strlen(fileName);
+		int len = (int)strlen(fileName);
 		if (len > 0)
 		{
 			g_CurrentAdvFile = new char[len + 1];
-			strncpy(g_CurrentAdvFile, fileName, len + 1);
+			strncpy_s(g_CurrentAdvFile, len + 1, fileName, len + 1);
 		
 			g_Adv2File = new AdvLib2::Adv2File();
 			int res = !g_Adv2File->LoadFile(fileName);
@@ -169,11 +169,11 @@ void AdvVer1_NewFile(const char* fileName)
 	
 	g_FileStarted = false;
 	
-	int len = strlen(fileName);	
+	int len = (int)strlen(fileName);	
 	if (len > 0)
 	{
 		g_CurrentAdvFile = new char[len + 1];
-		strncpy(g_CurrentAdvFile, fileName, len + 1);
+		strncpy_s(g_CurrentAdvFile, len + 1, fileName, len + 1);
 	
 		g_AdvFile = new AdvLib::AdvFile();	
 	}
@@ -334,7 +334,7 @@ void AdvVer1_EndFrame()
 
 void GetLibraryVersion(char* version)
 {
-	strcpy(version, CORE_VERSION);
+	strcpy_s(version, strlen(CORE_VERSION) + 1, CORE_VERSION);
 }
 
 int GetLibraryBitness()
@@ -375,24 +375,32 @@ int GetLibraryBitness()
 
 void GetLibraryPlatformId(char* platform)
 {
+#define PLATFORM_WIN_MSVC_32 "MS VC++, x86, Windows"
+#define PLATFORM_WIN_MSVC_64 "MS VC++, AMD64, Windows"
+#define PLATFORM_WIN_GNU_32 "GNU GCC/G++, x86, Windows"
+#define PLATFORM_WIN_GNU_64 "GNU GCC/G++, AMD64, Windows"
+#define PLATFORM_LINUX_GNU "GNU GCC/G++, Linux"
+#define PLATFORM_OSX_GNU "GNU GCC/G++, OSX"
+#define PLATFORM_UNKNOWN "Unknown"
+
 #ifdef MSVC
 	#if INTPTR_MAX == INT32_MAX
-		strcpy(platform, "MS VC++, x86, Windows");
+		strcpy_s(platform, strlen(PLATFORM_WIN_MSVC_32) + 1, PLATFORM_WIN_MSVC_32);
 	#elif INTPTR_MAX == INT64_MAX
-		strcpy(platform, "MS VC++, AMD64, Windows");
+		strcpy_s(platform, strlen(PLATFORM_WIN_MSVC_64) + 1, PLATFORM_WIN_MSVC_64);
 	#endif
 #elif __linux__
-	strcpy(platform, "Linux");
+	strcpy_s(platform, strlen(PLATFORM_LINUX_GNU) + 1, PLATFORM_LINUX_GNU);
 #elif __APPLE__
-	strcpy(platform, "OSX");
+	strcpy_s(platform, strlen(PLATFORM_OSX_GNU) + 1, PLATFORM_OSX_GNU);
 #elif __GNUC__ || __GNUG__
 	#if __x86_64__ || __ppc64__ || _WIN64
-		strcpy(platform, "GNU GCC/G++, AMD64, Windows");
+		strcpy_s(platform, strlen(PLATFORM_WIN_GNU_64) + 1, PLATFORM_WIN_GNU_64);
 	#else
-		strcpy(platform, "GNU GCC/G++, x86, Windows");
+		strcpy_s(platform, strlen(PLATFORM_WIN_GNU_32) + 1, PLATFORM_WIN_GNU_32);
 	#endif	
 #else
-	strcpy(platform, "Unknown");
+	strcpy_s(platform, strlen(PLATFORM_UNKNOWN) + 1, PLATFORM_UNKNOWN);
 #endif
 }
 
@@ -415,12 +423,12 @@ void AdvVer2_NewFile(const char* fileName)
 	
 	g_FileStarted = false;
 	
-	int len = strlen(fileName);
+	int len = (int)strlen(fileName);
 	if (len > 0)
 	{
 		g_CurrentAdvFile = new char[len + 1];
-		strncpy(g_CurrentAdvFile, fileName, len + 1);
-	
+		strncpy_s(g_CurrentAdvFile, len + 1, fileName, len + 1);
+		
 		g_Adv2File = new AdvLib2::Adv2File();
 	}
 	AdvProfiling_EndProcessing();

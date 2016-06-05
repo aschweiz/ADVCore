@@ -6,6 +6,12 @@
 #include "cross_platform.h"
 #include "adv_profiling.h"
 
+#if __GNUC__
+void fopen_s(FILE **f, const char *name, const char *mode) {
+    *f = fopen(name, mode);
+}
+#endif
+
 int advfclose(FILE* file)
 {
 	AdvProfiling_StartHddOperation();
@@ -17,7 +23,8 @@ int advfclose(FILE* file)
 FILE* advfopen(const char* fileName, const char* modes)
 {
 	AdvProfiling_StartHddOperation();
-	FILE* file = fopen(fileName, modes);
+	FILE* file;
+	fopen_s(&file, fileName, modes);
 	AdvProfiling_EndHddOperation();
 	return file;
 }

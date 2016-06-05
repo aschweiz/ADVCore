@@ -121,7 +121,7 @@ bool Adv2File::BeginFile(const char* fileName)
 	advfseek(m_Adv2File, 0, SEEK_END);
 	
 	// Write main stream metadata table
-	unsigned int mainTagsCount = m_MainStreamTags.size();
+	unsigned int mainTagsCount = (unsigned int)m_MainStreamTags.size();
 	if (mainTagsCount > 0)
 	{		
 		advfgetpos64(m_Adv2File, &streamHeaderOffsets[0]);
@@ -142,7 +142,7 @@ bool Adv2File::BeginFile(const char* fileName)
 	}
 
 	// Write calibration stream metadata table
-	unsigned int calibrationTagsCount = m_CalibrationStreamTags.size();
+	unsigned int calibrationTagsCount = (unsigned int)m_CalibrationStreamTags.size();
 	if (calibrationTagsCount > 0)
 	{		
 		advfgetpos64(m_Adv2File, &streamHeaderOffsets[1]);
@@ -180,7 +180,7 @@ bool Adv2File::BeginFile(const char* fileName)
 	__int64 systemMetadataTablePosition;
 	advfgetpos64(m_Adv2File, &systemMetadataTablePosition);
 	
-	unsigned int fileTagsCount = m_FileTags.size();
+	unsigned int fileTagsCount = (unsigned int)m_FileTags.size();
 	advfwrite(&fileTagsCount, 4, 1, m_Adv2File);
 	
 	map<string, string>::iterator curr = m_FileTags.begin();
@@ -429,7 +429,7 @@ void Adv2File::EndFile()
 	// Write the metadata table
 	advfseek(m_Adv2File, 0, SEEK_END);	
 
-	unsigned int userTagsCount = m_UserMetadataTags.size();
+	unsigned int userTagsCount = (unsigned int)m_UserMetadataTags.size();
 	advfwrite(&userTagsCount, 4, 1, m_Adv2File);
 	
 	map<string, string>::iterator curr = m_UserMetadataTags.begin();
@@ -456,13 +456,13 @@ void Adv2File::AddImageSection(AdvLib2::Adv2ImageSection* section)
 	ImageSection = section;
 
 	char convStr [10];
-	snprintf(convStr, 10, "%d", section->Width);
+	_snprintf_s(convStr, 10, "%d", section->Width);
 	m_FileTags.insert(make_pair(string("WIDTH"), string(convStr)));
 	
-	snprintf(convStr, 10, "%d", section->Height);
+	_snprintf_s(convStr, 10, "%d", section->Height);
 	m_FileTags.insert(make_pair(string("HEIGHT"), string(convStr)));
 	
-	snprintf(convStr, 10, "%d", section->DataBpp);
+	_snprintf_s(convStr, 10, "%d", section->DataBpp);
 	m_FileTags.insert(make_pair(string("BITPIX"), string(convStr)));
 }
 
@@ -470,28 +470,28 @@ int Adv2File::AddMainStreamTag(const char* tagName, const char* tagValue)
 {
 	m_MainStreamTags.insert((make_pair(string(tagName == nullptr ? "" : tagName), string(tagValue == nullptr ? "" : tagValue))));
 	
-	return m_MainStreamTags.size();
+	return (int)m_MainStreamTags.size();
 }
 
 int Adv2File::AddCalibrationStreamTag(const char* tagName, const char* tagValue)
 {
 	m_CalibrationStreamTags.insert((make_pair(string(tagName == nullptr ? "" : tagName), string(tagValue == nullptr ? "" : tagValue))));
 	
-	return m_CalibrationStreamTags.size();
+	return (int)m_CalibrationStreamTags.size();
 }
 
 int Adv2File::AddFileTag(const char* tagName, const char* tagValue)
 {	
 	m_FileTags.insert((make_pair(string(tagName == nullptr ? "" : tagName), string(tagValue == nullptr ? "" : tagValue))));
 	
-	return m_FileTags.size();
+	return (int)m_FileTags.size();
 }
 
 int Adv2File::AddUserTag(const char* tagName, const char* tagValue)
 {
 	m_UserMetadataTags.insert((make_pair(string(tagName == nullptr ? "" : tagName), string(tagValue == nullptr ? "" : tagValue))));
 	
-	return m_UserMetadataTags.size();	
+	return (int)m_UserMetadataTags.size();	
 }
 
 void Adv2File::BeginFrame(unsigned char streamId, __int64 startFrameTicks, __int64 endFrameTicks,__int64 elapsedTicksSinceFirstFrame)

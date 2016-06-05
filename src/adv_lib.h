@@ -70,7 +70,7 @@ DLL_PUBLIC void AdvVer2_GetCalibrationStreamInfo(int* numFrames, __int64* calibr
 
 
 DLL_PUBLIC void GetLibraryVersion(char* version);
-DLL_PUBLIC void GetLibraryPlatformId(char* platform);
+DLL_PUBLIC void GetLibraryPlatformId( char* platform);
 DLL_PUBLIC int GetLibraryBitness();
 
 #ifdef __cplusplus

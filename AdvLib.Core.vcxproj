@@ -150,9 +150,11 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
+    <TargetName>$(ProjectName)$(PlatformArchitecture)</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
+    <TargetName>$(ProjectName)$(PlatformArchitecture)</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
@@ -181,7 +183,7 @@
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
       <AdditionalIncludeDirectories>src</AdditionalIncludeDirectories>
       <AdditionalUsingDirectories>src</AdditionalUsingDirectories>
-      <PrecompiledHeaderOutputFile>$(IntDir)$(TargetName)$(PlatformArchitecture).pch</PrecompiledHeaderOutputFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)$(TargetName).pch</PrecompiledHeaderOutputFile>
       <ProgramDataBaseFileName>$(IntDir)vc$(PlatformToolsetVersion)$(PlatformArchitecture).pdb</ProgramDataBaseFileName>
     </ClCompile>
     <Link>
@@ -193,11 +195,11 @@
       </OptimizeReferences>
       <ModuleDefinitionFile>
       </ModuleDefinitionFile>
-      <OutputFile>$(OutDir)$(TargetName)$(PlatformArchitecture)$(TargetExt)</OutputFile>
-      <ManifestFile>$(IntDir)$(TargetName)$(PlatformArchitecture)$(TargetExt).intermediate.manifest</ManifestFile>
-      <ProgramDatabaseFile>$(OutDir)$(TargetName)$(PlatformArchitecture).pdb</ProgramDatabaseFile>
-      <ProfileGuidedDatabase>$(OutDir)$(TargetName)$(PlatformArchitecture).pgd</ProfileGuidedDatabase>
-      <ImportLibrary>$(OutDir)$(TargetName)$(PlatformArchitecture).lib</ImportLibrary>
+      <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
+      <ManifestFile>$(IntDir)$(TargetName)$(TargetExt).intermediate.manifest</ManifestFile>
+      <ProgramDatabaseFile>$(OutDir)$(TargetName).pdb</ProgramDatabaseFile>
+      <ProfileGuidedDatabase>$(OutDir)$(TargetName).pgd</ProfileGuidedDatabase>
+      <ImportLibrary>$(OutDir)$(TargetName).lib</ImportLibrary>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -263,10 +265,10 @@
       <SDLCheck>
       </SDLCheck>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
-      <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <AdditionalIncludeDirectories>src</AdditionalIncludeDirectories>
       <AdditionalUsingDirectories>src</AdditionalUsingDirectories>
-      <PrecompiledHeaderOutputFile>$(IntDir)$(TargetName)$(PlatformArchitecture).pch</PrecompiledHeaderOutputFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)$(TargetName).pch</PrecompiledHeaderOutputFile>
       <ProgramDataBaseFileName>$(IntDir)vc$(PlatformToolsetVersion)$(PlatformArchitecture).pdb</ProgramDataBaseFileName>
     </ClCompile>
     <Link>
@@ -278,11 +280,11 @@
       </OptimizeReferences>
       <ModuleDefinitionFile>
       </ModuleDefinitionFile>
-      <OutputFile>$(OutDir)$(TargetName)$(PlatformArchitecture)$(TargetExt)</OutputFile>
-      <ManifestFile>$(IntDir)$(TargetName)$(PlatformArchitecture)$(TargetExt).intermediate.manifest</ManifestFile>
-      <ProgramDatabaseFile>$(OutDir)$(TargetName)$(PlatformArchitecture).pdb</ProgramDatabaseFile>
-      <ProfileGuidedDatabase>$(OutDir)$(TargetName)$(PlatformArchitecture).pgd</ProfileGuidedDatabase>
-      <ImportLibrary>$(OutDir)$(TargetName)$(PlatformArchitecture).lib</ImportLibrary>
+      <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
+      <ManifestFile>$(IntDir)$(TargetName)$(TargetExt).intermediate.manifest</ManifestFile>
+      <ProgramDatabaseFile>$(OutDir)$(TargetName).pdb</ProgramDatabaseFile>
+      <ProfileGuidedDatabase>$(OutDir)$(TargetName).pgd</ProfileGuidedDatabase>
+      <ImportLibrary>$(OutDir)$(TargetName).lib</ImportLibrary>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">

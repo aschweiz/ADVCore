@@ -10,7 +10,7 @@
 void WriteString(FILE* pFile, const char* str)
 {
 	unsigned char len;
-	len = strlen(str);
+	len = static_cast<char>(strlen(str));
 	
 	advfwrite(&len, 1, 1, pFile);
 	advfwrite(&str[0], len, 1, pFile);
@@ -19,7 +19,7 @@ void WriteString(FILE* pFile, const char* str)
 void WriteUTF8String(FILE* pFile, const char* str)
 {
 	unsigned short len;
-	len = strlen(str);
+	len = static_cast<char>(strlen(str));
 	
 	advfwrite(&len, 2, 1, pFile);
 	advfwrite(&str[0], len, 1, pFile);
@@ -73,8 +73,7 @@ unsigned int compute_crc32(unsigned char *data, int len)
 {
     unsigned int        result;
     int                 i;
-    unsigned char       octet;
-    
+
     result = *data++ << 24;
     result |= *data++ << 16;
     result |= *data++ << 8;
