@@ -111,7 +111,7 @@ void Adv2StatusSection::AddFrameStatusTagUInt32(unsigned int tagIndex, unsigned 
 	m_FrameStatusTagsUInt32.insert(make_pair(tagIndex, tagValue));
 }
 
-void Adv2StatusSection::AddFrameStatusTagUInt64(unsigned int tagIndex, long long tagValue)
+void Adv2StatusSection::AddFrameStatusTagUInt64(unsigned int tagIndex, __int64 tagValue)
 {
 	m_FrameStatusTagsUInt64.insert(make_pair(tagIndex, tagValue));
 }
@@ -150,8 +150,6 @@ Adv2StatusSection::Adv2StatusSection(FILE* pFile)
 
 void Adv2StatusSection::WriteHeader(FILE* pFile)
 {
-	unsigned int buffInt;
-	unsigned long buffLong;
 	unsigned char buffChar;
 	
 	buffChar = 1;
@@ -211,7 +209,7 @@ unsigned char* Adv2StatusSection::GetDataBytes(unsigned int *bytesCount)
 	numTagEntries+=m_FrameStatusTagsUInt8.size();
 	arrayLength+=m_FrameStatusTagsUInt16.size() * (2 /*sizeof(unsigned short)*/ + 1 /* TagId*/ );
 	numTagEntries+=m_FrameStatusTagsUInt16.size();
-	arrayLength+=m_FrameStatusTagsUInt64.size() * (8 /*sizeof(long long)*/ + 1 /* TagId*/ );
+	arrayLength+=m_FrameStatusTagsUInt64.size() * (8 /*sizeof(__int64)*/ + 1 /* TagId*/ );
 	numTagEntries+=m_FrameStatusTagsUInt64.size();
 	arrayLength+=m_FrameStatusTagsUInt32.size() * (4 /*sizeof(unsinged int)*/ + 1 /* TagId*/ );
 	numTagEntries+=m_FrameStatusTagsUInt32.size();
@@ -227,13 +225,13 @@ unsigned char* Adv2StatusSection::GetDataBytes(unsigned int *bytesCount)
 	{
 		int dataPos = 1;
 		
-		map<unsigned int, long long>::iterator currUInt64 = m_FrameStatusTagsUInt64.begin();
+		map<unsigned int, __int64>::iterator currUInt64 = m_FrameStatusTagsUInt64.begin();
 		while (currUInt64 != m_FrameStatusTagsUInt64.end()) 
 		{
 			unsigned char tagId = (unsigned char)(currUInt64->first & 0xFF);
 			statusData[dataPos] = tagId;
 
-			long long tagValue = (long long)(currUInt64->second);
+			__int64 tagValue = (__int64)(currUInt64->second);
 			statusData[dataPos + 1] = (unsigned char)(tagValue & 0xFF);
 			statusData[dataPos + 2] = (unsigned char)((tagValue >> 8) & 0xFF);
 			statusData[dataPos + 3] = (unsigned char)((tagValue >> 16) & 0xFF);
@@ -254,7 +252,7 @@ unsigned char* Adv2StatusSection::GetDataBytes(unsigned int *bytesCount)
 			unsigned char tagId = (unsigned char)(currUInt32->first & 0xFF);
 			statusData[dataPos] = tagId;
 
-			unsigned int tagValue = (long long)(currUInt32->second);
+			unsigned int tagValue = (__int64)(currUInt32->second);
 			statusData[dataPos + 1] = (unsigned char)(tagValue & 0xFF);
 			statusData[dataPos + 2] = (unsigned char)((tagValue >> 8) & 0xFF);
 			statusData[dataPos + 3] = (unsigned char)((tagValue >> 16) & 0xFF);

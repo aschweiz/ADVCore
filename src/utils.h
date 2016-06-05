@@ -54,9 +54,9 @@ extern time_t TIME_ADV_ZERO;
 extern tm* s_timeinfo;
 extern time_t s_initTime;
 
-long long SystemTimeToAavTicks(SYSTEMTIME systemTime);
-long long DateTimeToAavTicks(__int64 dayTicks, int hour, int minute, int sec, int tenthMs);
-long long WindowsTicksToAavTicks(__int64 windowsTicks);
+__int64 SystemTimeToAavTicks(SYSTEMTIME systemTime);
+__int64 DateTimeToAavTicks(__int64 dayTicks, int hour, int minute, int sec, int tenthMs);
+__int64 WindowsTicksToAavTicks(__int64 windowsTicks);
 void DebugViewPrint(const wchar_t* formatText, ...);
 
 #endif // UTILS_H

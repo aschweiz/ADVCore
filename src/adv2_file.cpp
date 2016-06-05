@@ -46,7 +46,7 @@ bool Adv2File::BeginFile(const char* fileName)
 	if (m_Adv2File == 0) return false;
 	
 	unsigned int buffInt;
-	unsigned long buffLong;
+	unsigned __int64 buffLong;
 	unsigned char buffChar;
 	
 	buffInt = 0x46545346;
@@ -219,8 +219,6 @@ int Adv2File::LoadFile(const char* fileName)
 	if (m_Adv2File == 0) return false;
 	
 	unsigned int buffInt;
-	unsigned long buffLong;
-	unsigned char buffChar;
 	
 	unsigned char dataformatVersion;
 	advfread(&buffInt, 4, 1, m_Adv2File);
@@ -399,7 +397,7 @@ bool Adv2File::CloseFile()
 	return fileClosed;
 }
 
-void Adv2File::SetTimingPrecision(__int64 mainClockFrequency, long mainStreamAccuracy, __int64 calibrationClockFrequency, long calibrationStreamAccuracy)
+void Adv2File::SetTimingPrecision(__int64 mainClockFrequency, int mainStreamAccuracy, __int64 calibrationClockFrequency, int calibrationStreamAccuracy)
 {
 	m_MainStreamClockFrequency = mainClockFrequency;
 	m_MainStreamTickAccuracy = mainStreamAccuracy;
@@ -581,7 +579,7 @@ void Adv2File::AddFrameStatusTagUInt32(unsigned int tagIndex, unsigned int tagVa
 	StatusSection->AddFrameStatusTagUInt32(tagIndex, tagValue);
 }
 
-void Adv2File::AddFrameStatusTagUInt64(unsigned int tagIndex, long long tagValue)
+void Adv2File::AddFrameStatusTagUInt64(unsigned int tagIndex, __int64 tagValue)
 {
 	StatusSection->AddFrameStatusTagUInt64(tagIndex, tagValue);
 }
@@ -660,14 +658,14 @@ void Adv2File::EndFrame()
 	AdvProfiling_EndGenericProcessing();
 }
 
-void Adv2File::GetMainStreamInfo(long* numFrames, __int64* mainClockFrequency, long* mainStreamAccuracy)
+void Adv2File::GetMainStreamInfo(int* numFrames, __int64* mainClockFrequency, int* mainStreamAccuracy)
 {
 	*numFrames = m_NumberOfMainFrames;
 	*mainClockFrequency = m_MainStreamClockFrequency;
 	*mainStreamAccuracy = m_MainStreamTickAccuracy;
 }
 
-void Adv2File::GetCalibrationStreamInfo(long* numFrames, __int64* calibrationClockFrequency, long* calibrationStreamAccuracy)
+void Adv2File::GetCalibrationStreamInfo(int* numFrames, __int64* calibrationClockFrequency, int* calibrationStreamAccuracy)
 {
 	*numFrames = m_NumberOfCalibrationFrames;
 	*calibrationClockFrequency = m_CalibrationStreamClockFrequency;

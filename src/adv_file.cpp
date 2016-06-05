@@ -72,7 +72,7 @@ bool AdvFile::BeginFile(const char* fileName)
 	if (m_File == 0) return false;
 	
 	unsigned int buffInt;
-	unsigned long buffLong;
+	__int64 buffLong;
 	unsigned char buffChar;
 	
 	buffInt = 0x46545346;
@@ -236,7 +236,7 @@ int AdvFile::AddUserTag(const char* tagName, const char* tagValue)
 	return m_UserMetadataTags.size();	
 }
 
-void AdvFile::BeginFrame(long long timeStamp, unsigned int elapsedTime, unsigned int exposure)
+void AdvFile::BeginFrame(__int64 timeStamp, unsigned int elapsedTime, unsigned int exposure)
 {
 	AdvProfiling_StartBytesOperation();
 
@@ -314,7 +314,7 @@ void AdvFile::AddFrameStatusTagUInt32(unsigned int tagIndex, unsigned int tagVal
 	StatusSection->AddFrameStatusTagUInt32(tagIndex, tagValue);
 }
 
-void AdvFile::AddFrameStatusTagUInt64(unsigned int tagIndex, long long tagValue)
+void AdvFile::AddFrameStatusTagUInt64(unsigned int tagIndex, __int64 tagValue)
 {
 	StatusSection->AddFrameStatusTagUInt64(tagIndex, tagValue);
 }

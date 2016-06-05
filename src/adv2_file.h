@@ -39,11 +39,11 @@ namespace AdvLib2
 			__int64 m_MainFrameCountPosition;
 			__int64 m_CalibrationFrameCountPosition;
 
-			unsigned long m_MainFrameNo;
-			unsigned long m_CalibrationFrameNo;
+			unsigned int m_MainFrameNo;
+			unsigned int m_CalibrationFrameNo;
 
 			unsigned char *m_FrameBytes;
-			unsigned long m_FrameBufferIndex; 
+			unsigned int m_FrameBufferIndex; 
 			__int64 m_CurrentFrameElapsedTicks;
 
 			map<string, string> m_UserMetadataTags;
@@ -52,9 +52,9 @@ namespace AdvLib2
 			map<string, string> m_CalibrationStreamTags;
 
 			__int64 m_MainStreamClockFrequency;
-			unsigned long m_MainStreamTickAccuracy;
+			unsigned int m_MainStreamTickAccuracy;
 			__int64 m_CalibrationStreamClockFrequency;
-			unsigned long m_CalibrationStreamTickAccuracy;
+			unsigned int m_CalibrationStreamTickAccuracy;
 
 			int m_NumberOfMainFrames;
 			int m_NumberOfCalibrationFrames;
@@ -65,7 +65,7 @@ namespace AdvLib2
 			~Adv2File();
 			
 			bool BeginFile(const char* fileName);
-			void SetTimingPrecision(__int64 mainClockFrequency, long mainStreamAccuracy, __int64 calibrationClockFrequency, long calibrationStreamAccuracy);
+			void SetTimingPrecision(__int64 mainClockFrequency, int mainStreamAccuracy, __int64 calibrationClockFrequency, int calibrationStreamAccuracy);
 			void EndFile();
 			
 			int LoadFile(const char* fileName);
@@ -87,12 +87,12 @@ namespace AdvLib2
 			void AddFrameStatusTagUInt8(unsigned int tagIndex, unsigned char tagValue);
 			void AddFrameStatusTagUInt16(unsigned int tagIndex, unsigned short tagValue);
 			void AddFrameStatusTagUInt32(unsigned int tagIndex, unsigned int tagValue);
-			void AddFrameStatusTagUInt64(unsigned int tagIndex, long long tagValue);
+			void AddFrameStatusTagUInt64(unsigned int tagIndex, __int64 tagValue);
 			void AddFrameStatusTagReal(unsigned int tagIndex, float tagValue);
 			void AddFrameImage(unsigned char layoutId, unsigned short* pixels, unsigned char pixelsBpp);
 
-			void GetMainStreamInfo(long* numFrames, __int64* mainClockFrequency, long* mainStreamAccuracy);
-			void GetCalibrationStreamInfo(long* numFrames, __int64* calibrationClockFrequency, long* calibrationStreamAccuracy);
+			void GetMainStreamInfo(int* numFrames, __int64* mainClockFrequency, int* mainStreamAccuracy);
+			void GetCalibrationStreamInfo(int* numFrames, __int64* calibrationClockFrequency, int* calibrationStreamAccuracy);
 		};
 
 }

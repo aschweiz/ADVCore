@@ -93,7 +93,7 @@ unsigned int compute_crc32(unsigned char *data, int len)
 #define ADV_EPOCH_ZERO_TICKS 633979008000000000
 #define EPOCH_1601_JAN_1_TICKS 504911232000000000
 
-long long SystemTimeToAavTicks(SYSTEMTIME systemTime)
+__int64 SystemTimeToAavTicks(SYSTEMTIME systemTime)
 {
 	FILETIME fileTime;
 	SystemTimeToFileTime(&systemTime, &fileTime);
@@ -105,13 +105,13 @@ long long SystemTimeToAavTicks(SYSTEMTIME systemTime)
 	return WindowsTicksToAavTicks(uli.QuadPart + EPOCH_1601_JAN_1_TICKS);
 }
 
-long long DateTimeToAavTicks(__int64 dayTicks, int hour, int minute, int sec, int tenthMs)
+__int64 DateTimeToAavTicks(__int64 dayTicks, int hour, int minute, int sec, int tenthMs)
 {
 	if (dayTicks > 0)
 	{
-		long long advTicks = 
-				(long long)(dayTicks - ADV_EPOCH_ZERO_TICKS) / 10000 + 
-				(long long)(hour * 3600 + minute * 60 + sec) * 1000 +
+		__int64 advTicks = 
+				(__int64)(dayTicks - ADV_EPOCH_ZERO_TICKS) / 10000 + 
+				(__int64)(hour * 3600 + minute * 60 + sec) * 1000 +
 				tenthMs / 10;
 
 		return advTicks;		
@@ -120,12 +120,12 @@ long long DateTimeToAavTicks(__int64 dayTicks, int hour, int minute, int sec, in
 		return 0;
 }
 
-long long WindowsTicksToAavTicks(__int64 windowsTicks)
+__int64 WindowsTicksToAavTicks(__int64 windowsTicks)
 {
 	if (windowsTicks > 0)
 	{
-		long long advTicks = 
-				(long long)(windowsTicks - ADV_EPOCH_ZERO_TICKS) / 10000;
+		__int64 advTicks = 
+				(__int64)(windowsTicks - ADV_EPOCH_ZERO_TICKS) / 10000;
 
 		return advTicks;		
 	}

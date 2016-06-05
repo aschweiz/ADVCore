@@ -240,7 +240,7 @@ void AdvVer1_AddOrUpdateImageSectionTag(const char* tagName, const char* tagValu
 	AdvProfiling_EndProcessing();
 }
 
-bool AdvVer1_BeginFrame(long long timeStamp, unsigned int elapsedTime, unsigned int exposure)
+bool AdvVer1_BeginFrame(__int64 timeStamp, unsigned int elapsedTime, unsigned int exposure)
 {
 	AdvProfiling_StartProcessing();
 	if (!g_FileStarted)
@@ -297,14 +297,14 @@ void AdvVer1_FrameAddStatusTagUInt8(unsigned int tagIndex, unsigned char tagValu
 	AdvProfiling_EndProcessing();	
 }
 
-void AdvVer1_FrameAddStatusTag32(unsigned int tagIndex, unsigned long tagValue)
+void AdvVer1_FrameAddStatusTag32(unsigned int tagIndex, unsigned int tagValue)
 {
 	AdvProfiling_StartProcessing();
 	g_AdvFile->AddFrameStatusTagUInt32(tagIndex, tagValue);
 	AdvProfiling_EndProcessing();
 }
 
-void AdvVer1_FrameAddStatusTag64(unsigned int tagIndex, long long tagValue)
+void AdvVer1_FrameAddStatusTag64(unsigned int tagIndex, __int64 tagValue)
 {
 	AdvProfiling_StartProcessing();
 	g_AdvFile->AddFrameStatusTagUInt64(tagIndex, tagValue);
@@ -339,7 +339,38 @@ void GetLibraryVersion(char* version)
 
 int GetLibraryBitness()
 {
-	return sizeof(long) * 8;
+	#if __GNUC__
+		// All modern 64-bit Unix systems use LP64. MacOS X and Linux are both modern 64-bit systems.
+		//	Type           ILP64   LP64   LLP64
+		//  char              8      8       8
+		//  short            16     16      16
+		//  int              64     32      32
+		//  long             64     64      32
+		//  long long        64     64      64
+		//  pointer          64     64      64
+		//------------------------------------
+		// On a Unix system (gcc/g++ compiler) the bitness can be determined by the size of 'long'
+		return sizeof(long) * 8;
+	#endif
+	#if _WIN32 || _WIN64
+
+		#if defined(_WIN64)
+			return 64;  // 64-bit programs run only on Win64
+			
+		#elif defined(_WIN32)
+			//// 32-bit programs run on both 32-bit and 64-bit Windows so must sniff
+			//BOOL f64 = FALSE;
+			//if (IsWow64Process(GetCurrentProcess(), &f64) && f64)
+			//	return 64;
+			//else
+			//	return 32;
+
+			// We only care if the binary is 32 or 64 bit, so ignore the IsWow64Process thing
+			return 32;
+		#else
+			return 16; // Win64 does not support Win16
+		#endif
+	#endif
 }
 
 void GetLibraryPlatformId(char* platform)
@@ -395,7 +426,7 @@ void AdvVer2_NewFile(const char* fileName)
 	AdvProfiling_EndProcessing();
 }
 
-void AdvVer2_SetTimingPrecision(__int64 mainClockFrequency, long mainStreamAccuracy, __int64 calibrationClockFrequency, long calibrationStreamAccuracy)
+void AdvVer2_SetTimingPrecision(__int64 mainClockFrequency, int mainStreamAccuracy, __int64 calibrationClockFrequency, int calibrationStreamAccuracy)
 {
 	if (nullptr != g_Adv2File)
 	{
@@ -545,7 +576,7 @@ void AdvVer2_FrameAddStatusTagReal(unsigned int tagIndex, float tagValue)
 	AdvProfiling_EndProcessing();
 }
 
-void AdvVer2_FrameAddStatusTag32(unsigned int tagIndex, unsigned long tagValue)
+void AdvVer2_FrameAddStatusTag32(unsigned int tagIndex, unsigned int tagValue)
 {
 	AdvProfiling_StartProcessing();
 	g_Adv2File->AddFrameStatusTagUInt32(tagIndex, tagValue);
@@ -573,12 +604,12 @@ void AdvVer2_FrameAddImageBytes(unsigned char layoutId, unsigned char* pixels, u
 	AdvProfiling_EndProcessing();
 }
 
-void AdvVer2_GetMainStreamInfo(long* numFrames, __int64* mainClockFrequency, long* mainStreamAccuracy)
+void AdvVer2_GetMainStreamInfo(int* numFrames, __int64* mainClockFrequency, int* mainStreamAccuracy)
 {
 	g_Adv2File->GetMainStreamInfo(numFrames, mainClockFrequency, mainStreamAccuracy);
 }
 
-void AdvVer2_GetCalibrationStreamInfo(long* numFrames, __int64* calibrationClockFrequency, long* calibrationStreamAccuracy)
+void AdvVer2_GetCalibrationStreamInfo(int* numFrames, __int64* calibrationClockFrequency, int* calibrationStreamAccuracy)
 {
 	g_Adv2File->GetCalibrationStreamInfo(numFrames, calibrationClockFrequency, calibrationStreamAccuracy);
 }

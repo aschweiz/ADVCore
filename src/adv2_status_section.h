@@ -26,7 +26,7 @@ namespace AdvLib2
 		map<unsigned int, unsigned char> m_FrameStatusTagsUInt8;
 		map<unsigned int, unsigned short> m_FrameStatusTagsUInt16;
 		map<unsigned int, unsigned int> m_FrameStatusTagsUInt32;
-		map<unsigned int, long long> m_FrameStatusTagsUInt64;
+		map<unsigned int, __int64> m_FrameStatusTagsUInt64;
 		map<unsigned int, float> m_FrameStatusTagsReal;
 		map<unsigned int, list<string> > m_FrameStatusTagsMessages;
 
@@ -48,7 +48,7 @@ namespace AdvLib2
 			void AddFrameStatusTagUInt16(unsigned int tagIndex, unsigned short tagValue);
 			void AddFrameStatusTagReal(unsigned int tagIndex, float tagValue);
 			void AddFrameStatusTagUInt32(unsigned int tagIndex, unsigned int tagValue);
-			void AddFrameStatusTagUInt64(unsigned int tagIndex, long long tagValue);
+			void AddFrameStatusTagUInt64(unsigned int tagIndex, __int64 tagValue);
 			unsigned char* GetDataBytes(unsigned int *bytesCount);
 	};
 }
