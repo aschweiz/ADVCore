@@ -233,6 +233,14 @@
       <ProfileGuidedDatabase>$(OutDir)$(TargetName)$(PlatformArchitecture).pgd</ProfileGuidedDatabase>
       <ImportLibrary>$(OutDir)$(TargetName)$(PlatformArchitecture).lib</ImportLibrary>
     </Link>
+    <PostBuildEvent>
+      <Command>if not exist "$(SolutionDir)AdvLib.TestApp\bin\x86\$(ConfigurationName)" mkdir "$(SolutionDir)AdvLib.TestApp\bin\x86\$(ConfigurationName)"
+copy "$(TargetPath)" "$(SolutionDir)AdvLib.TestApp\bin\x86\$(ConfigurationName)" /Y
+copy "$(OutDir)$(TargetName).pdb" "$(SolutionDir)AdvLib.TestApp\bin\x86\$(ConfigurationName)" /Y
+if not exist "$(SolutionDir)AdvLib.Tests\bin\x86\$(ConfigurationName)" mkdir "$(SolutionDir)AdvLib.Tests\bin\x86\$(ConfigurationName)"
+copy "$(TargetPath)" "$(SolutionDir)AdvLib.Tests\bin\x86\$(ConfigurationName)" /Y
+copy "$(OutDir)$(TargetName).pdb" "$(SolutionDir)AdvLib.Tests\bin\x86\$(ConfigurationName)" /Y</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release - Non Windows|Win32'">
     <ClCompile>
