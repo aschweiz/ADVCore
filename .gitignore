@@ -22,6 +22,7 @@
 /Debug
 /x64
 /.build-release
+/.build-debug
 /Release
 /*.user
 /AdvLib.Core.Win32.workspace.*

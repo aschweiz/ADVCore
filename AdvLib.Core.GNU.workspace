@@ -2,11 +2,15 @@
 <CodeLite_Workspace Name="AdvLib.Core.GNU" Database="./AdvLib.Core.GNU.tags">
   <Project Name="AdvLib" Path="AdvLib.project" Active="Yes"/>
   <BuildMatrix>
-    <WorkspaceConfiguration Name="Debug" Selected="no">
+    <WorkspaceConfiguration Name="Debug" Selected="yes">
       <Environment/>
       <Project Name="AdvLib" ConfigName="Debug"/>
     </WorkspaceConfiguration>
-    <WorkspaceConfiguration Name="Release_Win32" Selected="yes">
+    <WorkspaceConfiguration Name="Release_Win32" Selected="no">
+      <Environment/>
+      <Project Name="AdvLib" ConfigName="Release_Win32"/>
+    </WorkspaceConfiguration>
+    <WorkspaceConfiguration Name="Release" Selected="no">
       <Environment/>
       <Project Name="AdvLib" ConfigName="Release"/>
     </WorkspaceConfiguration>

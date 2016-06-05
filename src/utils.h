@@ -54,7 +54,10 @@ extern time_t TIME_ADV_ZERO;
 extern tm* s_timeinfo;
 extern time_t s_initTime;
 
+#if __WIN32 || __WIN64
 __int64 SystemTimeToAavTicks(SYSTEMTIME systemTime);
+#endif
+
 __int64 DateTimeToAavTicks(__int64 dayTicks, int hour, int minute, int sec, int tenthMs);
 __int64 WindowsTicksToAavTicks(__int64 windowsTicks);
 void DebugViewPrint(const wchar_t* formatText, ...);

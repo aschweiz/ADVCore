@@ -8,10 +8,14 @@
 #define _FILE_OFFSET_BITS  64
 #include "stdio.h"
 
+#ifndef _WIN32
+typedef int long __int64;
+typedef unsigned int long __uint64;
+#endif
+
 #if _MSC_VER
 #define snprintf _snprintf
 #define MSVC
-
 // Including SDKDDKVer.h defines the highest available Windows platform.
 
 // If you wish to build your application for a previous Windows platform, include WinSDKVer.h and

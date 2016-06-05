@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#include "StdAfx.h"
+#include "stdafx.h"
 #include "utils.h"
 #include <string>
 #include <stdlib.h>
@@ -93,6 +93,7 @@ unsigned int compute_crc32(unsigned char *data, int len)
 #define ADV_EPOCH_ZERO_TICKS 633979008000000000
 #define EPOCH_1601_JAN_1_TICKS 504911232000000000
 
+#if __WIN32 || __WIN64
 __int64 SystemTimeToAavTicks(SYSTEMTIME systemTime)
 {
 	FILETIME fileTime;
@@ -104,6 +105,7 @@ __int64 SystemTimeToAavTicks(SYSTEMTIME systemTime)
 
 	return WindowsTicksToAavTicks(uli.QuadPart + EPOCH_1601_JAN_1_TICKS);
 }
+#endif
 
 __int64 DateTimeToAavTicks(__int64 dayTicks, int hour, int minute, int sec, int tenthMs)
 {

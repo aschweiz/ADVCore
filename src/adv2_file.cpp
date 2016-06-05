@@ -2,7 +2,7 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-#include "StdAfx.h"
+#include "stdafx.h"
 #include "adv2_file.h"
 #include <iostream>
 #include <stdlib.h>
@@ -46,7 +46,7 @@ bool Adv2File::BeginFile(const char* fileName)
 	if (m_Adv2File == 0) return false;
 	
 	unsigned int buffInt;
-	unsigned __int64 buffLong;
+	__int64 buffLong;
 	unsigned char buffChar;
 	
 	buffInt = 0x46545346;

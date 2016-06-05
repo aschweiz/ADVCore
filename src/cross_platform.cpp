@@ -44,8 +44,10 @@ void advfgetpos64(FILE* file, __int64* pos)
 	
 #ifdef MSVC
 	*pos = _ftelli64(file);
-#elif _WIN32
+#elif _WIN32 || _WIN64
 	int rv = fgetpos(file, reinterpret_cast<fpos_t*>(pos));
+#elif __linux__
+	int rv = fgetpos64(file, reinterpret_cast<fpos64_t*>(pos));    
 #else
 	#error Platform not supported
 #endif
