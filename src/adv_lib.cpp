@@ -340,6 +340,17 @@ void GetLibraryVersion(char* version)
 int GetLibraryBitness()
 {
 	#if __GNUC__
+	
+		#if defined(_WIN64)
+			// Windows compilation with GCC
+			return 64;
+		#elif defined(_WIN32)
+			// Windows compilation with GCC
+			return 32;
+		#endif
+		
+		// Linux/OSX Compilation
+		
 		// All modern 64-bit Unix systems use LP64. MacOS X and Linux are both modern 64-bit systems.
 		//	Type           ILP64   LP64   LLP64
 		//  char              8      8       8
@@ -351,6 +362,7 @@ int GetLibraryBitness()
 		//------------------------------------
 		// On a Unix system (gcc/g++ compiler) the bitness can be determined by the size of 'long'
 		return sizeof(long) * 8;
+		
 	#endif
 	#if _WIN32 || _WIN64
 

@@ -14,5 +14,9 @@
       <Environment/>
       <Project Name="AdvLib" ConfigName="Release"/>
     </WorkspaceConfiguration>
+    <WorkspaceConfiguration Name="Release_Win64" Selected="no">
+      <Environment/>
+      <Project Name="AdvLib" ConfigName="Release_Win64"/>
+    </WorkspaceConfiguration>
   </BuildMatrix>
 </CodeLite_Workspace>
