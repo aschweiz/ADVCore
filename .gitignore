@@ -34,3 +34,5 @@
 /Makefile
 /ReleaseGNU
 /ReleaseGNU_64
+/AdvLib.txt
+/.build-release_win32
