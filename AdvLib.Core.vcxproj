@@ -158,6 +158,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
+    <TargetName>$(ProjectName)$(PlatformArchitecture)</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release - Non Windows|Win32'">
     <LinkIncremental>false</LinkIncremental>
@@ -217,7 +218,7 @@
       <PrecompiledHeaderFile>stdafx.h</PrecompiledHeaderFile>
       <AdditionalIncludeDirectories>src</AdditionalIncludeDirectories>
       <AdditionalUsingDirectories>src</AdditionalUsingDirectories>
-      <PrecompiledHeaderOutputFile>$(IntDir)$(TargetName)$(PlatformArchitecture).pch</PrecompiledHeaderOutputFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)$(TargetName).pch</PrecompiledHeaderOutputFile>
       <ProgramDataBaseFileName>$(IntDir)vc$(PlatformToolsetVersion)$(PlatformArchitecture).pdb</ProgramDataBaseFileName>
     </ClCompile>
     <Link>
@@ -227,11 +228,11 @@
       <OptimizeReferences>true</OptimizeReferences>
       <ModuleDefinitionFile>
       </ModuleDefinitionFile>
-      <OutputFile>$(OutDir)$(TargetName)$(PlatformArchitecture)$(TargetExt)</OutputFile>
-      <ManifestFile>$(IntDir)$(TargetName)$(PlatformArchitecture)$(TargetExt).intermediate.manifest</ManifestFile>
-      <ProgramDatabaseFile>$(OutDir)$(TargetName)$(PlatformArchitecture).pdb</ProgramDatabaseFile>
-      <ProfileGuidedDatabase>$(OutDir)$(TargetName)$(PlatformArchitecture).pgd</ProfileGuidedDatabase>
-      <ImportLibrary>$(OutDir)$(TargetName)$(PlatformArchitecture).lib</ImportLibrary>
+      <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
+      <ManifestFile>$(IntDir)$(TargetName)$(TargetExt).intermediate.manifest</ManifestFile>
+      <ProgramDatabaseFile>$(OutDir)$(TargetName).pdb</ProgramDatabaseFile>
+      <ProfileGuidedDatabase>$(OutDir)$(TargetName).pgd</ProfileGuidedDatabase>
+      <ImportLibrary>$(OutDir)$(TargetName).lib</ImportLibrary>
     </Link>
     <PostBuildEvent>
       <Command>if not exist "$(SolutionDir)AdvLib.TestApp\bin\x86\$(ConfigurationName)" mkdir "$(SolutionDir)AdvLib.TestApp\bin\x86\$(ConfigurationName)"
