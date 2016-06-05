@@ -9,8 +9,8 @@
 #include "stdio.h"
 
 #ifndef _WIN32
-typedef int long __int64;
-typedef unsigned int long __uint64;		
+typedef int long long __int64;
+typedef unsigned int long long __uint64;		
 #endif
 
 #if __GNUC__

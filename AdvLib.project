@@ -154,7 +154,10 @@
         <StartupCommands/>
       </Debugger>
       <PreBuild/>
-      <PostBuild/>
+      <PostBuild>
+        <Command Enabled="yes">mkdir -p ../ADVLib/AdvLib.TestApp/bin/Release\ -\ Non\ Windows</Command>
+        <Command Enabled="yes">cp Release/libAdvCore.so ../ADVLib/AdvLib.TestApp/bin/Release\ -\ Non\ Windows</Command>
+      </PostBuild>
       <CustomBuild Enabled="no">
         <RebuildCommand/>
         <CleanCommand/>

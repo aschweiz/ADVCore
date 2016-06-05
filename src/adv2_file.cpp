@@ -210,6 +210,8 @@ bool Adv2File::BeginFile(const char* fileName)
 
 	m_UserMetadataTags.clear();
 
+    advfflush(m_Adv2File);
+    
 	return true;
 }
 
@@ -446,7 +448,7 @@ void Adv2File::EndFile()
 	
 	
 	advfflush(m_Adv2File);
-	advfclose(m_Adv2File);	
+	advfclose(m_Adv2File);
 	
 	m_Adv2File = nullptr;
 }

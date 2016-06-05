@@ -69,7 +69,7 @@ int advfsetpos64(FILE* file, const __int64* pos, int origin)
 #ifdef MSVC
 	int rv = _fseeki64(file, *pos, origin);
 #elif __linux__
-	int rv = fsetpos64(file, reinterpret_cast<const fpos64_t*>(pos));
+	int rv = fseeko64(file, (__off64_t)(*pos), origin);
 #elif _WIN32
 	int rv = fseeko64(file, *pos, origin);
 #elif __APPLE__
@@ -90,7 +90,7 @@ int advfsetpos64(FILE* file, const __int64* pos)
 #ifdef MSVC
 	int rv = _fseeki64(file, *pos, SEEK_SET);
 #elif __linux__
-	int rv = fsetpos64(file, reinterpret_cast<const fpos64_t*>(pos));
+	int rv = fsetpos64(file, (fpos64_t*)pos);
 #elif _WIN32
 	int rv = fseeko64(file, *pos, SEEK_SET);
 #elif __APPLE__
