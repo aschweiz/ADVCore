@@ -446,13 +446,30 @@ void AdvVer2_NewFile(const char* fileName)
 	AdvProfiling_EndProcessing();
 }
 
-void AdvVer2_SetTimingPrecision(__int64 mainClockFrequency, int mainStreamAccuracy, __int64 calibrationClockFrequency, int calibrationStreamAccuracy)
+void AdvVer2_SetTicksTimingPrecision(int mainStreamAccuracy, int calibrationStreamAccuracy)
 {
 	if (nullptr != g_Adv2File)
 	{
-		g_Adv2File->SetTimingPrecision(mainClockFrequency, mainStreamAccuracy, calibrationClockFrequency, calibrationStreamAccuracy);
+		g_Adv2File->SetTicksTimingPrecision(mainStreamAccuracy, calibrationStreamAccuracy);
 	}
 }
+
+void AdvVer2_DefineCustomClockForMainStream(__int64 clockFrequency, int ticksTimingAccuracy)
+{
+	if (nullptr != g_Adv2File)
+	{
+		g_Adv2File->DefineCustomClockForMainStream(clockFrequency, ticksTimingAccuracy);
+	}
+}
+
+void AdvVer2_DefineCustomClockForCalibrationStream(__int64 clockFrequency, int ticksTimingAccuracy)
+{
+	if (nullptr != g_Adv2File)
+	{
+		g_Adv2File->DefineCustomClockForCalibrationStream(clockFrequency, ticksTimingAccuracy);
+	}
+}
+
 
 void AdvVer2_EndFile()
 {
@@ -491,7 +508,29 @@ unsigned int AdvVer2_AddCalibrationStreamTag(const char* tagName, const char* ta
 	return tagId;
 }
 
-bool AdvVer2_BeginFrame(unsigned int streamId, __int64 startFrameTicks, __int64 endFrameTicks,__int64 elapsedTicksSinceFirstFrame)
+bool AdvVer2_BeginFrame(unsigned int streamId)
+{
+	AdvProfiling_StartProcessing();
+	if (!g_FileStarted)
+	{
+		bool success = g_Adv2File->BeginFile(g_CurrentAdvFile);
+		if (success)
+		{
+			g_FileStarted = true;
+		}
+		else
+		{
+			g_FileStarted = false;
+			return false;
+		}		
+	}
+	
+	g_Adv2File->BeginFrame(streamId);
+	AdvProfiling_EndProcessing();
+	return true;
+}
+
+bool AdvVer2_BeginFrameWithTicks(unsigned int streamId, __int64 startFrameTicks, __int64 endFrameTicks,__int64 elapsedTicksSinceFirstFrame)
 {
 	AdvProfiling_StartProcessing();
 	if (!g_FileStarted)

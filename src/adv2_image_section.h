@@ -41,7 +41,7 @@ namespace AdvLib2
 			unsigned char* GetDataBytes(unsigned char layoutId, unsigned short* currFramePixels, unsigned int *bytesCount, char* byteMode, unsigned char pixelsBpp);
 			AdvLib2::Adv2ImageLayout* GetImageLayoutById(unsigned char layoutId);
 			void AddOrUpdateTag(const char* tagName, const char* tagValue);
-			Adv2ImageLayout* AddImageLayout(unsigned char layoutId, const char* layoutType, const char* compression, unsigned char bpp, int keyFrame);
+			Adv2ImageLayout* AddImageLayout(unsigned char layoutId, const char* layoutType, const char* compression, unsigned char layoutBpp, int keyFrame);
 
 			int MaxFrameBufferSize();
 	};

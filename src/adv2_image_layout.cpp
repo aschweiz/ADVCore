@@ -12,14 +12,14 @@
 namespace AdvLib2
 {
 
-Adv2ImageLayout::Adv2ImageLayout(Adv2ImageSection* imageSection, unsigned int width, unsigned int height, unsigned char layoutId, const char* layoutType, const char* compression, unsigned char dataBpp, int keyFrame)
+Adv2ImageLayout::Adv2ImageLayout(Adv2ImageSection* imageSection, unsigned int width, unsigned int height, unsigned char layoutId, const char* layoutType, const char* compression, unsigned char layoutBpp, int keyFrame)
 {
 	m_ImageSection = imageSection;
 	LayoutId = layoutId;
 	Width = width;
 	Height = height;
 	Compression = nullptr;
-	DataBpp = dataBpp;
+	Bpp = layoutBpp;
 
 	AddOrUpdateTag("DATA-LAYOUT", layoutType);
 	AddOrUpdateTag("SECTION-DATA-COMPRESSION", compression);
@@ -40,13 +40,12 @@ Adv2ImageLayout::Adv2ImageLayout(Adv2ImageSection* imageSection, unsigned int wi
 	InitialiseBuffers();
 }
 
-Adv2ImageLayout::Adv2ImageLayout(Adv2ImageSection* imageSection, unsigned int width, unsigned int height, char layoutId, unsigned char dataBpp, FILE* pFile)
+Adv2ImageLayout::Adv2ImageLayout(Adv2ImageSection* imageSection, char layoutId, FILE* pFile)
 {
 	m_ImageSection = imageSection;
 	LayoutId = layoutId;
-	Width = width;
-	Height = height;
-	DataBpp = dataBpp;
+	Width = imageSection->Width;
+	Height = imageSection->Height;
 
 	m_PrevFramePixels = nullptr;
 	m_PrevFramePixelsTemp = nullptr;

@@ -55,6 +55,8 @@ namespace AdvLib2
 			unsigned int m_MainStreamTickAccuracy;
 			__int64 m_CalibrationStreamClockFrequency;
 			unsigned int m_CalibrationStreamTickAccuracy;
+			bool m_UsesCustomMainStreamClock;
+			bool m_UsesCustomCalibrationStreamClock;
 
 			int m_NumberOfMainFrames;
 			int m_NumberOfCalibrationFrames;
@@ -65,7 +67,9 @@ namespace AdvLib2
 			~Adv2File();
 			
 			bool BeginFile(const char* fileName);
-			void SetTimingPrecision(__int64 mainClockFrequency, int mainStreamAccuracy, __int64 calibrationClockFrequency, int calibrationStreamAccuracy);
+			void SetTicksTimingPrecision(int mainStreamAccuracy, int calibrationStreamAccuracy);
+			void DefineCustomClockForMainStream(__int64 clockFrequency, int ticksTimingAccuracy);
+			void DefineCustomClockForCalibrationStream(__int64 clockFrequency, int ticksTimingAccuracy);
 			void EndFile();
 			
 			int LoadFile(const char* fileName);
@@ -80,6 +84,7 @@ namespace AdvLib2
 			int AddCalibrationStreamTag(const char* tagName, const char* tagValue);
 			
 			void BeginFrame(unsigned char streamId, __int64 startFrameTicks, __int64 endFrameTicks,__int64 elapsedTicksSinceFirstFrame);
+			void BeginFrame(unsigned char streamId);
 			void EndFrame();
 
 			void AddFrameStatusTagUTF8String(unsigned int tagIndex, const char* tagValue);

@@ -37,9 +37,9 @@ Adv2ImageSection::~Adv2ImageSection()
 	m_ImageLayouts.empty();
 }
 
-Adv2ImageLayout* Adv2ImageSection::AddImageLayout(unsigned char layoutId, const char* layoutType, const char* compression, unsigned char bpp, int keyFrame)
+Adv2ImageLayout* Adv2ImageSection::AddImageLayout(unsigned char layoutId, const char* layoutType, const char* compression, unsigned char layoutBpp, int keyFrame)
 {
-	AdvLib2::Adv2ImageLayout* layout = new AdvLib2::Adv2ImageLayout(this, Width, Height, layoutId, layoutType, compression, bpp, keyFrame); 
+	AdvLib2::Adv2ImageLayout* layout = new AdvLib2::Adv2ImageLayout(this, Width, Height, layoutId, layoutType, compression, layoutBpp, keyFrame); 
 	m_ImageLayouts.insert(make_pair(layoutId, layout));
 	return layout;
 }
@@ -80,7 +80,7 @@ Adv2ImageSection::Adv2ImageSection(FILE* pFile)
 		char layoutId;
 		advfread(&layoutId, 1, 1, pFile);
 
-		Adv2ImageLayout* imageLayout = new AdvLib2::Adv2ImageLayout(this, Width, Height, DataBpp, layoutId, pFile);
+		Adv2ImageLayout* imageLayout = new AdvLib2::Adv2ImageLayout(this, layoutId, pFile);
 		m_ImageLayouts.insert(make_pair(layoutId, imageLayout));
 	}
 

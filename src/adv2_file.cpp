@@ -31,6 +31,8 @@ Adv2File::Adv2File()
 
 	m_NumberOfMainFrames = 0;
 	m_NumberOfCalibrationFrames = 0;
+	m_UsesCustomMainStreamClock = false;
+	m_UsesCustomCalibrationStreamClock = false;
 }
 
 Adv2File::~Adv2File()
@@ -399,13 +401,26 @@ bool Adv2File::CloseFile()
 	return fileClosed;
 }
 
-void Adv2File::SetTimingPrecision(__int64 mainClockFrequency, int mainStreamAccuracy, __int64 calibrationClockFrequency, int calibrationStreamAccuracy)
+void Adv2File::SetTicksTimingPrecision(int mainStreamAccuracy, int calibrationStreamAccuracy)
 {
-	m_MainStreamClockFrequency = mainClockFrequency;
 	m_MainStreamTickAccuracy = mainStreamAccuracy;
-	m_CalibrationStreamClockFrequency = calibrationClockFrequency;
 	m_CalibrationStreamTickAccuracy = calibrationStreamAccuracy;
 }
+
+void Adv2File::DefineCustomClockForMainStream(__int64 clockFrequency, int ticksTimingAccuracy)
+{
+	m_UsesCustomMainStreamClock = true;
+	m_MainStreamClockFrequency = clockFrequency;
+	m_MainStreamTickAccuracy = ticksTimingAccuracy;
+}
+
+void Adv2File::DefineCustomClockForCalibrationStream(__int64 clockFrequency, int ticksTimingAccuracy)
+{
+	m_UsesCustomCalibrationStreamClock = true;
+	m_CalibrationStreamClockFrequency = clockFrequency;
+	m_CalibrationStreamTickAccuracy = ticksTimingAccuracy;
+}
+
 
 void Adv2File::EndFile()
 {
@@ -494,6 +509,18 @@ int Adv2File::AddUserTag(const char* tagName, const char* tagValue)
 	m_UserMetadataTags.insert((make_pair(string(tagName == nullptr ? "" : tagName), string(tagValue == nullptr ? "" : tagValue))));
 	
 	return (int)m_UserMetadataTags.size();	
+}
+
+void Adv2File::BeginFrame(unsigned char streamId)
+{
+	// TODO: Get the ticks from the internal clock
+	//       QueryPerformanceCounters on Windows
+	//       clock_gettime() on Unix (http://linux.die.net/man/2/clock_gettime)
+	__int64 startFrameTicks = 0;
+	__int64 endFrameTicks = 0;
+	__int64 elapsedTicksSinceFirstFrame = 0;
+
+	BeginFrame(streamId, startFrameTicks, endFrameTicks, elapsedTicksSinceFirstFrame);
 }
 
 void Adv2File::BeginFrame(unsigned char streamId, __int64 startFrameTicks, __int64 endFrameTicks,__int64 elapsedTicksSinceFirstFrame)

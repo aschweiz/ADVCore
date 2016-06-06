@@ -53,7 +53,6 @@ namespace AdvLib2
 		unsigned int Width;
 		unsigned int Height;
 		unsigned char Bpp;
-		unsigned char DataBpp;
 	
 		const char* Compression;
 		bool IsDiffCorrLayout;
@@ -65,8 +64,8 @@ namespace AdvLib2
 
 
 	public:
-		Adv2ImageLayout(Adv2ImageSection* imageSection, unsigned int width, unsigned int height, unsigned char layoutId, const char* layoutType, const char* compression, unsigned char dataBpp, int keyFrame);
-		Adv2ImageLayout(Adv2ImageSection* imageSection, unsigned int width, unsigned int height, char layoutId, unsigned char dataBpp, FILE* pFile);
+		Adv2ImageLayout(Adv2ImageSection* imageSection, unsigned int width, unsigned int height, unsigned char layoutId, const char* layoutType, const char* compression, unsigned char layoutBpp, int keyFrame);
+		Adv2ImageLayout(Adv2ImageSection* imageSection, char layoutId, FILE* pFile);
 		~Adv2ImageLayout();
 
 		void AddOrUpdateTag(const char* tagName, const char* tagValue);
