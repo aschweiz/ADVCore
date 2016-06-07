@@ -222,5 +222,17 @@ AdvLib2::Adv2ImageLayout* Adv2ImageSection::GetImageLayoutById(unsigned char lay
 	return nullptr;
 }
 
+void Adv2ImageSection::GetDataFromDataBytes(unsigned char* data, unsigned int* prevFrame, unsigned int* pixels, int sectionDataLength, int startOffset)
+{
+	unsigned char* sectionData = data + startOffset;
+	unsigned char layoutId = *sectionData;
+	sectionData++;
+
+	enum GetByteMode byteMode = (GetByteMode)*sectionData;
+	sectionData++;
+
+	Adv2ImageLayout* imageLayout = GetImageLayoutById(layoutId);	
+	imageLayout->GetDataFromDataBytes(byteMode, data, prevFrame, pixels, sectionDataLength - 2, startOffset + 2);
+}
 
 }

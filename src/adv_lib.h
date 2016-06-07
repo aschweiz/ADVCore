@@ -6,10 +6,15 @@
 #define ADV_LIB
 
 #include "adv_file.h"
+#include "adv2_file.h"
+#include "adv2_status_section.h"
 
 extern char* g_CurrentAdvFile;
 extern AdvLib::AdvFile* g_AdvFile;
+extern AdvLib2::Adv2File* g_Adv2File;
 extern bool g_FileStarted;
+extern int g_PrevFrameNo;
+extern unsigned int* g_PrevFramePixels;
 
 #define CORE_VERSION "2.0d"
 
@@ -69,12 +74,13 @@ DLL_PUBLIC void AdvVer2_EndFrame();
 
 DLL_PUBLIC void AdvVer2_GetMainStreamInfo(int* numFrames, __int64* mainClockFrequency, int* mainStreamAccuracy);
 DLL_PUBLIC void AdvVer2_GetCalibrationStreamInfo(int* numFrames, __int64* calibrationClockFrequency, int* calibrationStreamAccuracy);
-
+DLL_PUBLIC HRESULT AdvVer2_GetFramePixels(int streamId, int frameNo, unsigned int* pixels, AdvLib2::AdvFrameInfo* frameInfo, char* systemError);
 
 
 DLL_PUBLIC void GetLibraryVersion(char* version);
 DLL_PUBLIC void GetLibraryPlatformId( char* platform);
 DLL_PUBLIC int GetLibraryBitness();
+
 
 #ifdef __cplusplus
 }

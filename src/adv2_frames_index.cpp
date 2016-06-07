@@ -138,4 +138,13 @@ void Adv2FramesIndex::AddFrame(unsigned char streamId, unsigned int frameNo, __i
 		m_CalibrationIndexEntries->push_back(entry);
 }
 
+Index2Entry* Adv2FramesIndex::GetIndexForFrame(unsigned char streamId, unsigned int frameNo)
+{
+	Index2Entry* indexEntryAtPos = streamId == 0 
+		? m_MainIndexEntries->at(frameNo)
+		: m_CalibrationIndexEntries->at(frameNo);
+
+	return indexEntryAtPos;
+}
+
 }

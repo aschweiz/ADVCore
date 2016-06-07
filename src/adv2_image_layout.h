@@ -40,7 +40,9 @@ namespace AdvLib2
 		unsigned int m_MaxPixelArrayLengthWithoutSigns;
 
 		char* m_CompressedPixels;
+		char* m_DecompressedPixels;
 		qlz_state_compress* m_StateCompress;
+		qlz_state_decompress* m_StateDecompress;
 		Compressor* m_Lagarith16Compressor;
 		bool m_UsesCompression;
 		bool m_UsesLagarith16Compression;
@@ -72,6 +74,7 @@ namespace AdvLib2
 		void WriteHeader(FILE* pfile);
 		void StartNewDiffCorrSequence();
 		unsigned char* GetDataBytes(unsigned short* currFramePixels, enum GetByteMode mode, unsigned int *bytesCount, unsigned char dataPixelsBpp);
+		void GetDataFromDataBytes(enum GetByteMode mode, unsigned char* data, unsigned int* prevFrame, unsigned int* pixels, int sectionDataLength, int startOffset);
 	
 	private:
 		unsigned char* GetFullImageDiffCorrWithSignsDataBytes(unsigned short* currFramePixels, enum GetByteMode mode, unsigned int *bytesCount, unsigned char dataPixelsBpp);
@@ -83,6 +86,12 @@ namespace AdvLib2
 		void GetDataBytes12BppIndex12BppWords(unsigned short* currFramePixels, enum GetByteMode mode, unsigned int pixelsCRC32, unsigned int *bytesCount, unsigned char dataPixelsBpp);
 		void GetDataBytes12BppIndex16BppWords(unsigned short* currFramePixels, enum GetByteMode mode, unsigned int pixelsCRC32, unsigned int *bytesCount, unsigned char dataPixelsBpp);
 		void GetDataBytes12BppIndexBytes(unsigned short* currFramePixels, enum GetByteMode mode, unsigned int pixelsCRC32, unsigned int *bytesCount, unsigned char dataPixelsBpp);
+
+		void GetPixelsFrom8BitByteArrayDiffCorrLayout(unsigned char* layoutData, unsigned int* prevFrame, unsigned int* pixelsOut, int* readIndex, bool* crcOkay);
+		void GetPixelsFrom8BitByteArrayRawLayout(unsigned char* layoutData, unsigned int* prevFrame, unsigned int* pixelsOut, int* readIndex, bool* crcOkay);
+		void GetPixelsFrom16BitByteArrayRawLayout(unsigned char* layoutData, unsigned int* prevFrame, unsigned int* pixelsOut, int* readIndex, bool* crcOkay);
+		void GetPixelsFrom16BitByteArrayDiffCorrLayout(unsigned char* layoutData, unsigned int* prevFrame, unsigned int* pixelsOut, int* readIndex, bool* crcOkay);
+		void GetPixelsFrom12BitByteArray(unsigned char* layoutData, unsigned int* prevFrame, unsigned int* pixelsOut, enum GetByteMode mode, int* readIndex, bool* crcOkay);
 	};
 }
 

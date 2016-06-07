@@ -33,6 +33,8 @@ Adv2File::Adv2File()
 	m_NumberOfCalibrationFrames = 0;
 	m_UsesCustomMainStreamClock = false;
 	m_UsesCustomCalibrationStreamClock = false;
+	TotalNumberOfMainFrames = 0;
+	TotalNumberOfCalibrationFrames = 0;
 }
 
 Adv2File::~Adv2File()
@@ -219,6 +221,9 @@ bool Adv2File::BeginFile(const char* fileName)
 
 int Adv2File::LoadFile(const char* fileName)
 {
+	TotalNumberOfMainFrames = 0;
+	TotalNumberOfCalibrationFrames = 0;
+
 	m_Adv2File = advfopen(fileName, "rb");
 	if (m_Adv2File == 0) return false;
 	
@@ -262,6 +267,8 @@ int Adv2File::LoadFile(const char* fileName)
 	advfread(&m_MainStreamTickAccuracy, 4, 1, m_Adv2File);
 	advfread(&streamHeaderOffsets[0], 8, 1, m_Adv2File); // Offset of main stream metadata table (will be saved later)
 
+	TotalNumberOfMainFrames = m_NumberOfMainFrames;	
+
 	char* calibrationStreamName = ReadUTF8String(m_Adv2File);
 	if (strcmp(calibrationStreamName, "CALIBRATION") != 0)
 	{
@@ -270,10 +277,12 @@ int Adv2File::LoadFile(const char* fileName)
 	}
 	delete calibrationStreamName;
 
-	advfread(&m_NumberOfCalibrationFrames, 4, 1, m_Adv2File); // Number of frames saved in the Main stream
+	advfread(&m_NumberOfCalibrationFrames, 4, 1, m_Adv2File); // Number of frames saved in the Calibration stream
 	advfread(&m_CalibrationStreamClockFrequency, 8, 1, m_Adv2File);
 	advfread(&m_CalibrationStreamTickAccuracy, 4, 1, m_Adv2File);
 	advfread(&streamHeaderOffsets[1], 8, 1, m_Adv2File); // Offset of main stream metadata table (will be saved later)
+
+	TotalNumberOfCalibrationFrames = m_NumberOfCalibrationFrames;
 
 	unsigned char numberSections;
 	advfread(&numberSections, 1, 1, m_Adv2File); // Number of sections (image and status) 
@@ -699,6 +708,67 @@ void Adv2File::GetCalibrationStreamInfo(int* numFrames, __int64* calibrationCloc
 	*numFrames = m_NumberOfCalibrationFrames;
 	*calibrationClockFrequency = m_CalibrationStreamClockFrequency;
 	*calibrationStreamAccuracy = m_CalibrationStreamTickAccuracy;
+}
+
+void Adv2File::GetFrameImageSectionHeader(int streamId, int frameId, unsigned char* layoutId, enum GetByteMode* mode)
+{
+	AdvLib2::Index2Entry* indexEntry = m_Index->GetIndexForFrame(streamId, frameId);
+
+	advfsetpos64(m_Adv2File, &indexEntry->FrameOffset);
+
+
+	long frameDataMagic;
+	fread(&frameDataMagic, 4, 1, m_Adv2File);
+
+	if (frameDataMagic == 0xEE0122FF)
+	{
+		// Skip 16 bytes forward
+		long ignoredValue;
+		fread(&ignoredValue, 4, 1, m_Adv2File);
+		fread(&ignoredValue, 4, 1, m_Adv2File);
+		fread(&ignoredValue, 4, 1, m_Adv2File);
+		fread(&ignoredValue, 4, 1, m_Adv2File);
+
+		fread(layoutId, 1, 1, m_Adv2File);
+
+		unsigned char byteMode;
+
+		fread(&byteMode, 1, 1, m_Adv2File);
+
+		*mode = (GetByteMode)byteMode;
+	}
+}
+
+void Adv2File::GetFrameSectionData(int streamId, int frameId, unsigned int* prevFrame, unsigned int* pixels, AdvFrameInfo* frameInfo, char* systemError)
+{
+	AdvLib2::Index2Entry* indexEntry = m_Index->GetIndexForFrame(streamId, frameId);
+
+	advfsetpos64(m_Adv2File, &indexEntry->FrameOffset);
+
+	long frameDataMagic;
+	fread(&frameDataMagic, 4, 1, m_Adv2File);
+
+	if (frameDataMagic == 0xEE0122FF)
+	{
+		unsigned char* data = (unsigned char*)malloc(indexEntry->BytesCount);
+		fread(data, indexEntry->BytesCount, 1, m_Adv2File);
+
+		// Read the timestamp and exposure 
+		frameInfo->StartTimeStampLo = data[0] + (data[1] << 8) + (data[2] << 16) + (data[3] << 24);
+		frameInfo->StartTimeStampHi = data[4] + (data[5] << 8) + (data[6] << 16) + (data[7] << 24);
+    	frameInfo->Exposure10thMs = data[8] + (data[9] << 8) + (data[10] << 16) + (data[11] << 24);
+
+	    int dataOffset = 12;
+		int sectionDataLength = data[dataOffset] + (data[dataOffset + 1] << 8) + (data[dataOffset + 2] << 16) + (data[dataOffset + 3] << 24);
+
+		ImageSection->GetDataFromDataBytes(data, prevFrame, pixels, sectionDataLength, dataOffset + 4);
+		dataOffset += sectionDataLength + 4;
+
+		sectionDataLength = data[dataOffset] + (data[dataOffset + 1] << 8) + (data[dataOffset + 2] << 16) + (data[dataOffset + 3] << 24);
+		StatusSection->GetDataFromDataBytes(data, sectionDataLength, dataOffset + 4, frameInfo, systemError);
+		
+		delete data;
+	}
 }
 
 }

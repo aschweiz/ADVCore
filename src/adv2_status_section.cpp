@@ -26,7 +26,7 @@ Adv2StatusSection::~Adv2StatusSection()
 unsigned int Adv2StatusSection::DefineTag(const char* tagName, AdvTagType tagType)
 {
 	m_TagDefinitionNames.push_back(string(tagName));
-	m_TagDefinitionTypes.push_back(tagType);
+	m_TagDefinition.insert(make_pair(string(tagName), (AdvTagType)tagType));
 	
 	switch(tagType)
 	{
@@ -128,6 +128,18 @@ unsigned int FloatToIntBits(const float x)
     return u.i;
 }
 
+float IntToFloat(unsigned int x)
+{
+	union 
+	{
+		float f;
+		unsigned int i;
+	} u;
+
+	u.i = x;
+	return u.f;
+}
+
 Adv2StatusSection::Adv2StatusSection(FILE* pFile)
 {
 	MaxFrameBufferSize = 0;
@@ -164,12 +176,14 @@ void Adv2StatusSection::WriteHeader(FILE* pFile)
 		char* tagName = const_cast<char*>(m_TagDefinitionNames.front().c_str());
 		WriteUTF8String(pFile, tagName);
 		
-		buffChar = (unsigned char)(int)(m_TagDefinitionTypes.front());
+		map<string, AdvTagType>::iterator currDef = m_TagDefinition.find(tagName);
+
+		buffChar = (unsigned char)(int)((AdvTagType)(currDef->second));
 		advfwrite(&buffChar, 1, 1, pFile);		
 		
 		m_TagDefinitionNames.pop_front();
-		m_TagDefinitionTypes.pop_front();
 	}
+	m_TagDefinition.empty();
 }
 
 unsigned char* Adv2StatusSection::GetDataBytes(unsigned int *bytesCount)
@@ -360,5 +374,201 @@ unsigned char* Adv2StatusSection::GetDataBytes(unsigned int *bytesCount)
 	*bytesCount = size;
 	return statusData;
 }
+
+void Adv2StatusSection::GetDataFromDataBytes(unsigned char* data, int sectionDataLength, int startOffset, AdvFrameInfo* frameInfo, char* systemError)
+{
+	unsigned char* statusData = data + startOffset;
+	unsigned char tagsCount = *statusData;
+	statusData++;
+
+	for(int i = 0; i < tagsCount; i++)
+	{
+		unsigned char tagId = *statusData;
+		
+		string currById = m_FrameStatusTags[tagId];
+		const char* tagName = currById.c_str();
+		map<string, AdvTagType>::iterator currDef = m_TagDefinition.find(tagName);
+		AdvTagType type = (AdvTagType)(currDef->second);
+		
+		if (strcmp("GPSTrackedSatellites", tagName) == 0)
+		{
+			char val = *(statusData + 1);
+			frameInfo->GPSTrackedSattelites = val;
+			statusData+=2;
+		}
+		else if (strcmp("GPSAlmanacStatus", tagName) == 0)
+		{
+			char val = *(statusData + 1);
+			frameInfo->GPSAlmanacStatus = val;
+			statusData+=2;
+		}
+		else if (strcmp("GPSAlmanacOffset", tagName) == 0)
+		{
+			char val = *(statusData + 1);
+			frameInfo->GPSAlmanacOffset = val;
+			statusData+=2;
+		}
+		else if (strcmp("GPSFixStatus", tagName) == 0)
+		{
+			char val = *(statusData + 1);
+			frameInfo->GPSFixStatus = val;
+			statusData+=2;
+		}
+		else if (strcmp("Gain", tagName) == 0)
+		{
+			unsigned char  b1 = *(statusData + 1);
+			unsigned char  b2 = *(statusData + 2);
+			unsigned char  b3 = *(statusData + 3);
+			unsigned char  b4 = *(statusData + 4);
+
+			unsigned int value = (unsigned int)(((int)b4 << 24) + ((int)b3 << 16) + ((int)b2 << 8) + (int)b1);
+			float fVal = IntToFloat(value);
+
+			frameInfo->Gain = fVal;
+			
+			statusData+=5;
+		}
+		else if (strcmp("Gamma", tagName) == 0)
+		{
+			unsigned char  b1 = *(statusData + 1);
+			unsigned char  b2 = *(statusData + 2);
+			unsigned char  b3 = *(statusData + 3);
+			unsigned char  b4 = *(statusData + 4);
+
+			unsigned int value = (unsigned int)(((int)b4 << 24) + ((int)b3 << 16) + ((int)b2 << 8) + (int)b1);
+			float fVal = IntToFloat(value);
+
+			frameInfo->Gamma = fVal;
+			
+			statusData+=5;			
+		}
+		else if (strcmp("Temperature", tagName) == 0)
+		{
+			unsigned char  b1 = *(statusData + 1);
+			unsigned char  b2 = *(statusData + 2);
+			unsigned char  b3 = *(statusData + 3);
+			unsigned char  b4 = *(statusData + 4);
+
+			unsigned int value = (unsigned int)(((int)b4 << 24) + ((int)b3 << 16) + ((int)b2 << 8) + (int)b1);
+			float fVal = IntToFloat(value);
+
+			frameInfo->Temperature = fVal;
+			
+			statusData+=5;			
+		}
+		else if (strcmp("Shutter", tagName) == 0)
+		{
+			unsigned char  b1 = *(statusData + 1);
+			unsigned char  b2 = *(statusData + 2);
+			unsigned char  b3 = *(statusData + 3);
+			unsigned char  b4 = *(statusData + 4);
+
+			unsigned int value = (unsigned int)(((int)b4 << 24) + ((int)b3 << 16) + ((int)b2 << 8) + (int)b1);
+			float fVal = IntToFloat(value);
+
+			frameInfo->Shutter = fVal;
+
+			statusData+=5;			
+		}
+		else if (strcmp("Offset", tagName) == 0)
+		{
+			unsigned char  b1 = *(statusData + 1);
+			unsigned char  b2 = *(statusData + 2);
+			unsigned char  b3 = *(statusData + 3);
+			unsigned char  b4 = *(statusData + 4);
+
+			unsigned int value = (unsigned int)(((int)b4 << 24) + ((int)b3 << 16) + ((int)b2 << 8) + (int)b1);
+			float fVal = IntToFloat(value);
+
+			frameInfo->Offset = fVal;
+			
+			statusData+=5;			
+		}
+		else if (strcmp("VideoCameraFrameId", tagName) == 0)
+		{
+			unsigned char  b1 = *(statusData + 1);
+			unsigned char  b2 = *(statusData + 2);
+			unsigned char  b3 = *(statusData + 3);
+			unsigned char  b4 = *(statusData + 4);
+			unsigned char  b5 = *(statusData + 5);
+			unsigned char  b6 = *(statusData + 6);
+			unsigned char  b7 = *(statusData + 7);
+			unsigned char  b8 = *(statusData + 8);
+
+			long valLo = (long)(((long)b4 << 24) + ((long)b3 << 16) + ((long)b2 << 8) + (long)b1);
+			long valHi = (long)(((long)b8 << 24) + ((long)b7 << 16) + ((long)b6 << 8) + (long)b5);
+
+			if (strcmp("VideoCameraFrameId", tagName) == 0)
+			{
+				frameInfo->VideoCameraFrameIdLo = valLo;
+				frameInfo->VideoCameraFrameIdHi = valHi;			
+			}
+			
+			statusData+=9;
+		}
+		else if (
+			strcmp("SystemError", tagName) == 0)
+		{
+			char* destBuffer = systemError;
+
+			unsigned char count = *(statusData + 1);
+			statusData += 2;
+			for (int j = 0; j < count; j++)
+			{
+				unsigned char len = *statusData;
+				
+				if (destBuffer != NULL)
+				{
+					strncpy(destBuffer,  (char*)(statusData + 1), len);
+					destBuffer+=len;
+					*destBuffer = '\n';
+					*(destBuffer + 1) = '\r';
+					destBuffer+=2;
+
+					*destBuffer = '\0';
+				}
+
+				statusData += 1 + len;
+			}			
+		}
+		else
+		{
+			switch(type)
+			{
+				case UInt8:
+					statusData+=2;
+					break;
+				case UInt16:
+					statusData+=3;
+					break;
+				case UInt32:
+					statusData+=5;
+					break;
+				case ULong64:
+					statusData+=9;
+					break;
+				case AnsiString255:
+					{
+						unsigned char strLen = *(statusData + 1);
+						statusData += 2 + strLen;
+					}
+					break;
+				case List16OfAnsiString255:
+					{
+						unsigned char count = *(statusData + 1);
+						statusData += 2;
+						for (int j = 0; j < count; j++)
+						{
+							unsigned char len = *statusData;
+							statusData += 1 + len;
+						}							
+					}
+					break;
+			}
+		}
+	}
+}
+
+
 
 }

@@ -628,4 +628,233 @@ void Adv2ImageLayout::GetDataBytes16Bpp(unsigned short* pixels, enum GetByteMode
 	*/
 }
 
+void Adv2ImageLayout::GetDataFromDataBytes(enum GetByteMode mode, unsigned char* data, unsigned int* prevFrame, unsigned int* pixels, int sectionDataLength, int startOffset)
+{
+	unsigned char* layoutData;
+	
+	if (!m_UsesCompression)
+	{
+		layoutData = data + startOffset;
+	}
+	else if (0 == strcmp(Compression, "QUICKLZ"))
+	{		
+		size_t size = qlz_size_decompressed((char*)(data + startOffset));
+		// MaxFrameBufferSize
+		qlz_decompress((char*)(data + startOffset), m_DecompressedPixels, m_StateDecompress);		
+		layoutData = (unsigned char*)m_DecompressedPixels;
+	}
+	else  if (0 == strcmp(Compression, "LAGARITH16"))
+	{		
+		int size = m_Lagarith16Compressor->DecompressData((char*)(data + startOffset), (unsigned short*)m_DecompressedPixels);
+		layoutData = (unsigned char*)m_DecompressedPixels;
+	}
+
+	bool crcOkay;
+	int readIndex = 0;
+
+	if (Bpp == 12)
+	{
+		GetPixelsFrom12BitByteArray(layoutData, prevFrame, pixels, mode, &readIndex, &crcOkay);
+	}
+	else if (Bpp == 16)
+	{
+		if (IsDiffCorrLayout)
+			GetPixelsFrom16BitByteArrayDiffCorrLayout(layoutData, prevFrame, pixels, &readIndex, &crcOkay);
+		else
+			GetPixelsFrom16BitByteArrayRawLayout(layoutData, prevFrame, pixels, &readIndex, &crcOkay);
+	}
+	else if (Bpp == 8)
+	{
+		if (IsDiffCorrLayout)
+			GetPixelsFrom8BitByteArrayDiffCorrLayout(layoutData, prevFrame, pixels, &readIndex, &crcOkay);
+		else
+			GetPixelsFrom8BitByteArrayRawLayout(layoutData, prevFrame, pixels, &readIndex, &crcOkay);
+	}
+}
+
+void Adv2ImageLayout::GetPixelsFrom8BitByteArrayDiffCorrLayout(unsigned char* layoutData, unsigned int* prevFrame, unsigned int* pixelsOut, int* readIndex, bool* crcOkay)
+{
+    return;
+}
+
+void Adv2ImageLayout::GetPixelsFrom8BitByteArrayRawLayout(unsigned char* layoutData, unsigned int* prevFrame, unsigned int* pixelsOut, int* readIndex, bool* crcOkay)
+{
+	//if (DataBpp == 8)
+	//{		
+	//	unsigned int* pPixelsOut = pixelsOut;
+	//	for (int y = 0; y < Height; ++y)
+	//	{
+	//		for (int x = 0; x < Width; ++x)
+	//		{
+	//			unsigned char bt1 = *layoutData;
+	//			layoutData++;
+	//				
+	//			*pPixelsOut = (unsigned short)bt1;
+	//			pPixelsOut++;
+	//		}
+	//	}
+
+	//	*readIndex += Height * Width;
+	//}
+	//
+	//if (m_ImageSection->UsesCRC)
+	//{
+	//	unsigned int savedFrameCrc = (unsigned int)(*layoutData + (*(layoutData + 1) << 8) + (*(layoutData + 2) << 16) + (*(layoutData + 3) << 24));
+	//	*readIndex += 4;
+	//}
+	//else
+	//	*crcOkay = true;
+}
+
+void Adv2ImageLayout::GetPixelsFrom16BitByteArrayRawLayout(unsigned char* layoutData, unsigned int* prevFrame, unsigned int* pixelsOut, int* readIndex, bool* crcOkay)
+{
+	//if (DataBpp == 12 || DataBpp == 14 || DataBpp == 16)
+	//{		
+	//	unsigned int* pPixelsOut = pixelsOut;
+	//	bool isLittleEndian = m_ImageSection->ByteOrder == LittleEndian;
+	//	bool convertTo12Bit = m_ImageSection->DynaBits == 16 && m_ImageSection->DataBpp == 12;
+	//	bool convertTo14Bit = m_ImageSection->DynaBits == 16 &&m_ImageSection->DataBpp == 14;
+
+	//	for (int y = 0; y < Height; ++y)
+	//	{
+	//		for (int x = 0; x < Width; ++x)
+	//		{
+	//			unsigned char bt1 = *layoutData;
+	//			layoutData++;
+	//			unsigned char bt2 = *layoutData;
+	//			layoutData++;
+
+	//			unsigned short val = isLittleEndian 
+	//					? (unsigned short)(((unsigned short)bt2 << 8) + bt1)
+	//					: (unsigned short)(((unsigned short)bt1 << 8) + bt2);
+	//			
+	//			if (convertTo12Bit)
+	//				val = (unsigned short)(val >> 4);
+	//			else if (convertTo14Bit)
+	//				val = (unsigned short)(val >> 2);
+	//				
+	//			*pPixelsOut = val;
+	//			pPixelsOut++;
+	//		}
+	//	}
+
+	//	*readIndex += Height * Width * 2;
+	//}
+
+	//if (m_ImageSection->UsesCRC)
+	//{
+	//	unsigned int savedFrameCrc = (unsigned int)(*layoutData + (*(layoutData + 1) << 8) + (*(layoutData + 2) << 16) + (*(layoutData + 3) << 24));
+	//	*readIndex += 4;
+	//}
+	//else
+	//	*crcOkay = true;
+}
+
+void Adv2ImageLayout::GetPixelsFrom12BitByteArray(unsigned char* layoutData, unsigned int* prevFrame, unsigned int* pixelsOut, enum GetByteMode mode, int* readIndex, bool* crcOkay)
+{
+	//bool isLittleEndian = m_ImageSection->ByteOrder == LittleEndian;
+	//bool convertTo12Bit = m_ImageSection->DataBpp == 12;	
+	//bool convertTo16Bit = m_ImageSection->DataBpp == 16;
+
+	//bool isDiffCorrFrame = mode == DiffCorrBytes;
+
+	//unsigned int* pPrevFrame = prevFrame;
+
+	//int counter = 0;
+	//for (int y = 0; y < Height; ++y)
+	//{
+	//	for (int x = 0; x < Width; ++x)
+	//	{
+	//		counter++;
+	//		// Every 2 12-bit values can be encoded in 3 bytes
+	//		// xxxxxxxx|xxxxyyyy|yyyyyyy
+
+	//		unsigned char bt1;
+	//		unsigned char bt2;
+	//		unsigned short val;
+
+	//		switch (counter % 2)
+	//		{
+	//			case 1:
+	//				bt1 = *layoutData;
+	//				layoutData++;
+	//				bt2 = *layoutData;
+
+	//				val = (unsigned short)(((unsigned short)bt1 << 4) + ((bt2 >> 4) & 0x0F));
+	//				if (!isLittleEndian)
+	//				{
+	//					val = (unsigned short)(val << 4);
+	//					val = (unsigned short)((unsigned short)((val & 0xFF) << 8) + (unsigned short)(val >> 8));
+
+	//					if (convertTo12Bit)
+	//						throw "NotSupportedException";
+	//				}
+	//				else
+	//					if (convertTo16Bit) val = (unsigned short)(val << 4);
+
+	//				if (isDiffCorrFrame)
+	//				{
+	//					val = (unsigned short)((unsigned short)*pPrevFrame + (unsigned short)val);
+	//					pPrevFrame++;
+	//					if (convertTo12Bit && val > 4095) val -= 4095;
+	//				}
+
+	//				*pixelsOut = val;
+	//				pixelsOut++;
+
+	//				if (counter < 10 || counter > Height * Width - 10) 
+	//					printf("%d: %d", counter, val);
+	//				break;
+
+	//			case 0:
+	//				bt1 = *layoutData;
+	//				layoutData++;
+	//				bt2 = *layoutData;
+	//				layoutData++;
+
+	//				val = (unsigned short)((((unsigned short)bt1 & 0x0F) << 8) + bt2);
+	//				if (!isLittleEndian)
+	//				{
+	//					val = (unsigned short)(val << 4);
+	//					val = (unsigned short)((unsigned short)((val & 0xFF) << 8) + (unsigned short)(val >> 8));
+
+	//					if (convertTo12Bit) 
+	//						throw "NotSupportedException";
+	//				}
+	//				else
+	//					if (convertTo16Bit) val = (unsigned short)(val << 4);
+
+	//				if (isDiffCorrFrame)
+	//				{
+	//					val = (unsigned short)((unsigned short)*pPrevFrame + (unsigned short)val);
+	//					pPrevFrame++;
+	//					if (convertTo12Bit && val > 4095) val -= 4095;
+	//				}
+
+	//				*pixelsOut = val;
+	//				pixelsOut++;
+	//				if (counter < 10 || counter > Height * Width - 10) 
+	//					printf("%d: %d", counter, val);
+	//				break;
+	//		}
+	//	}
+	//}
+
+	//if (m_ImageSection->UsesCRC)
+	//{
+	//	unsigned int savedFrameCrc = (unsigned int)(*layoutData + (*(layoutData + 1) << 8) + (*(layoutData + 2) << 16) + (*(layoutData + 3) << 24));
+	//	*readIndex += 4;
+	//}
+	//else
+	//	*crcOkay = true;
+	//			
+ //   return;
+}
+
+void Adv2ImageLayout::GetPixelsFrom16BitByteArrayDiffCorrLayout(unsigned char* layoutData, unsigned int* prevFrame, unsigned int* pixelsOut, int* readIndex, bool* crcOkay)
+{
+    return;
+}
+
+
 }

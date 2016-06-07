@@ -16,11 +16,32 @@ using std::string;
 
 namespace AdvLib2
 {
+	struct AdvFrameInfo
+	{	
+		int StartTimeStampLo;
+		int StartTimeStampHi;
+		int Exposure10thMs;
+		
+		float Gamma;
+		float Gain;
+		float Shutter;
+		float Offset;
+
+		unsigned char GPSTrackedSattelites;
+		unsigned char GPSAlmanacStatus;
+		unsigned char GPSFixStatus;
+		char GPSAlmanacOffset;
+
+		int VideoCameraFrameIdLo;
+		int VideoCameraFrameIdHi;
+		float Temperature;
+	};
+
 	class Adv2StatusSection {
 
 	private:
 		list<string> m_TagDefinitionNames;
-		list<AdvTagType> m_TagDefinitionTypes;
+		map<string, AdvTagType> m_TagDefinition;
 		
 		map<unsigned int, string> m_FrameStatusTags;
 		map<unsigned int, unsigned char> m_FrameStatusTagsUInt8;
@@ -49,7 +70,9 @@ namespace AdvLib2
 			void AddFrameStatusTagReal(unsigned int tagIndex, float tagValue);
 			void AddFrameStatusTagUInt32(unsigned int tagIndex, unsigned int tagValue);
 			void AddFrameStatusTagUInt64(unsigned int tagIndex, __int64 tagValue);
+
 			unsigned char* GetDataBytes(unsigned int *bytesCount);
+			void GetDataFromDataBytes(unsigned char* data, int sectionDataLength, int startOffset, AdvFrameInfo* frameInfo, char* systemError);
 	};
 }
 

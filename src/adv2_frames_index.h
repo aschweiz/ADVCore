@@ -34,6 +34,8 @@ namespace AdvLib2
 
 			void WriteIndex(FILE *file);
 			void AddFrame(unsigned char streamId, unsigned int frameNo, __int64 elapsedTicks, __int64 frameOffset, unsigned int  bytesCount);
+
+			Index2Entry* GetIndexForFrame(unsigned char streamId, unsigned int frameNo);
 	};
 }
 

@@ -63,6 +63,9 @@ namespace AdvLib2
 
 			void InitFileState();
 		public:
+			int TotalNumberOfMainFrames;
+			int TotalNumberOfCalibrationFrames;
+
 			Adv2File();
 			~Adv2File();
 			
@@ -98,6 +101,9 @@ namespace AdvLib2
 
 			void GetMainStreamInfo(int* numFrames, __int64* mainClockFrequency, int* mainStreamAccuracy);
 			void GetCalibrationStreamInfo(int* numFrames, __int64* calibrationClockFrequency, int* calibrationStreamAccuracy);
+
+			void GetFrameImageSectionHeader(int streamId, int frameId, unsigned char* layoutId, enum GetByteMode* mode);
+			void GetFrameSectionData(int streamId, int frameId, unsigned int* prevFrame, unsigned int* pixels, AdvFrameInfo* frameInfo, char* systemError);
 		};
 
 }
