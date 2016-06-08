@@ -7,6 +7,7 @@
 
 #include <map>
 #include <list>
+#include <vector>
 #include <string>
 #include <stdio.h>
 #include "utils.h"

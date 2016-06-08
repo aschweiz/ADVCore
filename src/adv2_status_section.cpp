@@ -16,6 +16,9 @@ namespace AdvLib2
 Adv2StatusSection::Adv2StatusSection()
 {
 	MaxFrameBufferSize = 0;
+
+	m_TagDefinitionNames.empty();
+	m_TagDefinition.empty();
 }
 
 Adv2StatusSection::~Adv2StatusSection()
@@ -82,7 +85,7 @@ void Adv2StatusSection::AddFrameStatusTagUTF8String(unsigned int tagIndex, const
 
 void Adv2StatusSection::AddFrameStatusTagMessage(unsigned int tagIndex, const char* tagValue)
 {
-		list<string> messageList = m_FrameStatusTagsMessages[tagIndex];
+	list<string> messageList = m_FrameStatusTagsMessages[tagIndex];
 	
 	if (messageList.size() == 16) messageList.pop_front();
 	
@@ -143,6 +146,9 @@ float IntToFloat(unsigned int x)
 Adv2StatusSection::Adv2StatusSection(FILE* pFile)
 {
 	MaxFrameBufferSize = 0;
+	
+	m_TagDefinitionNames.empty();
+	m_TagDefinition.empty();
 
 	unsigned char version;
 	advfread(&version, 1, 1, pFile); /* Version */
@@ -173,17 +179,14 @@ void Adv2StatusSection::WriteHeader(FILE* pFile)
 	
 	for(int i = 0; i<tagCount; i++)
 	{
-		char* tagName = const_cast<char*>(m_TagDefinitionNames.front().c_str());
+		char* tagName = const_cast<char*>(m_TagDefinitionNames[i].c_str());
 		WriteUTF8String(pFile, tagName);
 		
 		map<string, AdvTagType>::iterator currDef = m_TagDefinition.find(tagName);
 
 		buffChar = (unsigned char)(int)((AdvTagType)(currDef->second));
-		advfwrite(&buffChar, 1, 1, pFile);		
-		
-		m_TagDefinitionNames.pop_front();
+		advfwrite(&buffChar, 1, 1, pFile);
 	}
-	m_TagDefinition.empty();
 }
 
 unsigned char* Adv2StatusSection::GetDataBytes(unsigned int *bytesCount)
@@ -385,7 +388,7 @@ void Adv2StatusSection::GetDataFromDataBytes(unsigned char* data, int sectionDat
 	{
 		unsigned char tagId = *statusData;
 		
-		string currById = m_FrameStatusTags[tagId];
+		string currById = m_TagDefinitionNames[tagId];
 		const char* tagName = currById.c_str();
 		map<string, AdvTagType>::iterator currDef = m_TagDefinition.find(tagName);
 		AdvTagType type = (AdvTagType)(currDef->second);

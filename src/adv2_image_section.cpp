@@ -21,6 +21,8 @@ Adv2ImageSection::Adv2ImageSection(unsigned int width, unsigned int height, unsi
 	
 	m_PreviousLayoutId = UNINITIALIZED_LAYOUT_ID;
 	m_NumFramesInThisLayoutId = 0;
+	ByteOrder = ImageByteOrder::LittleEndian;
+	UsesCRC = false;
 }
 
 Adv2ImageSection::~Adv2ImageSection()
@@ -59,6 +61,19 @@ void Adv2ImageSection::AddOrUpdateTag(const char* tagName, const char* tagValue)
 		
 		curr++;
 	}
+
+	if (strcmp("IMAGE-BYTE-ORDER", tagName) == 0)
+	{
+		ByteOrder = ImageByteOrder::LittleEndian;
+
+		if (strcmp("BIG-ENDIAN", tagValue) == 0)
+			ByteOrder = ImageByteOrder::BigEndian;
+	}
+
+	if (strcmp("SECTION-DATA-REDUNDANCY-CHECK", tagName) == 0)
+	{
+		UsesCRC = strcmp("CRC32", tagValue) == 0;
+	}
 	
 	m_ImageTags.insert(make_pair(string(tagName), string(tagValue == nullptr ? "" : tagValue)));
 }
@@ -71,6 +86,9 @@ Adv2ImageSection::Adv2ImageSection(FILE* pFile)
 	advfread(&Width, 4, 1, pFile);
 	advfread(&Height, 4, 1, pFile);
 	advfread(&DataBpp, 1, 1, pFile);
+
+	ByteOrder = ImageByteOrder::LittleEndian;
+	UsesCRC = false;
 
 	unsigned char imageLayouts;
 	advfread(&imageLayouts, 1, 1, pFile);
@@ -92,7 +110,7 @@ Adv2ImageSection::Adv2ImageSection(FILE* pFile)
 		char* tagName = ReadUTF8String(pFile);
 		char* tagValue = ReadUTF8String(pFile);
 
-		m_ImageTags.insert(make_pair(tagName, tagValue));
+		AddOrUpdateTag(tagName, tagValue);
 	}
 }
 

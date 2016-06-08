@@ -47,6 +47,12 @@ enum ImageBytesLayout
 	FullImageDiffCorrWithSigns = 1
 };
 
+enum ImageByteOrder
+{
+	BigEndian = 0,
+	LittleEndian = 1
+};
+
 void crc32_init(void);
 unsigned int compute_crc32(unsigned char *data, int len);
 

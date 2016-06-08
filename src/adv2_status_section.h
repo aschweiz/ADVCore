@@ -7,6 +7,7 @@
 
 #include <map>
 #include <list>
+#include <vector>
 #include <string>
 #include <stdio.h>
 #include "utils.h"
@@ -18,9 +19,10 @@ namespace AdvLib2
 {
 	struct AdvFrameInfo
 	{	
-		int StartTimeStampLo;
-		int StartTimeStampHi;
-		int Exposure10thMs;
+		int StartTicksLo;
+		int StartTicksHi;
+		int EndTicksLo;
+		int EndTicksHi;
 		
 		float Gamma;
 		float Gain;
@@ -40,7 +42,7 @@ namespace AdvLib2
 	class Adv2StatusSection {
 
 	private:
-		list<string> m_TagDefinitionNames;
+		vector<string> m_TagDefinitionNames;
 		map<string, AdvTagType> m_TagDefinition;
 		
 		map<unsigned int, string> m_FrameStatusTags;

@@ -29,6 +29,9 @@ namespace AdvLib2
 			unsigned int Height;
 			unsigned char DataBpp;
 		
+			enum ImageByteOrder ByteOrder;
+			bool UsesCRC;
+
 		public:
 
 			Adv2ImageSection(unsigned int width, unsigned int height, unsigned char dataBpp);

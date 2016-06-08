@@ -21,6 +21,12 @@ Adv2ImageLayout::Adv2ImageLayout(Adv2ImageSection* imageSection, unsigned int wi
 	Compression = nullptr;
 	Bpp = layoutBpp;
 
+	IsDiffCorrLayout = false;
+	BaseFrameType = DiffCorrKeyFrame; /* Ignored when IsDiffCorrLayout = false */
+	m_BytesLayout = FullImageRaw;
+	m_UsesCompression = false;
+	m_UsesLagarith16Compression = false;
+
 	AddOrUpdateTag("DATA-LAYOUT", layoutType);
 	AddOrUpdateTag("SECTION-DATA-COMPRESSION", compression);
 
@@ -54,7 +60,10 @@ Adv2ImageLayout::Adv2ImageLayout(Adv2ImageSection* imageSection, char layoutId, 
 	m_CompressedPixels = nullptr;
 	m_StateCompress = nullptr;
 	m_Lagarith16Compressor = nullptr;
-
+	
+	IsDiffCorrLayout = false;
+	BaseFrameType = DiffCorrKeyFrame; /* Ignored when IsDiffCorrLayout = false */
+	m_BytesLayout = FullImageRaw;
 	m_UsesCompression = false;
 	m_UsesLagarith16Compression = false;
 
@@ -71,17 +80,7 @@ Adv2ImageLayout::Adv2ImageLayout(Adv2ImageSection* imageSection, char layoutId, 
 		char* tagName = ReadUTF8String(pFile);
 		char* tagValue = ReadUTF8String(pFile);
 
-		m_LayoutTags.insert(make_pair(tagName, tagValue));
-
-		if (strcmp("SECTION-DATA-COMPRESSION", tagName) == 0)
-		{
-			Compression = new char[strlen(tagValue) + 1];
-			//strcpy(const_cast<char*>(Compression), tagValue);
-			strcpy_s(const_cast<char*>(Compression), strlen(tagValue) + 1, tagValue);
-
-			m_UsesCompression = 0 != strcmp(Compression, "UNCOMPRESSED");
-			m_UsesLagarith16Compression = 0 != strcmp(Compression, "LAGARITH16");
-		}
+		AddOrUpdateTag(tagName, tagValue);
 	}
 
 	InitialiseBuffers();
@@ -246,7 +245,8 @@ void Adv2ImageLayout::AddOrUpdateTag(const char* tagName, const char* tagValue)
 		Compression = new char[strlen(tagValue) + 1];
 		strcpy_s(const_cast<char*>(Compression), strlen(tagValue) + 1, tagValue);
 
-		m_UsesCompression = 0 != strcmp(tagValue, "UNCOMPRESSED");
+		if (strcmp(tagValue, "UNCOMPRESSED") != 0) m_UsesCompression = true;
+		if (strcmp(tagValue, "LAGARITH16") == 0) m_UsesLagarith16Compression = true;
 	}
 }
 
@@ -708,46 +708,46 @@ void Adv2ImageLayout::GetPixelsFrom8BitByteArrayRawLayout(unsigned char* layoutD
 
 void Adv2ImageLayout::GetPixelsFrom16BitByteArrayRawLayout(unsigned char* layoutData, unsigned int* prevFrame, unsigned int* pixelsOut, int* readIndex, bool* crcOkay)
 {
-	//if (DataBpp == 12 || DataBpp == 14 || DataBpp == 16)
-	//{		
-	//	unsigned int* pPixelsOut = pixelsOut;
-	//	bool isLittleEndian = m_ImageSection->ByteOrder == LittleEndian;
-	//	bool convertTo12Bit = m_ImageSection->DynaBits == 16 && m_ImageSection->DataBpp == 12;
-	//	bool convertTo14Bit = m_ImageSection->DynaBits == 16 &&m_ImageSection->DataBpp == 14;
+	if (Bpp == 12 || Bpp == 14 || Bpp == 16)
+	{		
+		unsigned int* pPixelsOut = pixelsOut;
+		bool isLittleEndian = m_ImageSection->ByteOrder == LittleEndian;
+		bool convertTo12Bit = Bpp == 16 && m_ImageSection->DataBpp == 12;
+		bool convertTo14Bit = Bpp == 16 &&m_ImageSection->DataBpp == 14;
 
-	//	for (int y = 0; y < Height; ++y)
-	//	{
-	//		for (int x = 0; x < Width; ++x)
-	//		{
-	//			unsigned char bt1 = *layoutData;
-	//			layoutData++;
-	//			unsigned char bt2 = *layoutData;
-	//			layoutData++;
+		for (int y = 0; y < Height; ++y)
+		{
+			for (int x = 0; x < Width; ++x)
+			{
+				unsigned char bt1 = *layoutData;
+				layoutData++;
+				unsigned char bt2 = *layoutData;
+				layoutData++;
 
-	//			unsigned short val = isLittleEndian 
-	//					? (unsigned short)(((unsigned short)bt2 << 8) + bt1)
-	//					: (unsigned short)(((unsigned short)bt1 << 8) + bt2);
-	//			
-	//			if (convertTo12Bit)
-	//				val = (unsigned short)(val >> 4);
-	//			else if (convertTo14Bit)
-	//				val = (unsigned short)(val >> 2);
-	//				
-	//			*pPixelsOut = val;
-	//			pPixelsOut++;
-	//		}
-	//	}
+				unsigned short val = isLittleEndian 
+						? (unsigned short)(((unsigned short)bt2 << 8) + bt1)
+						: (unsigned short)(((unsigned short)bt1 << 8) + bt2);
+				
+				if (convertTo12Bit)
+					val = (unsigned short)(val >> 4);
+				else if (convertTo14Bit)
+					val = (unsigned short)(val >> 2);
+					
+				*pPixelsOut = val;
+				pPixelsOut++;
+			}
+		}
 
-	//	*readIndex += Height * Width * 2;
-	//}
+		*readIndex += Height * Width * 2;
+	}
 
-	//if (m_ImageSection->UsesCRC)
-	//{
-	//	unsigned int savedFrameCrc = (unsigned int)(*layoutData + (*(layoutData + 1) << 8) + (*(layoutData + 2) << 16) + (*(layoutData + 3) << 24));
-	//	*readIndex += 4;
-	//}
-	//else
-	//	*crcOkay = true;
+	if (m_ImageSection->UsesCRC)
+	{
+		unsigned int savedFrameCrc = (unsigned int)(*layoutData + (*(layoutData + 1) << 8) + (*(layoutData + 2) << 16) + (*(layoutData + 3) << 24));
+		*readIndex += 4;
+	}
+	else
+		*crcOkay = true;
 }
 
 void Adv2ImageLayout::GetPixelsFrom12BitByteArray(unsigned char* layoutData, unsigned int* prevFrame, unsigned int* pixelsOut, enum GetByteMode mode, int* readIndex, bool* crcOkay)

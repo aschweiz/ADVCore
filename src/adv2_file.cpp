@@ -722,12 +722,8 @@ void Adv2File::GetFrameImageSectionHeader(int streamId, int frameId, unsigned ch
 
 	if (frameDataMagic == 0xEE0122FF)
 	{
-		// Skip 16 bytes forward
-		long ignoredValue;
-		fread(&ignoredValue, 4, 1, m_Adv2File);
-		fread(&ignoredValue, 4, 1, m_Adv2File);
-		fread(&ignoredValue, 4, 1, m_Adv2File);
-		fread(&ignoredValue, 4, 1, m_Adv2File);
+		// Skip 1 byte of streamId, 16 bytes of start and end timestamps and 4 bytes of section size
+		fseek(m_Adv2File, 1 + 16 + 4, SEEK_CUR);
 
 		fread(layoutId, 1, 1, m_Adv2File);
 
@@ -753,12 +749,15 @@ void Adv2File::GetFrameSectionData(int streamId, int frameId, unsigned int* prev
 		unsigned char* data = (unsigned char*)malloc(indexEntry->BytesCount);
 		fread(data, indexEntry->BytesCount, 1, m_Adv2File);
 
-		// Read the timestamp and exposure 
-		frameInfo->StartTimeStampLo = data[0] + (data[1] << 8) + (data[2] << 16) + (data[3] << 24);
-		frameInfo->StartTimeStampHi = data[4] + (data[5] << 8) + (data[6] << 16) + (data[7] << 24);
-    	frameInfo->Exposure10thMs = data[8] + (data[9] << 8) + (data[10] << 16) + (data[11] << 24);
+		// data[0] is the streamId
 
-	    int dataOffset = 12;
+		// Read the timestamp and exposure 
+		frameInfo->StartTicksLo = data[1] + (data[2] << 8) + (data[3] << 16) + (data[4] << 24);
+		frameInfo->StartTicksHi = data[5] + (data[6] << 8) + (data[7] << 16) + (data[8] << 24);
+		frameInfo->EndTicksLo = data[9] + (data[10] << 8) + (data[11] << 16) + (data[12] << 24);
+		frameInfo->EndTicksHi = data[13] + (data[14] << 8) + (data[15] << 16) + (data[16] << 24);
+
+	    int dataOffset = 17;
 		int sectionDataLength = data[dataOffset] + (data[dataOffset + 1] << 8) + (data[dataOffset + 2] << 16) + (data[dataOffset + 3] << 24);
 
 		ImageSection->GetDataFromDataBytes(data, prevFrame, pixels, sectionDataLength, dataOffset + 4);
