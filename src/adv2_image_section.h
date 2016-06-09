@@ -41,14 +41,14 @@ namespace AdvLib2
 			void WriteHeader(FILE* pfile);
 			void BeginFrame();
 
-			unsigned char* GetDataBytes(unsigned char layoutId, unsigned short* currFramePixels, unsigned int *bytesCount, char* byteMode, unsigned char pixelsBpp);
+			unsigned char* GetDataBytes(unsigned char layoutId, unsigned short* currFramePixels, unsigned int *bytesCount, unsigned char pixelsBpp);
 			AdvLib2::Adv2ImageLayout* GetImageLayoutById(unsigned char layoutId);
 			void AddOrUpdateTag(const char* tagName, const char* tagValue);
-			Adv2ImageLayout* AddImageLayout(unsigned char layoutId, const char* layoutType, const char* compression, unsigned char layoutBpp, int keyFrame);
+			Adv2ImageLayout* AddImageLayout(unsigned char layoutId, const char* layoutType, const char* compression, unsigned char layoutBpp);
 
 			int MaxFrameBufferSize();
 
-			void GetDataFromDataBytes(unsigned char* data, unsigned int* prevFrame, unsigned int* pixels, int sectionDataLength, int startOffset);
+			void GetDataFromDataBytes(unsigned char* data, unsigned int* pixels, int sectionDataLength, int startOffset);
 	};
 }
 

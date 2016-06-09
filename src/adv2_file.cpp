@@ -628,9 +628,8 @@ void Adv2File::AddFrameImage(unsigned char layoutId, unsigned short* pixels, uns
 	AdvProfiling_StartBytesOperation();
 	
 	unsigned int imageBytesCount = 0;	
-	char byteMode = 0;
 	m_CurrentImageLayout = ImageSection->GetImageLayoutById(layoutId);
-	unsigned char *imageBytes = ImageSection->GetDataBytes(layoutId, pixels, &imageBytesCount, &byteMode, pixelsBpp);
+	unsigned char *imageBytes = ImageSection->GetDataBytes(layoutId, pixels, &imageBytesCount, pixelsBpp);
 	
 	int imageSectionBytesCount = imageBytesCount + 2; // +1 byte for the layout id and +1 byte for the byteMode (See few lines below)
 	
@@ -642,7 +641,7 @@ void Adv2File::AddFrameImage(unsigned char layoutId, unsigned short* pixels, uns
 	
 	// It is faster to write the layoutId and byteMode directly here
 	m_FrameBytes[m_FrameBufferIndex] = m_CurrentImageLayout->LayoutId;
-	m_FrameBytes[m_FrameBufferIndex + 1] = byteMode;
+	m_FrameBytes[m_FrameBufferIndex + 1] = 0; // byteMode of Normal (reserved for future use of differential coding)
 	m_FrameBufferIndex+=2;
 		
 	memcpy(&m_FrameBytes[m_FrameBufferIndex], &imageBytes[0], imageBytesCount);
@@ -735,7 +734,7 @@ void Adv2File::GetFrameImageSectionHeader(int streamId, int frameId, unsigned ch
 	}
 }
 
-void Adv2File::GetFrameSectionData(int streamId, int frameId, unsigned int* prevFrame, unsigned int* pixels, AdvFrameInfo* frameInfo, char* systemError)
+void Adv2File::GetFrameSectionData(int streamId, int frameId, unsigned int* pixels, AdvFrameInfo* frameInfo, char* systemError)
 {
 	AdvLib2::Index2Entry* indexEntry = m_Index->GetIndexForFrame(streamId, frameId);
 
@@ -760,7 +759,7 @@ void Adv2File::GetFrameSectionData(int streamId, int frameId, unsigned int* prev
 	    int dataOffset = 17;
 		int sectionDataLength = data[dataOffset] + (data[dataOffset + 1] << 8) + (data[dataOffset + 2] << 16) + (data[dataOffset + 3] << 24);
 
-		ImageSection->GetDataFromDataBytes(data, prevFrame, pixels, sectionDataLength, dataOffset + 4);
+		ImageSection->GetDataFromDataBytes(data, pixels, sectionDataLength, dataOffset + 4);
 		dataOffset += sectionDataLength + 4;
 
 		sectionDataLength = data[dataOffset] + (data[dataOffset + 1] << 8) + (data[dataOffset + 2] << 16) + (data[dataOffset + 3] << 24);

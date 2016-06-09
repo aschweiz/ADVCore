@@ -13,8 +13,6 @@ extern char* g_CurrentAdvFile;
 extern AdvLib::AdvFile* g_AdvFile;
 extern AdvLib2::Adv2File* g_Adv2File;
 extern bool g_FileStarted;
-extern int g_PrevFrameNo;
-extern unsigned int* g_PrevFramePixels;
 
 #define CORE_VERSION "2.0d"
 
@@ -54,7 +52,7 @@ DLL_PUBLIC void AdvVer2_DefineCustomClockForCalibrationStream(__int64 clockFrequ
 DLL_PUBLIC unsigned int AdvVer2_AddMainStreamTag(const char* tagName, const char* tagValue);
 DLL_PUBLIC unsigned int AdvVer2_AddCalibrationStreamTag(const char* tagName, const char* tagValue);
 DLL_PUBLIC void AdvVer2_DefineImageSection(unsigned short width, unsigned short height, unsigned char dataBpp);
-DLL_PUBLIC void AdvVer2_DefineImageLayout(unsigned char layoutId, const char* layoutType, const char* compression, unsigned char layoutBpp, int keyFrame, const char* diffCorrFromBaseFrame);
+DLL_PUBLIC void AdvVer2_DefineImageLayout(unsigned char layoutId, const char* layoutType, const char* compression, unsigned char layoutBpp);
 DLL_PUBLIC unsigned int AdvVer2_DefineStatusSectionTag(const char* tagName, int tagType);
 DLL_PUBLIC unsigned int AdvVer2_AddFileTag(const char* tagName, const char* tagValue);
 DLL_PUBLIC void AdvVer2_AddOrUpdateImageSectionTag(const char* tagName, const char* tagValue);

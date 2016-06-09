@@ -19,8 +19,6 @@
 char* g_CurrentAdvFile;
 AdvLib::AdvFile* g_AdvFile;
 bool g_FileStarted = false;
-int g_PrevFrameNo = -1;
-unsigned int* g_PrevFramePixels = nullptr;
 
 AdvLib2::Adv2File* g_Adv2File;
 
@@ -115,10 +113,6 @@ int AdvOpenFile(const char* fileName)
 				g_Adv2File = nullptr;
 				return res;
 			}
-
-			g_PrevFrameNo = -1;
-			if (g_PrevFramePixels != nullptr) delete g_PrevFramePixels;
-			g_PrevFramePixels = (unsigned int*)malloc(g_Adv2File->ImageSection->MaxFrameBufferSize());
 		}
 		
 		return 2;
@@ -573,13 +567,10 @@ void AdvVer2_DefineImageSection(unsigned short width, unsigned short height, uns
 	AdvProfiling_EndProcessing();
 }
 
-void AdvVer2_DefineImageLayout(unsigned char layoutId, const char* layoutType, const char* compression, unsigned char layoutBpp, int keyFrame, const char* diffCorrFromBaseFrame)
+void AdvVer2_DefineImageLayout(unsigned char layoutId, const char* layoutType, const char* compression, unsigned char layoutBpp)
 {
 	AdvProfiling_StartProcessing();
-	AdvLib2::Adv2ImageLayout* imageLayout = g_Adv2File->ImageSection->AddImageLayout(layoutId, layoutType, compression, layoutBpp, keyFrame);
-	if (diffCorrFromBaseFrame != nullptr)
-		imageLayout->AddOrUpdateTag("DIFFCODE-BASE-FRAME", diffCorrFromBaseFrame);
-		
+	AdvLib2::Adv2ImageLayout* imageLayout = g_Adv2File->ImageSection->AddImageLayout(layoutId, layoutType, compression, layoutBpp);		
 	AdvProfiling_EndProcessing();
 }
 
@@ -693,55 +684,9 @@ HRESULT AdvVer2_GetFramePixels(int streamId, int frameNo, unsigned int* pixels, 
         g_Adv2File->GetFrameImageSectionHeader(streamId, frameNo, &layoutId, &byteMode);
 
 		AdvLib2::Adv2ImageLayout* layout = g_Adv2File->ImageSection->GetImageLayoutById(layoutId);
-
-		if (layout->IsDiffCorrLayout && g_PrevFrameNo == frameNo)
-		{
-			// Asking for the last frame again. Need to reset the prev frame 
-			g_PrevFrameNo = -1;
-		}
-
-		if (layout->IsDiffCorrLayout && byteMode == DiffCorrBytes && g_PrevFrameNo != frameNo - 1)
-		{
-			// Move back and find the nearest previous key frame
-			int keyFrameIdx = frameNo;
-			do
-			{
-				keyFrameIdx--;
-				g_Adv2File->GetFrameImageSectionHeader(streamId, keyFrameIdx, &layoutId, &byteMode);
-			}
-			while(keyFrameIdx > 0 && byteMode != KeyFrameBytes);
-
-			unsigned int* keyFrameData = (unsigned int*)malloc(g_Adv2File->ImageSection->MaxFrameBufferSize());
-			AdvLib2::AdvFrameInfo prefFrameInfo;
-			
-			g_Adv2File->GetFrameSectionData(streamId, keyFrameIdx, NULL, keyFrameData, &prefFrameInfo, NULL);
-
-			if (layout->BaseFrameType == DiffCorrPrevFrame && keyFrameIdx + 1 < frameNo)
-			{
-				for (int i = keyFrameIdx + 1; i < frameNo; i++)
-				{
-					g_Adv2File->GetFrameSectionData(streamId, i, keyFrameData, g_PrevFramePixels, &prefFrameInfo, NULL);
-
-					memcpy(keyFrameData, g_PrevFramePixels, g_Adv2File->ImageSection->MaxFrameBufferSize());
-				}
-			}
-			else
-			{
-				// Copy bytes to the g_PrevFramePixels 
-				memcpy(g_PrevFramePixels, keyFrameData, g_Adv2File->ImageSection->MaxFrameBufferSize());
-			}
-
-			delete keyFrameData;
-		}
-
 		
-        g_Adv2File->GetFrameSectionData(streamId, frameNo, g_PrevFramePixels, pixels, frameInfo, systemError);
+        g_Adv2File->GetFrameSectionData(streamId, frameNo, pixels, frameInfo, systemError);
 	
-		if (byteMode != Normal)
-				memcpy(g_PrevFramePixels, pixels, g_Adv2File->ImageSection->Width * g_Adv2File->ImageSection->Height * 4);
-
-		g_PrevFrameNo = frameNo;
-
 		return S_OK;
 }
 

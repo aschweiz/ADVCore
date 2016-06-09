@@ -39,9 +39,9 @@ Adv2ImageSection::~Adv2ImageSection()
 	m_ImageLayouts.empty();
 }
 
-Adv2ImageLayout* Adv2ImageSection::AddImageLayout(unsigned char layoutId, const char* layoutType, const char* compression, unsigned char layoutBpp, int keyFrame)
+Adv2ImageLayout* Adv2ImageSection::AddImageLayout(unsigned char layoutId, const char* layoutType, const char* compression, unsigned char layoutBpp)
 {
-	AdvLib2::Adv2ImageLayout* layout = new AdvLib2::Adv2ImageLayout(this, Width, Height, layoutId, layoutType, compression, layoutBpp, keyFrame); 
+	AdvLib2::Adv2ImageLayout* layout = new AdvLib2::Adv2ImageLayout(this, Width, Height, layoutId, layoutType, compression, layoutBpp); 
 	m_ImageLayouts.insert(make_pair(layoutId, layout));
 	return layout;
 }
@@ -184,7 +184,7 @@ int Adv2ImageSection::MaxFrameBufferSize()
 	return m_MaxImageLayoutFrameBufferSize;
 }
 
-unsigned char* Adv2ImageSection::GetDataBytes(unsigned char layoutId, unsigned short* currFramePixels, unsigned int *bytesCount, char* byteMode, unsigned char pixelsBpp)
+unsigned char* Adv2ImageSection::GetDataBytes(unsigned char layoutId, unsigned short* currFramePixels, unsigned int *bytesCount, unsigned char pixelsBpp)
 {
 	Adv2ImageLayout* currentLayout = GetImageLayoutById(layoutId);
 	
@@ -193,33 +193,11 @@ unsigned char* Adv2ImageSection::GetDataBytes(unsigned char layoutId, unsigned s
 	else
 	{
 		m_NumFramesInThisLayoutId = 0;
-		currentLayout->StartNewDiffCorrSequence();
 	}
 	
-	enum GetByteMode mode = Normal;
-	
-	if (currentLayout->IsDiffCorrLayout)
-	{
-		bool isKeyFrame = (m_NumFramesInThisLayoutId % currentLayout->KeyFrame) == 0;
-		bool diffCorrFromPrevFramePixels = isKeyFrame || currentLayout->BaseFrameType == DiffCorrPrevFrame;
-		
-		if (isKeyFrame)
-		{
-			// this is a key frame
-			mode = KeyFrameBytes;
-		}
-		else
-		{
-			// this is not a key frame, compute and save the diff corr
-			mode = DiffCorrBytes;
-		}
-	}	
-	
-	unsigned char* pixels = currentLayout->GetDataBytes(currFramePixels, mode, bytesCount, pixelsBpp);
-	
+	unsigned char* pixels = currentLayout->GetDataBytes(currFramePixels, bytesCount, pixelsBpp);	
 	
 	m_PreviousLayoutId = layoutId;
-	*byteMode = (char)mode;
 	
 	return pixels;
 }
@@ -240,17 +218,17 @@ AdvLib2::Adv2ImageLayout* Adv2ImageSection::GetImageLayoutById(unsigned char lay
 	return nullptr;
 }
 
-void Adv2ImageSection::GetDataFromDataBytes(unsigned char* data, unsigned int* prevFrame, unsigned int* pixels, int sectionDataLength, int startOffset)
+void Adv2ImageSection::GetDataFromDataBytes(unsigned char* data, unsigned int* pixels, int sectionDataLength, int startOffset)
 {
 	unsigned char* sectionData = data + startOffset;
 	unsigned char layoutId = *sectionData;
 	sectionData++;
 
-	enum GetByteMode byteMode = (GetByteMode)*sectionData;
+	enum GetByteMode reservedUnusedField = (GetByteMode)*sectionData;
 	sectionData++;
 
 	Adv2ImageLayout* imageLayout = GetImageLayoutById(layoutId);	
-	imageLayout->GetDataFromDataBytes(byteMode, data, prevFrame, pixels, sectionDataLength - 2, startOffset + 2);
+	imageLayout->GetDataFromDataBytes(data, pixels, sectionDataLength - 2, startOffset + 2);
 }
 
 }
