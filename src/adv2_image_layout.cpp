@@ -538,8 +538,6 @@ void Adv2ImageLayout::GetPixelsFrom16BitByteArrayRawLayout(unsigned char* layout
 	{		
 		unsigned int* pPixelsOut = pixelsOut;
 		bool isLittleEndian = m_ImageSection->ByteOrder == LittleEndian;
-		bool convertTo12Bit = Bpp == 16 && m_ImageSection->DataBpp == 12;
-		bool convertTo14Bit = Bpp == 16 &&m_ImageSection->DataBpp == 14;
 
 		for (int y = 0; y < Height; ++y)
 		{
@@ -553,11 +551,6 @@ void Adv2ImageLayout::GetPixelsFrom16BitByteArrayRawLayout(unsigned char* layout
 				unsigned short val = isLittleEndian 
 						? (unsigned short)(((unsigned short)bt2 << 8) + bt1)
 						: (unsigned short)(((unsigned short)bt1 << 8) + bt2);
-				
-				if (convertTo12Bit)
-					val = (unsigned short)(val >> 4);
-				else if (convertTo14Bit)
-					val = (unsigned short)(val >> 2);
 					
 				*pPixelsOut = val;
 				pPixelsOut++;
