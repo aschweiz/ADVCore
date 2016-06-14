@@ -99,12 +99,12 @@ bool Adv2File::BeginFile(const char* fileName)
 
 	__int64 sectionHeaderOffsetPositions[2];
 	
-	WriteString(m_Adv2File, "IMAGE");
+	WriteUTF8String(m_Adv2File, "IMAGE");
 	advfgetpos64(m_Adv2File, &sectionHeaderOffsetPositions[0]);
 	buffLong = 0;
 	advfwrite(&buffLong, 8, 1, m_Adv2File);
 	
-	WriteString(m_Adv2File, "STATUS");
+	WriteUTF8String(m_Adv2File, "STATUS");
 	advfgetpos64(m_Adv2File, &sectionHeaderOffsetPositions[1]);
 	buffLong = 0;
 	advfwrite(&buffLong, 8, 1, m_Adv2File);
@@ -191,10 +191,10 @@ bool Adv2File::BeginFile(const char* fileName)
 	while (curr != m_FileTags.end()) 
 	{
 		char* tagName = const_cast<char*>(curr->first.c_str());	
-		WriteString(m_Adv2File, tagName);
+		WriteUTF8String(m_Adv2File, tagName);
 		
 		char* tagValue = const_cast<char*>(curr->second.c_str());	
-		WriteString(m_Adv2File, tagValue);
+		WriteUTF8String(m_Adv2File, tagValue);
 		
 		curr++;
 	}
@@ -293,7 +293,7 @@ int Adv2File::LoadFile(const char* fileName)
 
 	__int64 sectionHeaderOffsets[2];
 
-	char* imageSectionName = ReadString(m_Adv2File);
+	char* imageSectionName = ReadUTF8String(m_Adv2File);
 	if (strcmp(imageSectionName, "IMAGE") != 0)
 	{
 		delete imageSectionName;
@@ -302,7 +302,7 @@ int Adv2File::LoadFile(const char* fileName)
 	delete imageSectionName;
 	advfread(&sectionHeaderOffsets[0], 8, 1, m_Adv2File);
 
-	char* statusSectionName = ReadString(m_Adv2File);
+	char* statusSectionName = ReadUTF8String(m_Adv2File);
 	if (strcmp(statusSectionName, "STATUS") != 0)
 	{
 		delete statusSectionName;
@@ -462,10 +462,10 @@ void Adv2File::EndFile()
 	while (curr != m_UserMetadataTags.end()) 
 	{
 		char* userTagName = const_cast<char*>(curr->first.c_str());	
-		WriteString(m_Adv2File, userTagName);
+		WriteUTF8String(m_Adv2File, userTagName);
 		
 		char* userTagValue = const_cast<char*>(curr->second.c_str());	
-		WriteString(m_Adv2File, userTagValue);
+		WriteUTF8String(m_Adv2File, userTagValue);
 		
 		curr++;
 	}

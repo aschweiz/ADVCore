@@ -505,31 +505,31 @@ void Adv2ImageLayout::GetDataFromDataBytes(unsigned char* data, unsigned int* pi
 
 void Adv2ImageLayout::GetPixelsFrom8BitByteArrayRawLayout(unsigned char* layoutData, unsigned int* pixelsOut, int* readIndex, bool* crcOkay)
 {
-	//if (DataBpp == 8)
-	//{		
-	//	unsigned int* pPixelsOut = pixelsOut;
-	//	for (int y = 0; y < Height; ++y)
-	//	{
-	//		for (int x = 0; x < Width; ++x)
-	//		{
-	//			unsigned char bt1 = *layoutData;
-	//			layoutData++;
-	//				
-	//			*pPixelsOut = (unsigned short)bt1;
-	//			pPixelsOut++;
-	//		}
-	//	}
+	if (Bpp == 8)
+	{		
+		unsigned int* pPixelsOut = pixelsOut;
+		for (int y = 0; y < Height; ++y)
+		{
+			for (int x = 0; x < Width; ++x)
+			{
+				unsigned char bt1 = *layoutData;
+				layoutData++;
+					
+				*pPixelsOut = (unsigned short)bt1;
+				pPixelsOut++;
+			}
+		}
 
-	//	*readIndex += Height * Width;
-	//}
-	//
-	//if (m_ImageSection->UsesCRC)
-	//{
-	//	unsigned int savedFrameCrc = (unsigned int)(*layoutData + (*(layoutData + 1) << 8) + (*(layoutData + 2) << 16) + (*(layoutData + 3) << 24));
-	//	*readIndex += 4;
-	//}
-	//else
-	//	*crcOkay = true;
+		*readIndex += Height * Width;
+	}
+	
+	if (m_ImageSection->UsesCRC)
+	{
+		unsigned int savedFrameCrc = (unsigned int)(*layoutData + (*(layoutData + 1) << 8) + (*(layoutData + 2) << 16) + (*(layoutData + 3) << 24));
+		*readIndex += 4;
+	}
+	else
+		*crcOkay = true;
 }
 
 void Adv2ImageLayout::GetPixelsFrom16BitByteArrayRawLayout(unsigned char* layoutData, unsigned int* pixelsOut, int* readIndex, bool* crcOkay)
