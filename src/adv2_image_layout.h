@@ -42,6 +42,7 @@ namespace AdvLib2
 
 		void InitialiseBuffers();
 		void ResetBuffers();
+		void EnsureCompressors();
 
 	public:
 		unsigned char LayoutId;

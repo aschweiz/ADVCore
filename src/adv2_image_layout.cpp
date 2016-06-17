@@ -34,6 +34,7 @@ Adv2ImageLayout::Adv2ImageLayout(Adv2ImageSection* imageSection, unsigned int wi
 	m_UsesLagarith16Compression = 0 != strcmp(compression, "LAGARITH16");
 	
 	InitialiseBuffers();
+	EnsureCompressors();
 }
 
 Adv2ImageLayout::Adv2ImageLayout(Adv2ImageSection* imageSection, char layoutId, FILE* pFile)
@@ -46,6 +47,7 @@ Adv2ImageLayout::Adv2ImageLayout(Adv2ImageSection* imageSection, char layoutId, 
 	m_PixelArrayBuffer = nullptr;
 	m_CompressedPixels = nullptr;
 	m_StateCompress = nullptr;
+	m_StateDecompress = nullptr;
 	m_Lagarith16Compressor = nullptr;
 	
 	m_BytesLayout = FullImageRaw;
@@ -69,6 +71,7 @@ Adv2ImageLayout::Adv2ImageLayout(Adv2ImageSection* imageSection, char layoutId, 
 	}
 
 	InitialiseBuffers();
+	EnsureCompressors();
 }
 
 void Adv2ImageLayout::InitialiseBuffers()
@@ -89,23 +92,18 @@ void Adv2ImageLayout::InitialiseBuffers()
 		MaxFrameBufferSize = Width * Height * 4 + 1 + 4 + 16;
 
 	// In accordance with Lagarith16 specs
-	if (m_UsesLagarith16Compression) MaxFrameBufferSize += 0x20000;
+	if (m_UsesLagarith16Compression) MaxFrameBufferSize = Width * Height * sizeof(short) + 0x20000;
 
 	m_PixelArrayBuffer = nullptr;
 	m_CompressedPixels = nullptr;
+	m_DecompressedPixels = nullptr;
 	m_StateCompress = nullptr;
+	m_StateDecompress = nullptr;
 	m_Lagarith16Compressor = nullptr;
 
 	m_PixelArrayBuffer = (unsigned char*)malloc(MaxFrameBufferSize);
 	m_CompressedPixels = (char*)malloc(MaxFrameBufferSize);
-
-	if (m_UsesCompression)
-	{
-		m_StateCompress = (qlz_state_compress *)malloc(sizeof(qlz_state_compress));
-
-		if (m_UsesLagarith16Compression)
-			m_Lagarith16Compressor = new Compressor(Width, Height);
-	}
+	m_DecompressedPixels = (char*)malloc(MaxFrameBufferSize);
 }
 
 Adv2ImageLayout::~Adv2ImageLayout()
@@ -130,12 +128,18 @@ void Adv2ImageLayout::ResetBuffers()
 	if (nullptr != m_StateCompress)
 		delete m_StateCompress;
 
+	if (nullptr != m_StateDecompress)
+		delete m_StateDecompress;
+	
+
 	if (nullptr != m_Lagarith16Compressor)
 		delete m_Lagarith16Compressor;
 		
 	m_PixelArrayBuffer = nullptr;
 	m_CompressedPixels = nullptr;
 	m_StateCompress = nullptr;
+	m_StateDecompress = nullptr;
+	m_StateDecompress = nullptr;
 	m_Lagarith16Compressor = nullptr;
 }
 
@@ -195,6 +199,12 @@ void Adv2ImageLayout::WriteHeader(FILE* pFile)
 	}
 }
 
+void Adv2ImageLayout::EnsureCompressors()
+{
+	m_StateCompress = (qlz_state_compress *)malloc(sizeof(qlz_state_compress));
+	m_StateDecompress = (qlz_state_decompress *)malloc(sizeof(qlz_state_decompress));
+	m_Lagarith16Compressor = new Compressor(Width, Height);
+}
 
 unsigned char* Adv2ImageLayout::GetDataBytes(unsigned short* currFramePixels, unsigned int *bytesCount, unsigned char dataPixelsBpp)
 {
@@ -240,9 +250,12 @@ unsigned char* Adv2ImageLayout::GetFullImageRawDataBytes(unsigned short* currFra
 		buffLen = Width * Height;
 		memcpy(&m_PixelArrayBuffer[0], &currFramePixels[0], buffLen);
 	}
-	else
-		// "12Bpp not supported in Raw layout"
-		throw new exception();
+	else if (dataPixelsBpp == 12)
+	{
+		// 2 pixels saved in 3 bytes
+		buffLen = Width * Height * 3 / 2;
+		memcpy(&m_PixelArrayBuffer[0], &currFramePixels[0], buffLen);
+	}
 	
 	*bytesCount = buffLen;
 	return m_PixelArrayBuffer;
