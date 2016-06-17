@@ -203,7 +203,13 @@ void Adv2ImageLayout::EnsureCompressors()
 {
 	m_StateCompress = (qlz_state_compress *)malloc(sizeof(qlz_state_compress));
 	m_StateDecompress = (qlz_state_decompress *)malloc(sizeof(qlz_state_decompress));
-	m_Lagarith16Compressor = new Compressor(Width, Height);
+
+	// Lagarith compressor is intended for 16bit images only. In order to use it for a different BPP we 
+	// calculate 'adjusted' width of the corresponding 16bit image if passed bytes are grouped into int16 values.
+	int widthOf16BitData = Width;
+	if (Bpp == 8) widthOf16BitData /= 2;
+	else if (Bpp == 12) widthOf16BitData = Width * 3 / 4;
+	m_Lagarith16Compressor = new Compressor(widthOf16BitData, Height);
 }
 
 unsigned char* Adv2ImageLayout::GetDataBytes(unsigned short* currFramePixels, unsigned int *bytesCount, unsigned char dataPixelsBpp)
