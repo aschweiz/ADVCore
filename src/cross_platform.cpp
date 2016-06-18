@@ -128,7 +128,7 @@ __int64 advgetclockresolution()
 	QueryPerformanceFrequency(&li);
 	rv = li.QuadPart;
 #elif __linux__
-	rv = 0;
+	rv = 1E+09; // On Linux time is returned in nanoseconds so frequency is 1E+09 Hz
 #elif _WIN32
 	LARGE_INTEGER li;
 	QueryPerformanceFrequency(&li);
@@ -149,7 +149,9 @@ __int64 advgetclockticks()
 	QueryPerformanceCounter(&li);
 	rv = li.QuadPart;
 #elif __linux__
-	rv = 0;
+	struct timespec spec;
+	clock_gettime(CLOCK_MONOTONIC, &spec);
+	rv = spec.tv_sec * 1E+09 + spec.tv_nsec;
 #elif _WIN32
 	LARGE_INTEGER li;
 	QueryPerformanceCounter(&li);

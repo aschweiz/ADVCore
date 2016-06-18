@@ -57,6 +57,9 @@ typedef struct tagBITMAPFILEHEADER {
 
 #endif
 
+#if __linux__
+#include <time.h>
+#endif
 
 #if __GNUC__
 #define strcpy_s(x, y, z) strcpy(x, z)
