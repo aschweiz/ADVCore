@@ -70,4 +70,7 @@ int advfseek(FILE* stream, __int64 off, int whence);
 int advfclose(FILE* file);
 int advfflush(FILE* file);
 
+__int64 advgetclockresolution();
+__int64 advgetclockticks();
+
 #endif

@@ -54,7 +54,7 @@ void advfgetpos64(FILE* file, __int64* pos)
 #elif _WIN32 || _WIN64
 	int rv = fgetpos(file, reinterpret_cast<fpos_t*>(pos));
 #elif __linux__
-	int rv = fgetpos64(file, reinterpret_cast<fpos64_t*>(pos));    
+	int rv = fgetpos64(file, reinterpret_cast<fpos64_t*>(pos));
 #else
 	#error Platform not supported
 #endif
@@ -117,5 +117,43 @@ int advfflush(FILE* file)
 	AdvProfiling_StartHddOperation();
 	int rv = fflush(file);
 	AdvProfiling_EndHddOperation();
+	return rv;
+}
+
+__int64 advgetclockresolution()
+{
+	__int64 rv = 0;
+#ifdef MSVC
+	LARGE_INTEGER li;
+	QueryPerformanceFrequency(&li);
+	rv = li.QuadPart;
+#elif __linux__
+	rv = 0;
+#elif _WIN32
+	rv = 0;
+#elif __APPLE__
+	rv = 0;
+#else
+	#error Platform not supported
+#endif
+	return rv;
+}
+
+__int64 advgetclockticks()
+{
+	__int64 rv = 0;
+#ifdef MSVC
+	LARGE_INTEGER li;
+	QueryPerformanceCounter(&li);
+	rv = li.QuadPart;
+#elif __linux__
+	rv = 0;
+#elif _WIN32
+	rv = 0;
+#elif __APPLE__
+	rv = 0;
+#else
+	#error Platform not supported
+#endif
 	return rv;
 }

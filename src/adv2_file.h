@@ -46,6 +46,9 @@ namespace AdvLib2
 			unsigned int m_FrameBufferIndex; 
 			__int64 m_CurrentFrameElapsedTicks;
 
+			__int64 m_FirstFrameInStreamTicks[2];
+			__int64 m_PrevFrameInStreamTicks[2];
+
 			map<string, string> m_UserMetadataTags;
 
 			map<string, string> m_MainStreamTags;

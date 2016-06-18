@@ -70,6 +70,13 @@ bool Adv2File::BeginFile(const char* fileName)
 	__int64 streamHeaderOffsetPositions[2];
 	__int64 streamHeaderOffsets[2];
 
+	__int64 internalFrequency = advgetclockresolution();
+	if (!m_UsesCustomMainStreamClock)
+	{
+		m_MainStreamClockFrequency = internalFrequency;
+		m_MainStreamTickAccuracy = 0; // Unknown accuracy as it is 'automatically' timestamped at frame save time
+	}
+
 	WriteUTF8String(m_Adv2File, "MAIN");
 	advfgetpos64(m_Adv2File, &m_MainFrameCountPosition);
 	buffInt = 0;
@@ -81,6 +88,12 @@ bool Adv2File::BeginFile(const char* fileName)
 	advfgetpos64(m_Adv2File, &streamHeaderOffsetPositions[0]);
 	buffLong = 0;
 	advfwrite(&buffLong, 8, 1, m_Adv2File); // Offset of main stream metadata table (will be saved later) 
+
+	if (!m_UsesCustomCalibrationStreamClock)
+	{
+		m_CalibrationStreamClockFrequency = internalFrequency;
+		m_CalibrationStreamTickAccuracy = 0; // Unknown accuracy as it is 'automatically' timestamped at frame save time
+	}
 
 	WriteUTF8String(m_Adv2File, "CALIBRATION");
 	advfgetpos64(m_Adv2File, &m_CalibrationFrameCountPosition);
@@ -522,12 +535,18 @@ int Adv2File::AddUserTag(const char* tagName, const char* tagValue)
 
 void Adv2File::BeginFrame(unsigned char streamId)
 {
-	// TODO: Get the ticks from the internal clock
-	//       QueryPerformanceCounters on Windows
-	//       clock_gettime() on Unix (http://linux.die.net/man/2/clock_gettime)
-	__int64 startFrameTicks = 0;
-	__int64 endFrameTicks = 0;
-	__int64 elapsedTicksSinceFirstFrame = 0;
+	__int64 endFrameTicks = advgetclockticks();
+
+	if (m_Index->GetFramesCount(streamId) == 0)
+	{
+		// First frame in stream
+		m_FirstFrameInStreamTicks[streamId] = endFrameTicks;
+		m_PrevFrameInStreamTicks[streamId] = endFrameTicks;
+	}
+
+	__int64 startFrameTicks = m_PrevFrameInStreamTicks[streamId];
+	m_PrevFrameInStreamTicks[streamId] = endFrameTicks;
+	__int64 elapsedTicksSinceFirstFrame = endFrameTicks - m_FirstFrameInStreamTicks[streamId];
 
 	BeginFrame(streamId, startFrameTicks, endFrameTicks, elapsedTicksSinceFirstFrame);
 }

@@ -125,6 +125,15 @@ void Adv2FramesIndex::WriteIndex(FILE *file)
 	}
 }
 
+unsigned int Adv2FramesIndex::GetFramesCount(unsigned char streamId)
+{
+	if (streamId == 0)
+		return (unsigned int)m_MainIndexEntries->size();
+	else
+		return (unsigned int)m_CalibrationIndexEntries->size();
+}
+
+
 void Adv2FramesIndex::AddFrame(unsigned char streamId, unsigned int frameNo, __int64 elapsedTicks, __int64 frameOffset, unsigned int  bytesCount)
 {
 	Index2Entry *entry = new Index2Entry();
