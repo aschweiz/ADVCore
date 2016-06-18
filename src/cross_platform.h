@@ -10,8 +10,53 @@
 
 #ifndef _WIN32
 typedef int long long __int64;
-typedef unsigned int long long __uint64;		
+typedef unsigned int long long __uint64;
+
+typedef int HRESULT;
+typedef int BOOL;
+typedef int LONG;
+typedef unsigned short int WORD;
+typedef unsigned char BYTE;
+typedef unsigned int DWORD;
+
+#define S_OK 0
+#define E_FAIL ((HRESULT)0x80004005L)
+#define E_NOTIMPL ((HRESULT)0x80004001L)
+
+BOOL SUCCEEDED(HRESULT hr);
+
+#define BI_RGB 0
+
+typedef void* HBITMAP;
+
+#pragma pack(1)
+typedef struct tagBITMAPINFOHEADER {
+  DWORD biSize;
+  int  biWidth;
+  int  biHeight;
+  WORD  biPlanes;
+  WORD  biBitCount;
+  DWORD biCompression;
+  DWORD biSizeImage;
+  int  biXPelsPerMeter;
+  int  biYPelsPerMeter;
+  DWORD biClrUsed;
+  DWORD biClrImportant;
+} BITMAPINFOHEADER, *PBITMAPINFOHEADER;
+#pragma pack()
+
+#pragma pack(1)
+typedef struct tagBITMAPFILEHEADER {
+  WORD  bfType;
+  DWORD bfSize;
+  WORD  bfReserved1;
+  WORD  bfReserved2;
+  DWORD bfOffBits;
+} BITMAPFILEHEADER, *PBITMAPFILEHEADER;
+#pragma pack()
+
 #endif
+
 
 #if __GNUC__
 #define strcpy_s(x, y, z) strcpy(x, z)
