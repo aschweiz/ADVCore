@@ -130,7 +130,9 @@ __int64 advgetclockresolution()
 #elif __linux__
 	rv = 0;
 #elif _WIN32
-	rv = 0;
+	LARGE_INTEGER li;
+	QueryPerformanceFrequency(&li);
+	rv = li.QuadPart;
 #elif __APPLE__
 	rv = 0;
 #else
@@ -149,7 +151,9 @@ __int64 advgetclockticks()
 #elif __linux__
 	rv = 0;
 #elif _WIN32
-	rv = 0;
+	LARGE_INTEGER li;
+	QueryPerformanceCounter(&li);
+	rv = li.QuadPart;
 #elif __APPLE__
 	rv = 0;
 #else
