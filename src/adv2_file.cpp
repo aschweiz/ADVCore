@@ -31,8 +31,8 @@ Adv2File::Adv2File()
 
 	m_NumberOfMainFrames = 0;
 	m_NumberOfCalibrationFrames = 0;
-	m_UsesCustomMainStreamClock = false;
-	m_UsesCustomCalibrationStreamClock = false;
+	m_UsesExternalMainStreamClock = false;
+	m_UsesExternalCalibrationStreamClock = false;
 	TotalNumberOfMainFrames = 0;
 	TotalNumberOfCalibrationFrames = 0;
 }
@@ -71,7 +71,7 @@ bool Adv2File::BeginFile(const char* fileName)
 	__int64 streamHeaderOffsets[2];
 
 	__int64 internalFrequency = advgetclockresolution();
-	if (!m_UsesCustomMainStreamClock)
+	if (!m_UsesExternalMainStreamClock)
 	{
 		m_MainStreamClockFrequency = internalFrequency;
 		m_MainStreamTickAccuracy = 0; // Unknown accuracy as it is 'automatically' timestamped at frame save time
@@ -89,7 +89,7 @@ bool Adv2File::BeginFile(const char* fileName)
 	buffLong = 0;
 	advfwrite(&buffLong, 8, 1, m_Adv2File); // Offset of main stream metadata table (will be saved later) 
 
-	if (!m_UsesCustomCalibrationStreamClock)
+	if (!m_UsesExternalCalibrationStreamClock)
 	{
 		m_CalibrationStreamClockFrequency = internalFrequency;
 		m_CalibrationStreamTickAccuracy = 0; // Unknown accuracy as it is 'automatically' timestamped at frame save time
@@ -429,20 +429,19 @@ void Adv2File::SetTicksTimingPrecision(int mainStreamAccuracy, int calibrationSt
 	m_CalibrationStreamTickAccuracy = calibrationStreamAccuracy;
 }
 
-void Adv2File::DefineCustomClockForMainStream(__int64 clockFrequency, int ticksTimingAccuracy)
+void Adv2File::DefineExternalClockForMainStream(__int64 clockFrequency, int ticksTimingAccuracy)
 {
-	m_UsesCustomMainStreamClock = true;
+	m_UsesExternalMainStreamClock = true;
 	m_MainStreamClockFrequency = clockFrequency;
 	m_MainStreamTickAccuracy = ticksTimingAccuracy;
 }
 
-void Adv2File::DefineCustomClockForCalibrationStream(__int64 clockFrequency, int ticksTimingAccuracy)
+void Adv2File::DefineExternalClockForCalibrationStream(__int64 clockFrequency, int ticksTimingAccuracy)
 {
-	m_UsesCustomCalibrationStreamClock = true;
+	m_UsesExternalCalibrationStreamClock = true;
 	m_CalibrationStreamClockFrequency = clockFrequency;
 	m_CalibrationStreamTickAccuracy = ticksTimingAccuracy;
 }
-
 
 void Adv2File::EndFile()
 {

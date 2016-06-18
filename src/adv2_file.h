@@ -58,8 +58,8 @@ namespace AdvLib2
 			unsigned int m_MainStreamTickAccuracy;
 			__int64 m_CalibrationStreamClockFrequency;
 			unsigned int m_CalibrationStreamTickAccuracy;
-			bool m_UsesCustomMainStreamClock;
-			bool m_UsesCustomCalibrationStreamClock;
+			bool m_UsesExternalMainStreamClock;
+			bool m_UsesExternalCalibrationStreamClock;
 
 			int m_NumberOfMainFrames;
 			int m_NumberOfCalibrationFrames;
@@ -74,8 +74,8 @@ namespace AdvLib2
 			
 			bool BeginFile(const char* fileName);
 			void SetTicksTimingPrecision(int mainStreamAccuracy, int calibrationStreamAccuracy);
-			void DefineCustomClockForMainStream(__int64 clockFrequency, int ticksTimingAccuracy);
-			void DefineCustomClockForCalibrationStream(__int64 clockFrequency, int ticksTimingAccuracy);
+			void DefineExternalClockForMainStream(__int64 clockFrequency, int ticksTimingAccuracy);
+			void DefineExternalClockForCalibrationStream(__int64 clockFrequency, int ticksTimingAccuracy);
 			void EndFile();
 			
 			int LoadFile(const char* fileName);

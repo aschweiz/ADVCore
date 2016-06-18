@@ -454,19 +454,19 @@ void AdvVer2_SetTicksTimingPrecision(int mainStreamAccuracy, int calibrationStre
 	}
 }
 
-void AdvVer2_DefineCustomClockForMainStream(__int64 clockFrequency, int ticksTimingAccuracy)
+void AdvVer2_DefineExternalClockForMainStream(__int64 clockFrequency, int ticksTimingAccuracy)
 {
 	if (nullptr != g_Adv2File)
 	{
-		g_Adv2File->DefineCustomClockForMainStream(clockFrequency, ticksTimingAccuracy);
+		g_Adv2File->DefineExternalClockForMainStream(clockFrequency, ticksTimingAccuracy);
 	}
 }
 
-void AdvVer2_DefineCustomClockForCalibrationStream(__int64 clockFrequency, int ticksTimingAccuracy)
+void AdvVer2_DefineExternalClockForCalibrationStream(__int64 clockFrequency, int ticksTimingAccuracy)
 {
 	if (nullptr != g_Adv2File)
 	{
-		g_Adv2File->DefineCustomClockForCalibrationStream(clockFrequency, ticksTimingAccuracy);
+		g_Adv2File->DefineExternalClockForCalibrationStream(clockFrequency, ticksTimingAccuracy);
 	}
 }
 
