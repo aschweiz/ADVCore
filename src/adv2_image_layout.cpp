@@ -28,11 +28,6 @@ Adv2ImageLayout::Adv2ImageLayout(Adv2ImageSection* imageSection, unsigned int wi
 	AddOrUpdateTag("DATA-LAYOUT", layoutType);
 	AddOrUpdateTag("SECTION-DATA-COMPRESSION", compression);
 
-	Compression = new char[strlen(compression) + 1];
-	strcpy_s(const_cast<char*>(Compression), strlen(compression) + 1, compression);
-	m_UsesCompression = 0 != strcmp(compression, "UNCOMPRESSED");
-	m_UsesLagarith16Compression = 0 != strcmp(compression, "LAGARITH16");
-	
 	InitialiseBuffers();
 	EnsureCompressors();
 }
@@ -172,6 +167,13 @@ void Adv2ImageLayout::AddOrUpdateTag(const char* tagName, const char* tagValue)
 		if (strcmp(tagValue, "UNCOMPRESSED") != 0) m_UsesCompression = true;
 		if (strcmp(tagValue, "LAGARITH16") == 0) m_UsesLagarith16Compression = true;
 	}
+
+	if (0 == strcmp("DATA-LAYOUT", tagName))
+	{
+		IsFullImageRaw = 0 == strcmp(tagValue, "FULL-IMAGE-RAW");
+		Is12BitImagePacked = 0 == strcmp(tagValue, "12BIT-IMAGE-PACKED");
+		Is8BitColourImage = 0 == strcmp(tagValue, "8BIT-COLOR-IMAGE");
+	}
 }
 
 void Adv2ImageLayout::WriteHeader(FILE* pFile)
@@ -212,9 +214,9 @@ void Adv2ImageLayout::EnsureCompressors()
 	m_Lagarith16Compressor = new Compressor(widthOf16BitData, Height);
 }
 
-unsigned char* Adv2ImageLayout::GetDataBytes(unsigned short* currFramePixels, unsigned int *bytesCount, unsigned char dataPixelsBpp)
+unsigned char* Adv2ImageLayout::GetDataBytes(unsigned short* currFramePixels, unsigned int *bytesCount, unsigned char dataPixelsBpp, enum GetByteOperation operation)
 {
-	unsigned char* bytesToCompress = GetFullImageRawDataBytes(currFramePixels, bytesCount, dataPixelsBpp);
+	unsigned char* bytesToCompress = GetFullImageRawDataBytes(currFramePixels, bytesCount, dataPixelsBpp, operation);
 	
 	if (0 == strcmp(Compression, "QUICKLZ"))
 	{
@@ -243,7 +245,7 @@ unsigned char* Adv2ImageLayout::GetDataBytes(unsigned short* currFramePixels, un
 	return nullptr;
 }
 
-unsigned char* Adv2ImageLayout::GetFullImageRawDataBytes(unsigned short* currFramePixels, unsigned int *bytesCount, unsigned char dataPixelsBpp)
+unsigned char* Adv2ImageLayout::GetFullImageRawDataBytes(unsigned short* currFramePixels, unsigned int *bytesCount, unsigned char dataPixelsBpp, enum GetByteOperation operation)
 {
 	int buffLen = 0;
 	if (dataPixelsBpp == 16)
@@ -258,9 +260,14 @@ unsigned char* Adv2ImageLayout::GetFullImageRawDataBytes(unsigned short* currFra
 	}
 	else if (dataPixelsBpp == 12)
 	{
-		// 2 pixels saved in 3 bytes
-		buffLen = Width * Height * 3 / 2;
-		memcpy(&m_PixelArrayBuffer[0], &currFramePixels[0], buffLen);
+		if (operation == GetByteOperation::ConvertTo12BitPacked)
+			// 2 pixels saved in 3 bytes
+			GetDataBytes12BppIndex16BppWords(currFramePixels, 0, bytesCount);
+		else
+		{
+			buffLen = Width * Height * 3 / 2;
+			memcpy(&m_PixelArrayBuffer[0], &currFramePixels[0], buffLen);
+		}
 	}
 	
 	*bytesCount = buffLen;
@@ -269,8 +276,6 @@ unsigned char* Adv2ImageLayout::GetFullImageRawDataBytes(unsigned short* currFra
 
 void Adv2ImageLayout::GetDataBytes12BppIndex12BppWords(unsigned short* pixels, unsigned int pixelsCRC32, unsigned int *bytesCount, unsigned char dataPixelsBpp)
 {	
-	// NOTE: This code has never been tested or used !!!
-
 	// Flags: 0 - no key frame used, 1 - key frame follows, 2 - diff corr data follows
 	bool isKeyFrame = false; //mode == KeyFrameBytes;
 	bool noKeyFrameUsed = true; //mode == Normal;
@@ -325,7 +330,7 @@ void Adv2ImageLayout::GetDataBytes12BppIndex12BppWords(unsigned short* pixels, u
 	//	memcpy(&m_PixelArrayBuffer[1], &m_SignsBuffer[0], signsBytesCnt);
 }
 
-void Adv2ImageLayout::GetDataBytes12BppIndex16BppWords(unsigned short* pixels, unsigned int pixelsCRC32, unsigned int *bytesCount, unsigned char dataPixelsBpp)
+void Adv2ImageLayout::GetDataBytes12BppIndex16BppWords(unsigned short* pixels, unsigned int pixelsCRC32, unsigned int *bytesCount)
 {	
 	// Flags: 0 - no key frame used, 1 - key frame follows, 2 - diff corr data follows
 	bool isKeyFrame = false; //mode == KeyFrameBytes;

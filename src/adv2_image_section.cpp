@@ -184,7 +184,7 @@ int Adv2ImageSection::MaxFrameBufferSize()
 	return m_MaxImageLayoutFrameBufferSize;
 }
 
-unsigned char* Adv2ImageSection::GetDataBytes(unsigned char layoutId, unsigned short* currFramePixels, unsigned int *bytesCount, unsigned char pixelsBpp)
+unsigned char* Adv2ImageSection::GetDataBytes(unsigned char layoutId, unsigned short* currFramePixels, unsigned int *bytesCount, unsigned char pixelsBpp, enum GetByteOperation operation)
 {
 	Adv2ImageLayout* currentLayout = GetImageLayoutById(layoutId);
 	
@@ -195,7 +195,7 @@ unsigned char* Adv2ImageSection::GetDataBytes(unsigned char layoutId, unsigned s
 		m_NumFramesInThisLayoutId = 0;
 	}
 	
-	unsigned char* pixels = currentLayout->GetDataBytes(currFramePixels, bytesCount, pixelsBpp);	
+	unsigned char* pixels = currentLayout->GetDataBytes(currFramePixels, bytesCount, pixelsBpp, operation);	
 	
 	m_PreviousLayoutId = layoutId;
 	

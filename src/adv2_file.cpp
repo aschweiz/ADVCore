@@ -640,14 +640,75 @@ void Adv2File::AddFrameStatusTagUInt64(unsigned int tagIndex, __int64 tagValue)
 	StatusSection->AddFrameStatusTagUInt64(tagIndex, tagValue);
 }
 
-void Adv2File::AddFrameImage(unsigned char layoutId, unsigned short* pixels, unsigned char pixelsBpp)
+/* Assumed pixel format by AdvCore when this method is called
+
+    |    Layout Type    |  ImageSection.DataBpp |          Assumed Pixel Format                                 |
+	|-------------------|-----------------------|---------------------------------------------------------------|
+    |  FULL-IMAGE-RAW   |    16, 12, 8          | 16-bit data (1 short per pixel)                               |
+    |12BIT-IMAGE-PACKED |    12                 | 16-bit data (1 short per pixel) will be packed when storing   |
+    
+	All other combinations which are not listed above are invalid.
+*/
+HRESULT Adv2File::AddFrameImage(unsigned char layoutId, unsigned short* pixels, unsigned char pixelsBpp)
+{
+	unsigned char bpp = ImageSection->DataBpp;
+	m_CurrentImageLayout = ImageSection->GetImageLayoutById(layoutId);
+
+	if (m_CurrentImageLayout->Is12BitImagePacked && bpp == 12)
+	{
+		AddFrameImageInternal(layoutId, pixels, pixelsBpp, GetByteOperation::ConvertTo12BitPacked);
+		return S_OK;
+	}
+	else if (m_CurrentImageLayout->IsFullImageRaw)
+	{
+		AddFrameImageInternal(layoutId, pixels, pixelsBpp, GetByteOperation::None);
+		return S_OK;
+	}
+
+	return E_FAIL;
+}
+
+/* Assumed pixel format by AdvCore when this method is called
+
+    |    Layout Type    |  ImageSection.DataBpp |  Assumed Pixel Format                                         |
+	|-------------------|-----------------------|---------------------------------------------------------------|
+    |  FULL-IMAGE-RAW   |        16, 12         | 16-bit little endian data passed as bytes (2 bytes per pixel) |
+	|  FULL-IMAGE-RAW   |         8             | 8-bit data passed as bytes (1 byte per pixel)                 |
+    |12BIT-IMAGE-PACKED |        12             | 12-bit packed data (3 bytes per 2 pixels)                     |
+    | 8BIT-COLOR-IMAGE  |         8             | 8-bit RGB or BGR data (3 bytes per pixel, 1 colour per byte)  |
+
+	All other combinations which are not listed above are invalid.
+*/
+HRESULT Adv2File::AddFrameImage(unsigned char layoutId, unsigned char* pixels, unsigned char pixelsBpp)
+{
+	unsigned char bpp = ImageSection->DataBpp;
+	m_CurrentImageLayout = ImageSection->GetImageLayoutById(layoutId);
+
+	if (m_CurrentImageLayout->Is12BitImagePacked && bpp == 12)
+	{
+		AddFrameImageInternal(layoutId, (unsigned short*)pixels, pixelsBpp, GetByteOperation::None);
+		return S_OK;
+	}
+	else if (m_CurrentImageLayout->IsFullImageRaw)
+	{
+		AddFrameImageInternal(layoutId, (unsigned short*)pixels, pixelsBpp, GetByteOperation::None);
+		return S_OK;
+	}
+	else if (m_CurrentImageLayout->Is8BitColourImage && bpp == 8)
+	{
+		return E_NOTIMPL;
+	}
+
+	return E_FAIL;
+}
+
+void Adv2File::AddFrameImageInternal(unsigned char layoutId, unsigned short* pixels, unsigned char pixelsBpp, enum GetByteOperation operation)
 {
 	AdvProfiling_StartGenericProcessing();
 	AdvProfiling_StartBytesOperation();
 	
 	unsigned int imageBytesCount = 0;	
-	m_CurrentImageLayout = ImageSection->GetImageLayoutById(layoutId);
-	unsigned char *imageBytes = ImageSection->GetDataBytes(layoutId, pixels, &imageBytesCount, pixelsBpp);
+	unsigned char *imageBytes = ImageSection->GetDataBytes(layoutId, pixels, &imageBytesCount, pixelsBpp, operation);
 	
 	int imageSectionBytesCount = imageBytesCount + 2; // +1 byte for the layout id and +1 byte for the byteMode (See few lines below)
 	
@@ -658,7 +719,7 @@ void Adv2File::AddFrameImage(unsigned char layoutId, unsigned short* pixels, uns
 	m_FrameBufferIndex+=4;
 	
 	// It is faster to write the layoutId and byteMode directly here
-	m_FrameBytes[m_FrameBufferIndex] = m_CurrentImageLayout->LayoutId;
+	m_FrameBytes[m_FrameBufferIndex] = layoutId;
 	m_FrameBytes[m_FrameBufferIndex + 1] = 0; // byteMode of Normal (reserved for future use of differential coding)
 	m_FrameBufferIndex+=2;
 		

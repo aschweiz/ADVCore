@@ -646,18 +646,38 @@ void AdvVer2_FrameAddStatusTag64(unsigned int tagIndex, __int64 tagValue)
 	AdvProfiling_EndProcessing();
 }
 
-void AdvVer2_FrameAddImage(unsigned char layoutId, unsigned short* pixels, unsigned char pixelsBpp)
+/* Assumed pixel format by AdvCore when this method is called
+
+    |    Layout Type    |  ImageLayout.Bpp |  Assumed Pixel Format                                         |
+    |  FULL-IMAGE-RAW   |    16, 12, 8     | 16-bit data (1 short per pixel)                               |
+    |12BIT-IMAGE-PACKED |    12            | 16-bit data (1 short per pixel) will be packed when storing   |
+    
+	All other combinations which are not listed above are invalid.
+*/
+HRESULT AdvVer2_FrameAddImage(unsigned char layoutId, unsigned short* pixels, unsigned char pixelsBpp)
 {
 	AdvProfiling_StartProcessing();
-	g_Adv2File->AddFrameImage(layoutId, pixels, pixelsBpp);
+	HRESULT rv = g_Adv2File->AddFrameImage(layoutId, pixels, pixelsBpp);
 	AdvProfiling_EndProcessing();
+	return rv;
 }
 
-void AdvVer2_FrameAddImageBytes(unsigned char layoutId, unsigned char* pixels, unsigned char pixelsBpp)
+/* Assumed pixel format by AdvCore when this method is called
+
+    |    Layout Type    |  ImageLayout.Bpp |  Assumed Pixel Format                                         |
+    |  FULL-IMAGE-RAW   |    16, 12        | 16-bit little endian data passed as bytes (2 bytes per pixel) |
+	|  FULL-IMAGE-RAW   |     8            | 8-bit data passed as bytes (1 byte per pixel)                 |
+    |12BIT-IMAGE-PACKED |    12            | 12-bit packed data (3 bytes per 2 pixels)                     |
+    | 8BIT-COLOR-IMAGE  |     8            | 8-bit RGB or BGR data (3 bytes per pixel, 1 colour per byte)  |
+
+	All other combinations which are not listed above are invalid.
+*/
+HRESULT AdvVer2_FrameAddImageBytes(unsigned char layoutId, unsigned char* pixels, unsigned char pixelsBpp)
 {
 	AdvProfiling_StartProcessing();
-	g_Adv2File->AddFrameImage(layoutId, (unsigned short*)pixels, pixelsBpp);
+	HRESULT rv = g_Adv2File->AddFrameImage(layoutId, pixels, pixelsBpp);
 	AdvProfiling_EndProcessing();
+	return rv;
 }
 
 void AdvVer2_GetMainStreamInfo(int* numFrames, __int64* mainClockFrequency, int* mainStreamAccuracy)

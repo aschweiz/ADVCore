@@ -51,7 +51,10 @@ namespace AdvLib2
 		unsigned char Bpp;
 	
 		const char* Compression;
-		
+		bool IsFullImageRaw;
+		bool Is12BitImagePacked;
+		bool Is8BitColourImage;
+
 		int MaxFrameBufferSize;
 
 	public:
@@ -61,17 +64,17 @@ namespace AdvLib2
 
 		void AddOrUpdateTag(const char* tagName, const char* tagValue);
 		void WriteHeader(FILE* pfile);
-		unsigned char* GetDataBytes(unsigned short* currFramePixels, unsigned int *bytesCount, unsigned char dataPixelsBpp);
+		unsigned char* GetDataBytes(unsigned short* currFramePixels, unsigned int *bytesCount, unsigned char dataPixelsBpp, enum GetByteOperation operation);
 		void GetDataFromDataBytes(unsigned char* data, unsigned int* pixels, int sectionDataLength, int startOffset);
 	
 	private:
-		unsigned char* GetFullImageRawDataBytes(unsigned short* currFramePixels, unsigned int *bytesCount, unsigned char dataPixelsBpp);
+		unsigned char* GetFullImageRawDataBytes(unsigned short* currFramePixels, unsigned int *bytesCount, unsigned char dataPixelsBpp, enum GetByteOperation operation);
 		
 		void GetDataBytes12Bpp(unsigned short* currFramePixels, unsigned int pixelsCRC32, unsigned int *bytesCount, unsigned char dataPixelsBpp);
 		void GetDataBytes16Bpp(unsigned short* currFramePixels, unsigned int pixelsCRC32, unsigned int *bytesCount, unsigned char dataPixelsBpp);
 		
 		void GetDataBytes12BppIndex12BppWords(unsigned short* currFramePixels, unsigned int pixelsCRC32, unsigned int *bytesCount, unsigned char dataPixelsBpp);
-		void GetDataBytes12BppIndex16BppWords(unsigned short* currFramePixels, unsigned int pixelsCRC32, unsigned int *bytesCount, unsigned char dataPixelsBpp);
+		void GetDataBytes12BppIndex16BppWords(unsigned short* currFramePixels, unsigned int pixelsCRC32, unsigned int *bytesCount);
 		void GetDataBytes12BppIndexBytes(unsigned short* currFramePixels, unsigned int pixelsCRC32, unsigned int *bytesCount, unsigned char dataPixelsBpp);
 
 		void GetPixelsFrom8BitByteArrayRawLayout(unsigned char* layoutData, unsigned int* pixelsOut, int* readIndex, bool* crcOkay);

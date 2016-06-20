@@ -65,6 +65,8 @@ namespace AdvLib2
 			int m_NumberOfCalibrationFrames;
 
 			void InitFileState();
+			void AddFrameImageInternal(unsigned char layoutId, unsigned short* pixels, unsigned char pixelsBpp, enum GetByteOperation operation);
+
 		public:
 			int TotalNumberOfMainFrames;
 			int TotalNumberOfCalibrationFrames;
@@ -100,7 +102,9 @@ namespace AdvLib2
 			void AddFrameStatusTagUInt32(unsigned int tagIndex, unsigned int tagValue);
 			void AddFrameStatusTagUInt64(unsigned int tagIndex, __int64 tagValue);
 			void AddFrameStatusTagReal(unsigned int tagIndex, float tagValue);
-			void AddFrameImage(unsigned char layoutId, unsigned short* pixels, unsigned char pixelsBpp);
+
+			HRESULT AddFrameImage(unsigned char layoutId, unsigned short* pixels, unsigned char pixelsBpp);
+			HRESULT AddFrameImage(unsigned char layoutId, unsigned char* pixels, unsigned char pixelsBpp);
 
 			void GetMainStreamInfo(int* numFrames, __int64* mainClockFrequency, int* mainStreamAccuracy);
 			void GetCalibrationStreamInfo(int* numFrames, __int64* calibrationClockFrequency, int* calibrationStreamAccuracy);
