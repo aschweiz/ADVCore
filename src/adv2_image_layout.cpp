@@ -234,7 +234,7 @@ unsigned char* Adv2ImageLayout::GetDataBytes(unsigned short* currFramePixels, un
 	}
 	if (0 == strcmp(Compression, "LAGARITH16"))
 	{
-		*bytesCount = m_Lagarith16Compressor->CompressData(currFramePixels, m_CompressedPixels);
+		*bytesCount = m_Lagarith16Compressor->CompressData((unsigned short*)bytesToCompress, m_CompressedPixels);
 		return (unsigned char*)(m_CompressedPixels);
 	}
 	else if (0 == strcmp(Compression, "UNCOMPRESSED"))
@@ -247,12 +247,12 @@ unsigned char* Adv2ImageLayout::GetDataBytes(unsigned short* currFramePixels, un
 
 unsigned char* Adv2ImageLayout::GetFullImageRawDataBytes(unsigned short* currFramePixels, unsigned int *bytesCount, unsigned char dataPixelsBpp, enum GetByteOperation operation)
 {
-	int buffLen = 0;
+	unsigned int buffLen = 0;
 	if (dataPixelsBpp == 16)
 	{
 		if (operation == GetByteOperation::ConvertTo12BitPacked)
 			// 2 pixels saved in 3 bytes
-			GetDataBytes12BppIndex16BppWords(currFramePixels, 0, bytesCount);
+			GetDataBytes12BppIndex16BppWords(currFramePixels, 0, &buffLen);
 		else
 		{
 			buffLen = Width * Height * 2;
@@ -333,60 +333,26 @@ void Adv2ImageLayout::GetDataBytes12BppIndex12BppWords(unsigned short* pixels, u
 
 void Adv2ImageLayout::GetDataBytes12BppIndex16BppWords(unsigned short* pixels, unsigned int pixelsCRC32, unsigned int *bytesCount)
 {	
-	// Flags: 0 - no key frame used, 1 - key frame follows, 2 - diff corr data follows
-	bool isKeyFrame = false; //mode == KeyFrameBytes;
-	bool noKeyFrameUsed = true; //mode == Normal;
-	bool isDiffCorrFrame = false; //mode == DiffCorrBytes;
-
-	// Every 2 12-bit values can be encoded in 3 bytes
-	// xxxxxxxx|xxxxyyyy|yyyyyyy
-
-	//int arrayLength = 1 + 4 + 3 * (Width * Height) / 2 + 2 * ((Width * Height) % 2) + *bytesCount;
-
-	//unsigned char *imageData = (unsigned char*)malloc(arrayLength);
-	
-	//int signsBytesCnt = *bytesCount;
-	
 	unsigned int bytesCounter = *bytesCount;
+	unsigned short* pPixels = pixels;
 	
-	m_PixelArrayBuffer[0] = noKeyFrameUsed ? (unsigned char)0 : (isKeyFrame ? (unsigned char)1 : (unsigned char)2);
-	bytesCounter++;
-		
-	unsigned int* pPixelArrayWords =  (unsigned int*)(&m_PixelArrayBuffer[0] + bytesCounter);
-	unsigned int* pPixels = (unsigned int*)pixels;
-	
-	int counter = 0;
-	int pixel8GroupCount = Height * Width / 8;
-	for (int idx = 0; idx < pixel8GroupCount; ++idx)
+	int pixel2GroupCount = Height * Width / 2;
+	for (int idx = 0; idx < pixel2GroupCount; ++idx)
 	{
-		unsigned int word1 = *pPixels;
-		unsigned int word2 = *pPixels;pPixels++;
-		unsigned int word3 = *pPixels;pPixels++;
-		unsigned int word4 = *pPixels;pPixels++;
-		
-		//(int)(pixels[x + y * Width] * 4095 / 65535)
-		
-		//         word1                 word2                 word3                 word4
-		// | 00aa aaaa 00bb bbbb | 00cc cccc 00dd dddd | 00ee eeee 00ff ffff | 00gg gggg 00hh hhhh|
-        // | aaaa aabb bbbb cccc | ccdd dddd eeee eeff | ffff gggg gghh hhhh |
-		//       encoded1               encoded2             encoded3
-		
-		unsigned int encodedPixelWord1 = ((word1 << 4) && 0xFFF00000) + ((word1 << 8) && 0x000FFF00) + (word2 >> 20);
-		unsigned int encodedPixelWord2 = ((word2 << 12) && 0xF0000000) + (word2 << 16) + ((word3 >> 12) && 0x0000FFF0)+ ((word3 >> 8) && 0x0000000F);
-		unsigned int encodedPixelWord3 = (word4 << 24) + ((word4 >> 4) && 0x00FFF000) + (word4 && 0x00000FFF);
-		
-		*pPixelArrayWords = encodedPixelWord1;pPixelArrayWords++;
-		*pPixelArrayWords = encodedPixelWord2;pPixelArrayWords++;
-		*pPixelArrayWords = encodedPixelWord3;pPixelArrayWords++;
-		
-		bytesCounter += 12;
+		unsigned short p1 = *pPixels;pPixels++;
+		unsigned short p2 = *pPixels;pPixels++;
+
+		m_PixelArrayBuffer[3 * idx] = (p1 >> 4) & 0xFF;
+		m_PixelArrayBuffer[3 * idx + 1] = ((p1 << 4) & 0xF0) + ((p2 >> 8) & 0x0F);
+		m_PixelArrayBuffer[3 * idx + 2] = p2 & 0xFF;
+		bytesCounter += 3;
 	};
 
-	*pPixelArrayWords = pixelsCRC32; pPixelArrayWords++;	
+	m_PixelArrayBuffer[bytesCounter] = (unsigned char)(pixelsCRC32 & 0xFF);
+	m_PixelArrayBuffer[bytesCounter + 1] = (unsigned char)((pixelsCRC32 >> 8) & 0xFF);
+	m_PixelArrayBuffer[bytesCounter + 2] = (unsigned char)((pixelsCRC32 >> 16) & 0xFF);
+	m_PixelArrayBuffer[bytesCounter + 3] = (unsigned char)((pixelsCRC32 >> 24) & 0xFF);
 	(*bytesCount) = bytesCounter + 4;
-
-	//if (isDiffCorrFrame)
-	//	memcpy(&m_PixelArrayBuffer[1], &m_SignsBuffer[0], signsBytesCnt);
 }
 
 void Adv2ImageLayout::GetDataBytes12BppIndexBytes(unsigned short* pixels, unsigned int pixelsCRC32, unsigned int *bytesCount, unsigned char dataPixelsBpp)
@@ -596,50 +562,21 @@ void Adv2ImageLayout::GetPixelsFrom16BitByteArrayRawLayout(unsigned char* layout
 
 void Adv2ImageLayout::GetPixelsFrom12BitByteArray(unsigned char* layoutData, unsigned int* pixelsOut, int* readIndex, bool* crcOkay)
 {
-	int counter = 0;
-	for (int y = 0; y < Height; ++y)
+	int doubleByteCount = Height * Width / 2;
+	for (int counter = 0; counter < doubleByteCount; ++counter)
 	{
-		for (int x = 0; x < Width; ++x)
-		{
-			counter++;
-			// Every 2 12-bit values are be encoded in 3 bytes
-			// xxxxxxxx|xxxxyyyy|yyyyyyy
+		// Every 2 12-bit values are be encoded in 3 bytes
+		// xxxxxxxx|xxxxyyyy|yyyyyyy
 
-			unsigned char bt1;
-			unsigned char bt2;
-			unsigned short val;
+		unsigned char bt1 = *layoutData; layoutData++;
+		unsigned char bt2 = *layoutData; layoutData++;
+		unsigned char bt3 = *layoutData; layoutData++;
 
-			switch (counter % 2)
-			{
-				case 1:
-					bt1 = *layoutData;
-					layoutData++;
-					bt2 = *layoutData;
+		unsigned short val1 = (unsigned short)(((unsigned short)bt1 << 4) + ((bt2 >> 4) & 0x0F));
+		unsigned short val2 = (unsigned short)((((unsigned short)bt2 & 0x0F) << 8) + bt3);
 
-					val = (unsigned short)(((unsigned short)bt1 << 4) + ((bt2 >> 4) & 0x0F));					
-
-					*pixelsOut = val;
-					pixelsOut++;
-
-					if (counter < 10 || counter > Height * Width - 10) 
-						printf("%d: %d", counter, val);
-					break;
-
-				case 0:
-					bt1 = *layoutData;
-					layoutData++;
-					bt2 = *layoutData;
-					layoutData++;
-
-					val = (unsigned short)((((unsigned short)bt1 & 0x0F) << 8) + bt2);
-
-					*pixelsOut = val;
-					pixelsOut++;
-					if (counter < 10 || counter > Height * Width - 10) 
-						printf("%d: %d", counter, val);
-					break;
-			}
-		}
+		*pixelsOut = val1; pixelsOut++;
+		*pixelsOut = val2; pixelsOut++;
 	}
 
 	if (m_ImageSection->UsesCRC)
@@ -649,7 +586,7 @@ void Adv2ImageLayout::GetPixelsFrom12BitByteArray(unsigned char* layoutData, uns
 	}
 	else
 		*crcOkay = true;
-				
+
     return;
 }
 
