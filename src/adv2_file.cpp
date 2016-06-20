@@ -644,8 +644,9 @@ void Adv2File::AddFrameStatusTagUInt64(unsigned int tagIndex, __int64 tagValue)
 
     |    Layout Type    |  ImageSection.DataBpp |          Assumed Pixel Format                                 |
 	|-------------------|-----------------------|---------------------------------------------------------------|
-    |  FULL-IMAGE-RAW   |    16, 12, 8          | 16-bit data (1 short per pixel)                               |
-    |12BIT-IMAGE-PACKED |    12                 | 16-bit data (1 short per pixel) will be packed when storing   |
+    |  FULL-IMAGE-RAW   |    16, 12             | 16-bit input (1 short per pixel)                              |
+	|  FULL-IMAGE-RAW   |    8                  | 16-bit input will be converted to 1 byte per pixel            |
+    |12BIT-IMAGE-PACKED |    12                 | 16-bit input (1 short per pixel) will be packed when storing  |
     
 	All other combinations which are not listed above are invalid.
 */
@@ -657,6 +658,11 @@ HRESULT Adv2File::AddFrameImage(unsigned char layoutId, unsigned short* pixels, 
 	if (m_CurrentImageLayout->Is12BitImagePacked && bpp == 12)
 	{
 		AddFrameImageInternal(layoutId, pixels, pixelsBpp, GetByteOperation::ConvertTo12BitPacked);
+		return S_OK;
+	}
+	else if (m_CurrentImageLayout->IsFullImageRaw && bpp == 8)
+	{
+		AddFrameImageInternal(layoutId, pixels, pixelsBpp, GetByteOperation::ConvertTo8BitBytesLooseHighByte);
 		return S_OK;
 	}
 	else if (m_CurrentImageLayout->IsFullImageRaw)

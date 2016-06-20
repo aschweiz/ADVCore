@@ -19,7 +19,8 @@ namespace AdvLib2
 	enum GetByteOperation
 	{
 		None = 0,
-		ConvertTo12BitPacked = 1
+		ConvertTo12BitPacked = 1,
+		ConvertTo8BitBytesLooseHighByte = 2
 	};
 
 	class Adv2ImageLayout;

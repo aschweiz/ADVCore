@@ -70,12 +70,8 @@ namespace AdvLib2
 	private:
 		unsigned char* GetFullImageRawDataBytes(unsigned short* currFramePixels, unsigned int *bytesCount, unsigned char dataPixelsBpp, enum GetByteOperation operation);
 		
-		void GetDataBytes12Bpp(unsigned short* currFramePixels, unsigned int pixelsCRC32, unsigned int *bytesCount, unsigned char dataPixelsBpp);
-		void GetDataBytes16Bpp(unsigned short* currFramePixels, unsigned int pixelsCRC32, unsigned int *bytesCount, unsigned char dataPixelsBpp);
-		
-		void GetDataBytes12BppIndex12BppWords(unsigned short* currFramePixels, unsigned int pixelsCRC32, unsigned int *bytesCount, unsigned char dataPixelsBpp);
-		void GetDataBytes12BppIndex16BppWords(unsigned short* currFramePixels, unsigned int pixelsCRC32, unsigned int *bytesCount);
-		void GetDataBytes12BppIndexBytes(unsigned short* currFramePixels, unsigned int pixelsCRC32, unsigned int *bytesCount, unsigned char dataPixelsBpp);
+		void GetDataBytesConvertTo12BitPacked(unsigned short* currFramePixels, unsigned int pixelsCRC32, unsigned int *bytesCount);
+		void GetDataBytesConvertTo8BitBytesLooseHighByte(unsigned short* currFramePixels, unsigned int pixelsCRC32, unsigned int *bytesCount);
 
 		void GetPixelsFrom8BitByteArrayRawLayout(unsigned char* layoutData, unsigned int* pixelsOut, int* readIndex, bool* crcOkay);
 		void GetPixelsFrom16BitByteArrayRawLayout(unsigned char* layoutData, unsigned int* pixelsOut, int* readIndex, bool* crcOkay);
