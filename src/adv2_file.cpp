@@ -119,21 +119,6 @@ bool Adv2File::BeginFile(const char* fileName)
 	advfgetpos64(m_Adv2File, &sectionHeaderOffsetPositions[1]);
 	buffLong = 0;
 	advfwrite(&buffLong, 8, 1, m_Adv2File);
-
-	// Write section headers
-	__int64 sectionHeaderOffsets[2];
-	advfgetpos64(m_Adv2File, &sectionHeaderOffsets[0]);
-	ImageSection->WriteHeader(m_Adv2File);
-	advfgetpos64(m_Adv2File, &sectionHeaderOffsets[1]);
-	StatusSection->WriteHeader(m_Adv2File);
-
-	// Write section headers positions
-	advfsetpos64(m_Adv2File, &sectionHeaderOffsetPositions[0]);
-	advfwrite(&sectionHeaderOffsets[0], 8, 1, m_Adv2File);
-	advfsetpos64(m_Adv2File, &sectionHeaderOffsetPositions[1]);
-	advfwrite(&sectionHeaderOffsets[1], 8, 1, m_Adv2File);
-	
-	advfseek(m_Adv2File, 0, SEEK_END);
 	
 	// Write main stream metadata table
 	unsigned int mainTagsCount = (unsigned int)m_MainStreamTags.size();
@@ -191,6 +176,21 @@ bool Adv2File::BeginFile(const char* fileName)
 
 	advfseek(m_Adv2File, 0, SEEK_END);
 	
+	// Write section headers
+	__int64 sectionHeaderOffsets[2];
+	advfgetpos64(m_Adv2File, &sectionHeaderOffsets[0]);
+	ImageSection->WriteHeader(m_Adv2File);
+	advfgetpos64(m_Adv2File, &sectionHeaderOffsets[1]);
+	StatusSection->WriteHeader(m_Adv2File);
+
+	// Write section headers positions
+	advfsetpos64(m_Adv2File, &sectionHeaderOffsetPositions[0]);
+	advfwrite(&sectionHeaderOffsets[0], 8, 1, m_Adv2File);
+	advfsetpos64(m_Adv2File, &sectionHeaderOffsetPositions[1]);
+	advfwrite(&sectionHeaderOffsets[1], 8, 1, m_Adv2File);
+	
+	advfseek(m_Adv2File, 0, SEEK_END);
+
 	// Write system metadata table
 	__int64 systemMetadataTablePosition;
 	advfgetpos64(m_Adv2File, &systemMetadataTablePosition);
