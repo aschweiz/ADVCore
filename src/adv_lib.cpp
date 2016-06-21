@@ -508,7 +508,7 @@ unsigned int AdvVer2_AddCalibrationStreamTag(const char* tagName, const char* ta
 	return tagId;
 }
 
-bool AdvVer2_BeginFrame(unsigned int streamId)
+bool AdvVer2_BeginFrame(unsigned int streamId, __int64 utcStartTimeNanosecondsSinceAdvZeroEpoch, unsigned int utcExposureNanoseconds)
 {
 	AdvProfiling_StartProcessing();
 	if (!g_FileStarted)
@@ -525,12 +525,12 @@ bool AdvVer2_BeginFrame(unsigned int streamId)
 		}		
 	}
 	
-	g_Adv2File->BeginFrame(streamId);
+	g_Adv2File->BeginFrame(streamId, utcStartTimeNanosecondsSinceAdvZeroEpoch, utcExposureNanoseconds);
 	AdvProfiling_EndProcessing();
 	return true;
 }
 
-bool AdvVer2_BeginFrameWithTicks(unsigned int streamId, __int64 startFrameTicks, __int64 endFrameTicks,__int64 elapsedTicksSinceFirstFrame)
+bool AdvVer2_BeginFrameWithTicks(unsigned int streamId, __int64 startFrameTicks, __int64 endFrameTicks, __int64 elapsedTicksSinceFirstFrame, __int64 utcStartTimeNanosecondsSinceAdvZeroEpoch, unsigned int utcExposureNanoseconds)
 {
 	AdvProfiling_StartProcessing();
 	if (!g_FileStarted)
@@ -547,7 +547,7 @@ bool AdvVer2_BeginFrameWithTicks(unsigned int streamId, __int64 startFrameTicks,
 		}		
 	}
 	
-	g_Adv2File->BeginFrame(streamId, startFrameTicks, endFrameTicks, elapsedTicksSinceFirstFrame);
+	g_Adv2File->BeginFrame(streamId, startFrameTicks, endFrameTicks, elapsedTicksSinceFirstFrame, utcStartTimeNanosecondsSinceAdvZeroEpoch, utcExposureNanoseconds);
 	AdvProfiling_EndProcessing();
 	return true;
 }
@@ -564,6 +564,14 @@ void AdvVer2_DefineImageSection(unsigned short width, unsigned short height, uns
 	AdvProfiling_StartProcessing();
 	AdvLib2::Adv2ImageSection* imageSection = new AdvLib2::Adv2ImageSection(width, height, dataBpp);
 	g_Adv2File->AddImageSection(imageSection);
+	AdvProfiling_EndProcessing();
+}
+
+void AdvVer2_DefineStatusSection(__int64 utcTimestampAccuracyInNanoseconds)
+{
+	AdvProfiling_StartProcessing();
+	AdvLib2::Adv2StatusSection* statusSection = new AdvLib2::Adv2StatusSection(utcTimestampAccuracyInNanoseconds);
+	g_Adv2File->AddStatusSection(statusSection);
 	AdvProfiling_EndProcessing();
 }
 

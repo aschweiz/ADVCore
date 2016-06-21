@@ -21,8 +21,6 @@ FILE* m_Adv2File;
 	
 Adv2File::Adv2File()
 {
-	StatusSection = new AdvLib2::Adv2StatusSection();
-
 	crc32_init();
 	
 	m_FrameBytes = nullptr;
@@ -504,6 +502,11 @@ void Adv2File::AddImageSection(AdvLib2::Adv2ImageSection* section)
 	m_FileTags.insert(make_pair(string("BITPIX"), string(convStr)));
 }
 
+void Adv2File::AddStatusSection(AdvLib2::Adv2StatusSection* section)
+{
+	StatusSection = section;
+}
+
 int Adv2File::AddMainStreamTag(const char* tagName, const char* tagValue)
 {
 	m_MainStreamTags.insert((make_pair(string(tagName == nullptr ? "" : tagName), string(tagValue == nullptr ? "" : tagValue))));
@@ -532,7 +535,7 @@ int Adv2File::AddUserTag(const char* tagName, const char* tagValue)
 	return (int)m_UserMetadataTags.size();	
 }
 
-void Adv2File::BeginFrame(unsigned char streamId)
+void Adv2File::BeginFrame(unsigned char streamId, __int64 utcStartTimeNanosecondsSinceAdvZeroEpoch, unsigned int utcExposureNanoseconds)
 {
 	__int64 endFrameTicks = advgetclockticks();
 
@@ -547,10 +550,10 @@ void Adv2File::BeginFrame(unsigned char streamId)
 	m_PrevFrameInStreamTicks[streamId] = endFrameTicks;
 	__int64 elapsedTicksSinceFirstFrame = endFrameTicks - m_FirstFrameInStreamTicks[streamId];
 
-	BeginFrame(streamId, startFrameTicks, endFrameTicks, elapsedTicksSinceFirstFrame);
+	BeginFrame(streamId, startFrameTicks, endFrameTicks, elapsedTicksSinceFirstFrame, utcStartTimeNanosecondsSinceAdvZeroEpoch, utcExposureNanoseconds);
 }
 
-void Adv2File::BeginFrame(unsigned char streamId, __int64 startFrameTicks, __int64 endFrameTicks,__int64 elapsedTicksSinceFirstFrame)
+void Adv2File::BeginFrame(unsigned char streamId, __int64 startFrameTicks, __int64 endFrameTicks,__int64 elapsedTicksSinceFirstFrame, __int64 utcStartTimeNanosecondsSinceAdvZeroEpoch, unsigned int utcExposureNanoseconds)
 {
 	AdvProfiling_StartBytesOperation();
 
@@ -599,9 +602,9 @@ void Adv2File::BeginFrame(unsigned char streamId, __int64 startFrameTicks, __int
 	
 	m_FrameBufferIndex = 17;
 	
-	StatusSection->BeginFrame();
 	ImageSection->BeginFrame();	
-	
+	StatusSection->BeginFrame(utcStartTimeNanosecondsSinceAdvZeroEpoch, utcExposureNanoseconds);
+
 	AdvProfiling_EndBytesOperation();
 }
 

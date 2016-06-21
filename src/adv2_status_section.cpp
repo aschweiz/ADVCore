@@ -13,9 +13,10 @@ using std::string;
 namespace AdvLib2
 {
 
-Adv2StatusSection::Adv2StatusSection()
+Adv2StatusSection::Adv2StatusSection(__int64 utcTimestampAccuracyInNanoseconds)
 {
 	MaxFrameBufferSize = 0;
+	UtcTimestampAccuracyInNanoseconds = utcTimestampAccuracyInNanoseconds;
 
 	m_TagDefinitionNames.empty();
 	m_TagDefinition.empty();
@@ -66,7 +67,7 @@ unsigned int Adv2StatusSection::DefineTag(const char* tagName, AdvTagType tagTyp
 }
 
 
-void Adv2StatusSection::BeginFrame()
+void Adv2StatusSection::BeginFrame(__int64 utcStartTimeNanosecondsSinceAdvZeroEpoch, unsigned int utcExposureNanoseconds)
 {
 	m_FrameStatusTags.clear();
 	m_FrameStatusTagsUInt8.clear();
@@ -76,6 +77,9 @@ void Adv2StatusSection::BeginFrame()
 	m_FrameStatusTagsReal.clear();
 	
 	m_FrameStatusTagsMessages.clear();
+
+	m_UtcStartTimeNanosecondsSinceAdvZeroEpoch = utcStartTimeNanosecondsSinceAdvZeroEpoch;
+	m_UtcExposureNanoseconds = utcExposureNanoseconds;
 }
 
 void Adv2StatusSection::AddFrameStatusTagUTF8String(unsigned int tagIndex, const char* tagValue)
@@ -153,6 +157,8 @@ Adv2StatusSection::Adv2StatusSection(FILE* pFile)
 	unsigned char version;
 	advfread(&version, 1, 1, pFile); /* Version */
 
+	advfread(&UtcTimestampAccuracyInNanoseconds, 8, 1, pFile);
+
 	unsigned char tagsCount;
 	advfread(&tagsCount, 1, 1, pFile);
 
@@ -170,9 +176,11 @@ void Adv2StatusSection::WriteHeader(FILE* pFile)
 {
 	unsigned char buffChar;
 	
-	buffChar = 1;
+	buffChar = 2;
 	advfwrite(&buffChar, 1, 1, pFile); /* Version */
 	
+	advfwrite(&UtcTimestampAccuracyInNanoseconds, 8, 1, pFile);
+
 	buffChar = (unsigned char)m_TagDefinitionNames.size();
 	advfwrite(&buffChar, 1, 1, pFile);
 	int tagCount = buffChar;
@@ -233,14 +241,27 @@ unsigned char* Adv2StatusSection::GetDataBytes(unsigned int *bytesCount)
 	arrayLength += (int)m_FrameStatusTagsReal.size() * (4 /*sizeof(float)*/ + 1 /* TagId*/ );
 	numTagEntries += (int)m_FrameStatusTagsReal.size();
 	
-	size = arrayLength + 1;
+	size = arrayLength + 13;
 	
 	unsigned char *statusData = (unsigned char*)malloc(size);
-	statusData[0] = (numTagEntries & 0xFF);		
+
+	statusData[0] = (unsigned char)(m_UtcStartTimeNanosecondsSinceAdvZeroEpoch & 0xFF);
+	statusData[1] = (unsigned char)((m_UtcStartTimeNanosecondsSinceAdvZeroEpoch >> 8) & 0xFF);
+	statusData[2] = (unsigned char)((m_UtcStartTimeNanosecondsSinceAdvZeroEpoch >> 16) & 0xFF);
+	statusData[3] = (unsigned char)((m_UtcStartTimeNanosecondsSinceAdvZeroEpoch >> 24) & 0xFF);
+	statusData[4] = (unsigned char)((m_UtcStartTimeNanosecondsSinceAdvZeroEpoch >> 32) & 0xFF);
+	statusData[5] = (unsigned char)((m_UtcStartTimeNanosecondsSinceAdvZeroEpoch >> 40) & 0xFF);
+	statusData[6] = (unsigned char)((m_UtcStartTimeNanosecondsSinceAdvZeroEpoch >> 48) & 0xFF);
+	statusData[7] = (unsigned char)((m_UtcStartTimeNanosecondsSinceAdvZeroEpoch >> 56) & 0xFF);
+	statusData[8] = (unsigned char)(m_UtcExposureNanoseconds & 0xFF);
+	statusData[9] = (unsigned char)((m_UtcExposureNanoseconds >> 8) & 0xFF);
+	statusData[10] = (unsigned char)((m_UtcExposureNanoseconds >> 16) & 0xFF);
+	statusData[11] = (unsigned char)((m_UtcExposureNanoseconds >> 24) & 0xFF);
+	statusData[12] = (numTagEntries & 0xFF);		
 		
 	if (arrayLength > 0)
 	{
-		int dataPos = 1;
+		int dataPos = 13;
 		
 		map<unsigned int, __int64>::iterator currUInt64 = m_FrameStatusTagsUInt64.begin();
 		while (currUInt64 != m_FrameStatusTagsUInt64.end()) 
@@ -381,6 +402,11 @@ unsigned char* Adv2StatusSection::GetDataBytes(unsigned int *bytesCount)
 void Adv2StatusSection::GetDataFromDataBytes(unsigned char* data, int sectionDataLength, int startOffset, AdvFrameInfo* frameInfo, char* systemError)
 {
 	unsigned char* statusData = data + startOffset;
+
+	m_UtcStartTimeNanosecondsSinceAdvZeroEpoch = data[0] + (data[1] << 8) + (data[2] << 16) + (data[3] << 24) + (data[4] << 32)+ (data[5] << 40)+ (data[6] << 48)+ (data[7] << 56);
+	m_UtcExposureNanoseconds = data[8] + (data[9] << 8) + (data[10] << 16) + (data[11] << 24);
+	statusData+=12;
+
 	unsigned char tagsCount = *statusData;
 	statusData++;
 
