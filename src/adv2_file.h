@@ -20,6 +20,25 @@ using std::string;
 
 namespace AdvLib2
 {
+	struct AdvFileInfo
+	{
+       int Width;
+       int Height;
+       int CountMaintFrames;
+       int CountCalibrationFrames;
+       int DataBpp;
+       int MaxPixelValue;	   
+       __int64 MainClockFrequency;
+       int MainStreamAccuracy;
+       __int64 CalibrationClockFrequency;
+       int CalibrationStreamAccuracy;
+	   unsigned char MainStreamTagsCount;
+	   unsigned char CalibrationStreamTagsCount;
+	   unsigned char SystemMetadataTagsCount;
+	   unsigned char UserMetadataTagsCount;
+	   __int64 UtcTimestampAccuracyInNanoseconds;
+	   bool IsColourImage;
+	};
 
 	class Adv2File {
 		public:
@@ -80,7 +99,7 @@ namespace AdvLib2
 			void DefineExternalClockForCalibrationStream(__int64 clockFrequency, int ticksTimingAccuracy);
 			void EndFile();
 			
-			int LoadFile(const char* fileName);
+			int LoadFile(const char* fileName, AdvFileInfo* fileInfo);
 			bool CloseFile();
 			
 			void AddImageSection(AdvLib2::Adv2ImageSection* section);
@@ -106,9 +125,6 @@ namespace AdvLib2
 
 			HRESULT AddFrameImage(unsigned char layoutId, unsigned short* pixels, unsigned char pixelsBpp);
 			HRESULT AddFrameImage(unsigned char layoutId, unsigned char* pixels, unsigned char pixelsBpp);
-
-			void GetMainStreamInfo(int* numFrames, __int64* mainClockFrequency, int* mainStreamAccuracy);
-			void GetCalibrationStreamInfo(int* numFrames, __int64* calibrationClockFrequency, int* calibrationStreamAccuracy);
 
 			void GetFrameImageSectionHeader(int streamId, int frameId, unsigned char* layoutId, enum GetByteMode* mode);
 			void GetFrameSectionData(int streamId, int frameId, unsigned int* pixels, AdvFrameInfo* frameInfo, char* systemError);

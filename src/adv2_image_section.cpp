@@ -23,6 +23,8 @@ Adv2ImageSection::Adv2ImageSection(unsigned int width, unsigned int height, unsi
 	m_NumFramesInThisLayoutId = 0;
 	ByteOrder = ImageByteOrder::LittleEndian;
 	UsesCRC = false;
+	MaxPixelValue = 0;
+	m_RGBorBGR = false;
 }
 
 Adv2ImageSection::~Adv2ImageSection()
@@ -74,6 +76,18 @@ void Adv2ImageSection::AddOrUpdateTag(const char* tagName, const char* tagValue)
 	{
 		UsesCRC = strcmp("CRC32", tagValue) == 0;
 	}
+
+	if (strcmp("IMAGE-MAX-PIXEL-VALUE", tagName) == 0 && tagValue != nullptr)
+	{
+		MaxPixelValue = atoi(tagValue);
+	}
+
+	if (strcmp("IMAGE-BAYER-PATTERN", tagName) == 0 && tagValue != nullptr)
+	{
+		m_RGBorBGR = strcmp("RGB", tagValue) == 0 || strcmp("BGR", tagValue) == 0;
+		IsColourImage = strcmp("MONOCHROME", tagValue) != 0;
+		strcpy_s(ImageBayerPattern, tagValue);
+	}
 	
 	m_ImageTags.insert(make_pair(string(tagName), string(tagValue == nullptr ? "" : tagValue)));
 }
@@ -89,6 +103,9 @@ Adv2ImageSection::Adv2ImageSection(FILE* pFile)
 
 	ByteOrder = ImageByteOrder::LittleEndian;
 	UsesCRC = false;
+	IsColourImage = false;
+	MaxPixelValue = 0;
+	m_RGBorBGR = false;
 
 	unsigned char imageLayouts;
 	advfread(&imageLayouts, 1, 1, pFile);

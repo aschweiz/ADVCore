@@ -230,7 +230,7 @@ bool Adv2File::BeginFile(const char* fileName)
 	return true;
 }
 
-int Adv2File::LoadFile(const char* fileName)
+int Adv2File::LoadFile(const char* fileName, AdvFileInfo* fileInfo)
 {
 	TotalNumberOfMainFrames = 0;
 	TotalNumberOfCalibrationFrames = 0;
@@ -278,6 +278,10 @@ int Adv2File::LoadFile(const char* fileName)
 	advfread(&m_MainStreamTickAccuracy, 4, 1, m_Adv2File);
 	advfread(&streamHeaderOffsets[0], 8, 1, m_Adv2File); // Offset of main stream metadata table (will be saved later)
 
+	fileInfo->MainClockFrequency = m_MainStreamClockFrequency;
+	fileInfo->MainStreamAccuracy = m_MainStreamTickAccuracy;
+	fileInfo->CountMaintFrames = m_NumberOfMainFrames;
+
 	TotalNumberOfMainFrames = m_NumberOfMainFrames;	
 
 	char* calibrationStreamName = ReadUTF8String(m_Adv2File);
@@ -292,6 +296,10 @@ int Adv2File::LoadFile(const char* fileName)
 	advfread(&m_CalibrationStreamClockFrequency, 8, 1, m_Adv2File);
 	advfread(&m_CalibrationStreamTickAccuracy, 4, 1, m_Adv2File);
 	advfread(&streamHeaderOffsets[1], 8, 1, m_Adv2File); // Offset of main stream metadata table (will be saved later)
+
+	fileInfo->CalibrationClockFrequency = m_CalibrationStreamClockFrequency;
+	fileInfo->CalibrationStreamAccuracy = m_CalibrationStreamTickAccuracy;
+	fileInfo->CountCalibrationFrames = m_NumberOfCalibrationFrames;
 
 	TotalNumberOfCalibrationFrames = m_NumberOfCalibrationFrames;
 
@@ -325,14 +333,23 @@ int Adv2File::LoadFile(const char* fileName)
 	advfsetpos64(m_Adv2File, &sectionHeaderOffsets[0]);
 	ImageSection = new AdvLib2::Adv2ImageSection(m_Adv2File);
 
+	fileInfo->Width = ImageSection->Width;
+	fileInfo->Height = ImageSection->Height;
+	fileInfo->DataBpp = ImageSection->DataBpp;
+	fileInfo->MaxPixelValue = ImageSection->MaxPixelValue;
+	fileInfo->IsColourImage = ImageSection->IsColourImage;
+
 	advfsetpos64(m_Adv2File, &sectionHeaderOffsets[1]);
 	StatusSection = new AdvLib2::Adv2StatusSection(m_Adv2File);
+
+	fileInfo->UtcTimestampAccuracyInNanoseconds = StatusSection->UtcTimestampAccuracyInNanoseconds;
 
 	unsigned char tagsCount;
 
 	// Read MAIN stream metadata table
 	advfsetpos64(m_Adv2File, &streamHeaderOffsets[0]);
 	advfread(&tagsCount, 1, 1, m_Adv2File);
+	fileInfo->MainStreamTagsCount = tagsCount;
 	for (int i = 0; i < tagsCount; i++)
 	{
 		char* tagName = ReadUTF8String(m_Adv2File);
@@ -344,6 +361,7 @@ int Adv2File::LoadFile(const char* fileName)
 	// Read CALIBRATION stream metadata table
 	advfsetpos64(m_Adv2File, &streamHeaderOffsets[1]);
 	advfread(&tagsCount, 1, 1, m_Adv2File);
+	fileInfo->CalibrationStreamTagsCount = tagsCount;
 	for (int i = 0; i < tagsCount; i++)
 	{
 		char* tagName = ReadUTF8String(m_Adv2File);
@@ -355,6 +373,7 @@ int Adv2File::LoadFile(const char* fileName)
 	// Read system metadata table
 	advfsetpos64(m_Adv2File, &systemMetadataTablePosition);
 	advfread(&tagsCount, 1, 1, m_Adv2File);
+	fileInfo->SystemMetadataTagsCount = tagsCount;
 	for (int i = 0; i < tagsCount; i++)
 	{
 		char* tagName = ReadUTF8String(m_Adv2File);
@@ -368,6 +387,7 @@ int Adv2File::LoadFile(const char* fileName)
 
 	advfsetpos64(m_Adv2File, &userMetaTableOffset);
 	advfread(&tagsCount, 1, 1, m_Adv2File);
+	fileInfo->UserMetadataTagsCount = tagsCount;
 	for (int i = 0; i < tagsCount; i++)
 	{
 		char* tagName = ReadUTF8String(m_Adv2File);
@@ -781,20 +801,6 @@ void Adv2File::EndFrame()
 	AdvProfiling_NewFrameProcessed();
 	
 	AdvProfiling_EndGenericProcessing();
-}
-
-void Adv2File::GetMainStreamInfo(int* numFrames, __int64* mainClockFrequency, int* mainStreamAccuracy)
-{
-	*numFrames = m_NumberOfMainFrames;
-	*mainClockFrequency = m_MainStreamClockFrequency;
-	*mainStreamAccuracy = m_MainStreamTickAccuracy;
-}
-
-void Adv2File::GetCalibrationStreamInfo(int* numFrames, __int64* calibrationClockFrequency, int* calibrationStreamAccuracy)
-{
-	*numFrames = m_NumberOfCalibrationFrames;
-	*calibrationClockFrequency = m_CalibrationStreamClockFrequency;
-	*calibrationStreamAccuracy = m_CalibrationStreamTickAccuracy;
 }
 
 void Adv2File::GetFrameImageSectionHeader(int streamId, int frameId, unsigned char* layoutId, enum GetByteMode* mode)

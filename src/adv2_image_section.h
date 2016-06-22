@@ -30,32 +30,35 @@ namespace AdvLib2
 	private:
 		map<string, string> m_ImageTags;
 		map<unsigned char, Adv2ImageLayout*> m_ImageLayouts;
-
-		public:
-			unsigned int Width;
-			unsigned int Height;
-			unsigned char DataBpp;
+		bool m_RGBorBGR;
+	public:
+		unsigned int Width;
+		unsigned int Height;
+		unsigned char DataBpp;
 		
-			enum ImageByteOrder ByteOrder;
-			bool UsesCRC;
+		enum ImageByteOrder ByteOrder;
+		bool UsesCRC;
+		int MaxPixelValue;
+		bool IsColourImage;
+		char ImageBayerPattern[128];
 
-		public:
+	public:
 
-			Adv2ImageSection(unsigned int width, unsigned int height, unsigned char dataBpp);
-			Adv2ImageSection(FILE* pfile);
-			~Adv2ImageSection();
+		Adv2ImageSection(unsigned int width, unsigned int height, unsigned char dataBpp);
+		Adv2ImageSection(FILE* pfile);
+		~Adv2ImageSection();
 
-			void WriteHeader(FILE* pfile);
-			void BeginFrame();
+		void WriteHeader(FILE* pfile);
+		void BeginFrame();
 
-			unsigned char* GetDataBytes(unsigned char layoutId, unsigned short* currFramePixels, unsigned int *bytesCount, unsigned char pixelsBpp, enum GetByteOperation operation);
-			AdvLib2::Adv2ImageLayout* GetImageLayoutById(unsigned char layoutId);
-			void AddOrUpdateTag(const char* tagName, const char* tagValue);
-			Adv2ImageLayout* AddImageLayout(unsigned char layoutId, const char* layoutType, const char* compression, unsigned char layoutBpp);
+		unsigned char* GetDataBytes(unsigned char layoutId, unsigned short* currFramePixels, unsigned int *bytesCount, unsigned char pixelsBpp, enum GetByteOperation operation);
+		AdvLib2::Adv2ImageLayout* GetImageLayoutById(unsigned char layoutId);
+		void AddOrUpdateTag(const char* tagName, const char* tagValue);
+		Adv2ImageLayout* AddImageLayout(unsigned char layoutId, const char* layoutType, const char* compression, unsigned char layoutBpp);
 
-			int MaxFrameBufferSize();
+		int MaxFrameBufferSize();
 
-			void GetDataFromDataBytes(unsigned char* data, unsigned int* pixels, int sectionDataLength, int startOffset);
+		void GetDataFromDataBytes(unsigned char* data, unsigned int* pixels, int sectionDataLength, int startOffset);
 	};
 }
 

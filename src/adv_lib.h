@@ -23,7 +23,7 @@ extern "C"
 
 DLL_PUBLIC char* AdvGetCurrentFilePath(void);
 DLL_PUBLIC unsigned int AdvGetFileVersion(const char* fileName);
-DLL_PUBLIC int AdvOpenFile(const char* fileName);
+DLL_PUBLIC int AdvOpenFile(const char* fileName, AdvLib2::AdvFileInfo* fileInfo);
 DLL_PUBLIC unsigned int AdvCloseFile();
 
 DLL_PUBLIC void AdvVer1_NewFile(const char* fileName);
@@ -71,8 +71,6 @@ DLL_PUBLIC void AdvVer2_FrameAddStatusTag32(unsigned int tagIndex, unsigned int 
 DLL_PUBLIC void AdvVer2_FrameAddStatusTag64(unsigned int tagIndex, __int64 tagValue);
 DLL_PUBLIC void AdvVer2_EndFrame();
 
-DLL_PUBLIC void AdvVer2_GetMainStreamInfo(int* numFrames, __int64* mainClockFrequency, int* mainStreamAccuracy);
-DLL_PUBLIC void AdvVer2_GetCalibrationStreamInfo(int* numFrames, __int64* calibrationClockFrequency, int* calibrationStreamAccuracy);
 DLL_PUBLIC HRESULT AdvVer2_GetFramePixels(int streamId, int frameNo, unsigned int* pixels, AdvLib2::AdvFrameInfo* frameInfo, char* systemError);
 
 

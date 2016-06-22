@@ -45,7 +45,7 @@ unsigned int AdvGetFileVersion(const char* fileName)
 	return (unsigned int)buffChar;
 }
 
-int AdvOpenFile(const char* fileName)
+int AdvOpenFile(const char* fileName, AdvLib2::AdvFileInfo* fileInfo)
 {
 	AdvCloseFile();
 
@@ -106,7 +106,7 @@ int AdvOpenFile(const char* fileName)
 			strncpy_s(g_CurrentAdvFile, len + 1, fileName, len + 1);
 		
 			g_Adv2File = new AdvLib2::Adv2File();
-			int res = !g_Adv2File->LoadFile(fileName);
+			int res = !g_Adv2File->LoadFile(fileName, fileInfo);
 			if (res < 0)
 			{
 				delete g_Adv2File;
@@ -686,16 +686,6 @@ HRESULT AdvVer2_FrameAddImageBytes(unsigned char layoutId, unsigned char* pixels
 	HRESULT rv = g_Adv2File->AddFrameImage(layoutId, pixels, pixelsBpp);
 	AdvProfiling_EndProcessing();
 	return rv;
-}
-
-void AdvVer2_GetMainStreamInfo(int* numFrames, __int64* mainClockFrequency, int* mainStreamAccuracy)
-{
-	g_Adv2File->GetMainStreamInfo(numFrames, mainClockFrequency, mainStreamAccuracy);
-}
-
-void AdvVer2_GetCalibrationStreamInfo(int* numFrames, __int64* calibrationClockFrequency, int* calibrationStreamAccuracy)
-{
-	g_Adv2File->GetCalibrationStreamInfo(numFrames, calibrationClockFrequency, calibrationStreamAccuracy);
 }
 
 HRESULT AdvVer2_GetFramePixels(int streamId, int frameNo, unsigned int* pixels, AdvLib2::AdvFrameInfo* frameInfo, char* systemError)
