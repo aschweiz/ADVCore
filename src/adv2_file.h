@@ -128,6 +128,8 @@ namespace AdvLib2
 
 			void GetFrameImageSectionHeader(int streamId, int frameId, unsigned char* layoutId, enum GetByteMode* mode);
 			void GetFrameSectionData(int streamId, int frameId, unsigned int* pixels, AdvFrameInfo* frameInfo, char* systemError);
+			HRESULT GetMainStreamTagSizes(int tagId, int* tagNameSize, int* tagValueSize);
+			HRESULT GetMainStreamTag(int tagId, char* tagName, char* tagValue);
 		};
 
 }

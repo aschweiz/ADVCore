@@ -103,7 +103,7 @@ bool Adv2File::BeginFile(const char* fileName)
 	advfwrite(&buffInt, 4, 1, m_Adv2File);
 	advfgetpos64(m_Adv2File, &streamHeaderOffsetPositions[1]);
 	buffLong = 0;
-	advfwrite(&buffLong, 8, 1, m_Adv2File); // Offset of main stream metadata table (will be saved later) 
+	advfwrite(&buffLong, 8, 1, m_Adv2File); // Offset of Calibration stream metadata table (will be saved later) 
 
 	buffChar = (unsigned char)2;
 	advfwrite(&buffChar, 1, 1, m_Adv2File); // Number of sections (image and status) 
@@ -121,58 +121,46 @@ bool Adv2File::BeginFile(const char* fileName)
 	advfwrite(&buffLong, 8, 1, m_Adv2File);
 	
 	// Write main stream metadata table
-	unsigned int mainTagsCount = (unsigned int)m_MainStreamTags.size();
-	if (mainTagsCount > 0)
-	{		
-		advfgetpos64(m_Adv2File, &streamHeaderOffsets[0]);
+	unsigned char mainTagsCount = (unsigned char)m_MainStreamTags.size();
+	advfgetpos64(m_Adv2File, &streamHeaderOffsets[0]);
 	
-		advfwrite(&mainTagsCount, 4, 1, m_Adv2File);
+	advfwrite(&mainTagsCount, 1, 1, m_Adv2File);
 	
-		map<string, string>::iterator curr = m_MainStreamTags.begin();
-		while (curr != m_MainStreamTags.end()) 
-		{
-			char* tagName = const_cast<char*>(curr->first.c_str());
-			WriteUTF8String(m_Adv2File, tagName);
+	map<string, string>::iterator curr = m_MainStreamTags.begin();
+	while (curr != m_MainStreamTags.end()) 
+	{
+		char* tagName = const_cast<char*>(curr->first.c_str());
+		WriteUTF8String(m_Adv2File, tagName);
 		
-			char* tagValue = const_cast<char*>(curr->second.c_str());
-			WriteUTF8String(m_Adv2File, tagValue);
+		char* tagValue = const_cast<char*>(curr->second.c_str());
+		WriteUTF8String(m_Adv2File, tagValue);
 		
-			curr++;
-		}
+		curr++;
 	}
 
 	// Write calibration stream metadata table
-	unsigned int calibrationTagsCount = (unsigned int)m_CalibrationStreamTags.size();
-	if (calibrationTagsCount > 0)
-	{		
-		advfgetpos64(m_Adv2File, &streamHeaderOffsets[1]);
+	unsigned char calibrationTagsCount = (unsigned char)m_CalibrationStreamTags.size();
+	advfgetpos64(m_Adv2File, &streamHeaderOffsets[1]);
 	
-		advfwrite(&calibrationTagsCount, 4, 1, m_Adv2File);
+	advfwrite(&calibrationTagsCount, 4, 1, m_Adv2File);
 	
-		map<string, string>::iterator curr = m_CalibrationStreamTags.begin();
-		while (curr != m_CalibrationStreamTags.end()) 
-		{
-			char* tagName = const_cast<char*>(curr->first.c_str());
-			WriteUTF8String(m_Adv2File, tagName);
+	curr = m_CalibrationStreamTags.begin();
+	while (curr != m_CalibrationStreamTags.end()) 
+	{
+		char* tagName = const_cast<char*>(curr->first.c_str());
+		WriteUTF8String(m_Adv2File, tagName);
 		
-			char* tagValue = const_cast<char*>(curr->second.c_str());
-			WriteUTF8String(m_Adv2File, tagValue);
+		char* tagValue = const_cast<char*>(curr->second.c_str());
+		WriteUTF8String(m_Adv2File, tagValue);
 		
-			curr++;
-		}
+		curr++;
 	}
 
-	if (mainTagsCount > 0)
-	{
-		advfsetpos64(m_Adv2File, &streamHeaderOffsetPositions[0]);
-		advfwrite(&streamHeaderOffsets[0], 8, 1, m_Adv2File);
-	}
-
-	if (calibrationTagsCount > 0)
-	{
-		advfsetpos64(m_Adv2File, &streamHeaderOffsetPositions[1]);
-		advfwrite(&streamHeaderOffsets[1], 8, 1, m_Adv2File);
-	}
+	advfsetpos64(m_Adv2File, &streamHeaderOffsetPositions[0]);
+	advfwrite(&streamHeaderOffsets[0], 8, 1, m_Adv2File);
+	
+	advfsetpos64(m_Adv2File, &streamHeaderOffsetPositions[1]);
+	advfwrite(&streamHeaderOffsets[1], 8, 1, m_Adv2File);
 
 	advfseek(m_Adv2File, 0, SEEK_END);
 	
@@ -198,7 +186,7 @@ bool Adv2File::BeginFile(const char* fileName)
 	unsigned int fileTagsCount = (unsigned int)m_FileTags.size();
 	advfwrite(&fileTagsCount, 4, 1, m_Adv2File);
 	
-	map<string, string>::iterator curr = m_FileTags.begin();
+	curr = m_FileTags.begin();
 	while (curr != m_FileTags.end()) 
 	{
 		char* tagName = const_cast<char*>(curr->first.c_str());	
@@ -276,7 +264,7 @@ int Adv2File::LoadFile(const char* fileName, AdvFileInfo* fileInfo)
 	advfread(&m_NumberOfMainFrames, 4, 1, m_Adv2File); // Number of frames saved in the Main stream
 	advfread(&m_MainStreamClockFrequency, 8, 1, m_Adv2File);
 	advfread(&m_MainStreamTickAccuracy, 4, 1, m_Adv2File);
-	advfread(&streamHeaderOffsets[0], 8, 1, m_Adv2File); // Offset of main stream metadata table (will be saved later)
+	advfread(&streamHeaderOffsets[0], 8, 1, m_Adv2File); // Offset of main stream metadata table
 
 	fileInfo->MainClockFrequency = m_MainStreamClockFrequency;
 	fileInfo->MainStreamAccuracy = m_MainStreamTickAccuracy;
@@ -295,7 +283,7 @@ int Adv2File::LoadFile(const char* fileName, AdvFileInfo* fileInfo)
 	advfread(&m_NumberOfCalibrationFrames, 4, 1, m_Adv2File); // Number of frames saved in the Calibration stream
 	advfread(&m_CalibrationStreamClockFrequency, 8, 1, m_Adv2File);
 	advfread(&m_CalibrationStreamTickAccuracy, 4, 1, m_Adv2File);
-	advfread(&streamHeaderOffsets[1], 8, 1, m_Adv2File); // Offset of main stream metadata table (will be saved later)
+	advfread(&streamHeaderOffsets[1], 8, 1, m_Adv2File); // Offset of Calibration stream metadata table
 
 	fileInfo->CalibrationClockFrequency = m_CalibrationStreamClockFrequency;
 	fileInfo->CalibrationStreamAccuracy = m_CalibrationStreamTickAccuracy;
@@ -861,6 +849,36 @@ void Adv2File::GetFrameSectionData(int streamId, int frameId, unsigned int* pixe
 		
 		delete data;
 	}
+}
+
+HRESULT Adv2File::GetMainStreamTag(int tagId, char* tagName, char* tagValue)
+{
+	if (tagId < 0 || tagId >= m_MainStreamTags.size())
+		return E_FAIL;
+
+	map<string, string>::iterator iter = m_MainStreamTags.begin();
+	if (tagId > 0) std::advance(iter, tagId);	
+
+	//strncpy_s(tagName, strlen(tagName) + 1, iter->first.c_str(), strlen(tagName) + 1);
+	//strncpy_s(tagValue, strlen(tagValue) + 1, iter->second.c_str(), strlen(tagValue) + 1);
+	strcpy(tagName, iter->first.c_str());
+	strcpy(tagValue, iter->second.c_str());
+
+	return S_OK;
+}
+
+HRESULT Adv2File::GetMainStreamTagSizes(int tagId, int* tagNameSize, int* tagValueSize)
+{
+	if (tagId < 0 || tagId >= m_MainStreamTags.size())
+		return E_FAIL;
+
+	map<string, string>::iterator iter = m_MainStreamTags.begin();
+	if (tagId > 0) std::advance(iter, tagId);	
+
+	*tagNameSize = strlen(iter->first.c_str());
+	*tagValueSize = strlen(iter->second.c_str());
+
+	return S_OK;
 }
 
 }

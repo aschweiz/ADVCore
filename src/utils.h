@@ -28,6 +28,14 @@ enum AdvTagType
 	List16OfUTF8String = 8,
 };
 
+enum TagPairType
+{
+	MainStream = 0,
+	CalibrationStream = 1,
+	SystemMetadata = 2,
+	UserMetadata = 3
+};
+
 enum GetByteMode
 {
 	Normal = 0,

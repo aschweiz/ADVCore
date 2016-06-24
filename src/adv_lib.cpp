@@ -708,3 +708,19 @@ HRESULT AdvVer2_GetFramePixels(int streamId, int frameNo, unsigned int* pixels, 
 		return S_OK;
 }
 
+HRESULT AdvVer2_GetTagPairSizes(TagPairType tagPairType, int tagId, int* tagNameSize, int* tagValueSize)
+{
+	if (tagPairType == TagPairType::MainStream)
+		return g_Adv2File->GetMainStreamTagSizes(tagId, tagNameSize, tagValueSize);
+
+	return E_FAIL;
+}
+
+HRESULT AdvVer2_GetTagPairValues(TagPairType tagPairType, int tagId, char* tagName, char* tagValue)
+{
+	if (tagPairType == TagPairType::MainStream)
+		return g_Adv2File->GetMainStreamTag(tagId, tagName, tagValue);
+
+	return E_FAIL;
+}
+
