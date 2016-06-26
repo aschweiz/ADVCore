@@ -130,6 +130,12 @@ namespace AdvLib2
 			void GetFrameSectionData(int streamId, int frameId, unsigned int* pixels, AdvFrameInfo* frameInfo, char* systemError);
 			HRESULT GetMainStreamTagSizes(int tagId, int* tagNameSize, int* tagValueSize);
 			HRESULT GetMainStreamTag(int tagId, char* tagName, char* tagValue);
+			HRESULT GetCalibrationStreamTagSizes(int tagId, int* tagNameSize, int* tagValueSize);
+			HRESULT GetCalibrationStreamTag(int tagId, char* tagName, char* tagValue);
+			HRESULT GetSystemMetadataTagSizes(int tagId, int* tagNameSize, int* tagValueSize);
+			HRESULT GetSystemMetadataTag(int tagId, char* tagName, char* tagValue);
+			HRESULT GetUserMetadataTagSizes(int tagId, int* tagNameSize, int* tagValueSize);
+			HRESULT GetUserMetadataTag(int tagId, char* tagName, char* tagValue);
 		};
 
 }

@@ -56,6 +56,7 @@ DLL_PUBLIC void AdvVer2_DefineImageLayout(unsigned char layoutId, const char* la
 DLL_PUBLIC void AdvVer2_DefineStatusSection(__int64 utcTimestampAccuracyInNanoseconds);
 DLL_PUBLIC unsigned int AdvVer2_DefineStatusSectionTag(const char* tagName, int tagType);
 DLL_PUBLIC unsigned int AdvVer2_AddFileTag(const char* tagName, const char* tagValue);
+DLL_PUBLIC unsigned int AdvVer2_AddUserTag(const char* tagName, const char* tagValue);
 DLL_PUBLIC void AdvVer2_AddOrUpdateImageSectionTag(const char* tagName, const char* tagValue);
 DLL_PUBLIC void AdvVer2_EndFile();
 DLL_PUBLIC bool AdvVer2_BeginFrameWithTicks(unsigned int streamId, __int64 startFrameTicks, __int64 endFrameTicks, __int64 elapsedTicksSinceFirstFrame, __int64 utcStartTimeNanosecondsSinceAdvZeroEpoch, unsigned int utcExposureNanoseconds);

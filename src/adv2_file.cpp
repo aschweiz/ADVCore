@@ -142,7 +142,7 @@ bool Adv2File::BeginFile(const char* fileName)
 	unsigned char calibrationTagsCount = (unsigned char)m_CalibrationStreamTags.size();
 	advfgetpos64(m_Adv2File, &streamHeaderOffsets[1]);
 	
-	advfwrite(&calibrationTagsCount, 4, 1, m_Adv2File);
+	advfwrite(&calibrationTagsCount, 1, 1, m_Adv2File);
 	
 	curr = m_CalibrationStreamTags.begin();
 	while (curr != m_CalibrationStreamTags.end()) 
@@ -189,10 +189,10 @@ bool Adv2File::BeginFile(const char* fileName)
 	curr = m_FileTags.begin();
 	while (curr != m_FileTags.end()) 
 	{
-		char* tagName = const_cast<char*>(curr->first.c_str());	
+		char* tagName = const_cast<char*>(curr->first.c_str());
 		WriteUTF8String(m_Adv2File, tagName);
 		
-		char* tagValue = const_cast<char*>(curr->second.c_str());	
+		char* tagValue = const_cast<char*>(curr->second.c_str());
 		WriteUTF8String(m_Adv2File, tagValue);
 		
 		curr++;
@@ -210,8 +210,6 @@ bool Adv2File::BeginFile(const char* fileName)
 		
 	m_MainFrameNo = 0;
 	m_CalibrationFrameNo = 0;
-
-	m_UserMetadataTags.clear();
 
     advfflush(m_Adv2File);
     
@@ -360,9 +358,10 @@ int Adv2File::LoadFile(const char* fileName, AdvFileInfo* fileInfo)
 
 	// Read system metadata table
 	advfsetpos64(m_Adv2File, &systemMetadataTablePosition);
-	advfread(&tagsCount, 1, 1, m_Adv2File);
-	fileInfo->SystemMetadataTagsCount = tagsCount;
-	for (int i = 0; i < tagsCount; i++)
+	unsigned int tagsCountInt;
+	advfread(&tagsCountInt, 4, 1, m_Adv2File);
+	fileInfo->SystemMetadataTagsCount = tagsCountInt;
+	for (int i = 0; i < tagsCountInt; i++)
 	{
 		char* tagName = ReadUTF8String(m_Adv2File);
 		char* tagValue = ReadUTF8String(m_Adv2File);
@@ -374,9 +373,9 @@ int Adv2File::LoadFile(const char* fileName, AdvFileInfo* fileInfo)
 	m_Index = new AdvLib2::Adv2FramesIndex(m_Adv2File);
 
 	advfsetpos64(m_Adv2File, &userMetaTableOffset);
-	advfread(&tagsCount, 1, 1, m_Adv2File);
-	fileInfo->UserMetadataTagsCount = tagsCount;
-	for (int i = 0; i < tagsCount; i++)
+	advfread(&tagsCountInt, 4, 1, m_Adv2File);
+	fileInfo->UserMetadataTagsCount = tagsCountInt;
+	for (int i = 0; i < tagsCountInt; i++)
 	{
 		char* tagName = ReadUTF8String(m_Adv2File);
 		char* tagValue = ReadUTF8String(m_Adv2File);
@@ -471,7 +470,7 @@ void Adv2File::EndFile()
 	advfwrite(&userMetaTableOffset, 8, 1, m_Adv2File);
 		
 	// Write the metadata table
-	advfseek(m_Adv2File, 0, SEEK_END);	
+	advfseek(m_Adv2File, 0, SEEK_END);
 
 	unsigned int userTagsCount = (unsigned int)m_UserMetadataTags.size();
 	advfwrite(&userTagsCount, 4, 1, m_Adv2File);
@@ -859,8 +858,6 @@ HRESULT Adv2File::GetMainStreamTag(int tagId, char* tagName, char* tagValue)
 	map<string, string>::iterator iter = m_MainStreamTags.begin();
 	if (tagId > 0) std::advance(iter, tagId);	
 
-	//strncpy_s(tagName, strlen(tagName) + 1, iter->first.c_str(), strlen(tagName) + 1);
-	//strncpy_s(tagValue, strlen(tagValue) + 1, iter->second.c_str(), strlen(tagValue) + 1);
 	strcpy(tagName, iter->first.c_str());
 	strcpy(tagValue, iter->second.c_str());
 
@@ -877,6 +874,90 @@ HRESULT Adv2File::GetMainStreamTagSizes(int tagId, int* tagNameSize, int* tagVal
 
 	*tagNameSize = strlen(iter->first.c_str());
 	*tagValueSize = strlen(iter->second.c_str());
+
+	return S_OK;
+}
+
+HRESULT Adv2File::GetCalibrationStreamTagSizes(int tagId, int* tagNameSize, int* tagValueSize)
+{
+	if (tagId < 0 || tagId >= m_CalibrationStreamTags.size())
+		return E_FAIL;
+
+	map<string, string>::iterator iter = m_CalibrationStreamTags.begin();
+	if (tagId > 0) std::advance(iter, tagId);
+
+	*tagNameSize = strlen(iter->first.c_str());
+	*tagValueSize = strlen(iter->second.c_str());
+
+	return S_OK;
+}
+
+HRESULT Adv2File::GetCalibrationStreamTag(int tagId, char* tagName, char* tagValue)
+{
+	if (tagId < 0 || tagId >= m_CalibrationStreamTags.size())
+		return E_FAIL;
+
+	map<string, string>::iterator iter = m_CalibrationStreamTags.begin();
+	if (tagId > 0) std::advance(iter, tagId);
+
+	strcpy(tagName, iter->first.c_str());
+	strcpy(tagValue, iter->second.c_str());
+
+	return S_OK;
+}
+
+HRESULT Adv2File::GetSystemMetadataTagSizes(int tagId, int* tagNameSize, int* tagValueSize)
+{
+	if (tagId < 0 || tagId >= m_FileTags.size())
+		return E_FAIL;
+
+	map<string, string>::iterator iter = m_FileTags.begin();
+	if (tagId > 0) std::advance(iter, tagId);
+
+	*tagNameSize = strlen(iter->first.c_str());
+	*tagValueSize = strlen(iter->second.c_str());
+
+	return S_OK;
+}
+
+HRESULT Adv2File::GetSystemMetadataTag(int tagId, char* tagName, char* tagValue)
+{
+	if (tagId < 0 || tagId >= m_FileTags.size())
+		return E_FAIL;
+
+	map<string, string>::iterator iter = m_FileTags.begin();
+	if (tagId > 0) std::advance(iter, tagId);
+
+	strcpy(tagName, iter->first.c_str());
+	strcpy(tagValue, iter->second.c_str());
+
+	return S_OK;
+}
+
+HRESULT Adv2File::GetUserMetadataTagSizes(int tagId, int* tagNameSize, int* tagValueSize)
+{
+	if (tagId < 0 || tagId >= m_UserMetadataTags.size())
+		return E_FAIL;
+
+	map<string, string>::iterator iter = m_UserMetadataTags.begin();
+	if (tagId > 0) std::advance(iter, tagId);
+
+	*tagNameSize = strlen(iter->first.c_str());
+	*tagValueSize = strlen(iter->second.c_str());
+
+	return S_OK;
+}
+
+HRESULT Adv2File::GetUserMetadataTag(int tagId, char* tagName, char* tagValue)
+{
+	if (tagId < 0 || tagId >= m_UserMetadataTags.size())
+		return E_FAIL;
+
+	map<string, string>::iterator iter = m_UserMetadataTags.begin();
+	if (tagId > 0) std::advance(iter, tagId);
+
+	strcpy(tagName, iter->first.c_str());
+	strcpy(tagValue, iter->second.c_str());
 
 	return S_OK;
 }

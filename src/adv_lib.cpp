@@ -598,6 +598,14 @@ unsigned int AdvVer2_AddFileTag(const char* tagName, const char* tagValue)
 	return fileTagId;
 }
 
+unsigned int AdvVer2_AddUserTag(const char* tagName, const char* tagValue)
+{
+	AdvProfiling_StartProcessing();
+	unsigned int fileTagId = g_Adv2File->AddUserTag(tagName, tagValue);
+	AdvProfiling_EndProcessing();
+	return fileTagId;
+}
+
 void AdvVer2_AddOrUpdateImageSectionTag(const char* tagName, const char* tagValue)
 {
 	AdvProfiling_StartProcessing();
@@ -712,6 +720,12 @@ HRESULT AdvVer2_GetTagPairSizes(TagPairType tagPairType, int tagId, int* tagName
 {
 	if (tagPairType == TagPairType::MainStream)
 		return g_Adv2File->GetMainStreamTagSizes(tagId, tagNameSize, tagValueSize);
+	else if (tagPairType == TagPairType::CalibrationStream)
+		return g_Adv2File->GetCalibrationStreamTagSizes(tagId, tagNameSize, tagValueSize);
+	else if (tagPairType == TagPairType::SystemMetadata)
+		return g_Adv2File->GetSystemMetadataTagSizes(tagId, tagNameSize, tagValueSize);
+	else if (tagPairType == TagPairType::UserMetadata)
+		return g_Adv2File->GetUserMetadataTagSizes(tagId, tagNameSize, tagValueSize);
 
 	return E_FAIL;
 }
@@ -720,6 +734,12 @@ HRESULT AdvVer2_GetTagPairValues(TagPairType tagPairType, int tagId, char* tagNa
 {
 	if (tagPairType == TagPairType::MainStream)
 		return g_Adv2File->GetMainStreamTag(tagId, tagName, tagValue);
+	else if (tagPairType == TagPairType::CalibrationStream)
+		return g_Adv2File->GetCalibrationStreamTag(tagId, tagName, tagValue);
+	else if (tagPairType == TagPairType::SystemMetadata)
+		return g_Adv2File->GetSystemMetadataTag(tagId, tagName, tagValue);
+	else if (tagPairType == TagPairType::UserMetadata)
+		return g_Adv2File->GetUserMetadataTag(tagId, tagName, tagValue);
 
 	return E_FAIL;
 }
