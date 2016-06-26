@@ -403,8 +403,10 @@ void Adv2StatusSection::GetDataFromDataBytes(unsigned char* data, int sectionDat
 {
 	unsigned char* statusData = data + startOffset;
 
-	m_UtcStartTimeNanosecondsSinceAdvZeroEpoch = data[0] + (data[1] << 8) + (data[2] << 16) + (data[3] << 24) + (data[4] << 32)+ (data[5] << 40)+ (data[6] << 48)+ (data[7] << 56);
-	m_UtcExposureNanoseconds = data[8] + (data[9] << 8) + (data[10] << 16) + (data[11] << 24);
+	m_UtcStartTimeNanosecondsSinceAdvZeroEpoch = statusData[0] + (statusData[1] << 8) + (statusData[2] << 16) + (statusData[3] << 24) + (statusData[4] << 32)+ (statusData[5] << 40)+ (statusData[6] << 48)+ (statusData[7] << 56);
+	frameInfo->Exposure = m_UtcExposureNanoseconds = statusData[8] + (statusData[9] << 8) + (statusData[10] << 16) + (statusData[11] << 24);
+	frameInfo->UtcTimestampLo = statusData[0] + (statusData[1] << 8) + (statusData[2] << 16) + (statusData[3] << 24);
+	frameInfo->UtcTimestampHi = statusData[4] + (statusData[5] << 8) + (statusData[6] << 16) + (statusData[7] << 24);
 	statusData+=12;
 
 	unsigned char tagsCount = *statusData;

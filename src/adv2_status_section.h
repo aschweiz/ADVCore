@@ -24,6 +24,10 @@ namespace AdvLib2
 		int EndTicksLo;
 		int EndTicksHi;
 		
+		int UtcTimestampLo;
+		int UtcTimestampHi;
+		int Exposure;
+
 		float Gamma;
 		float Gain;
 		float Shutter;
