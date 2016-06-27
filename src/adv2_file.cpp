@@ -620,11 +620,6 @@ void Adv2File::AddFrameStatusTagUTF8String(unsigned int tagIndex, const char* ta
 	StatusSection->AddFrameStatusTagUTF8String(tagIndex, tagValue);
 }
 
-void Adv2File::AddFrameStatusTagMessage(unsigned int tagIndex, const char* tagValue)
-{
-	StatusSection->AddFrameStatusTagMessage(tagIndex, tagValue);
-}
-
 void Adv2File::AddFrameStatusTagUInt16(unsigned int tagIndex, unsigned short tagValue)
 {
 	StatusSection->AddFrameStatusTagUInt16(tagIndex, tagValue);

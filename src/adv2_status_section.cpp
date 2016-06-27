@@ -27,10 +27,10 @@ Adv2StatusSection::~Adv2StatusSection()
 
 }
 
-unsigned int Adv2StatusSection::DefineTag(const char* tagName, AdvTagType tagType)
+unsigned int Adv2StatusSection::DefineTag(const char* tagName, Adv2TagType tagType)
 {
 	m_TagDefinitionNames.push_back(string(tagName));
-	m_TagDefinition.insert(make_pair(string(tagName), (AdvTagType)tagType));
+	m_TagDefinition.insert(make_pair(string(tagName), (Adv2TagType)tagType));
 	
 	switch(tagType)
 	{
@@ -57,10 +57,6 @@ unsigned int Adv2StatusSection::DefineTag(const char* tagName, AdvTagType tagTyp
 		case UTF8String:
 			MaxFrameBufferSize+=0x10001;
 			break;
-			
-		case List16OfUTF8String:
-			MaxFrameBufferSize+=16 * 0x10001;
-			break;
 	}
 	
 	return (unsigned int)m_TagDefinitionNames.size() - 1;
@@ -74,9 +70,7 @@ void Adv2StatusSection::BeginFrame(__int64 utcStartTimeNanosecondsSinceAdvZeroEp
 	m_FrameStatusTagsUInt16.clear();
 	m_FrameStatusTagsUInt64.clear();
 	m_FrameStatusTagsUInt32.clear();
-	m_FrameStatusTagsReal.clear();
-	
-	m_FrameStatusTagsMessages.clear();
+	m_FrameStatusTagsReal.clear();	
 
 	m_UtcStartTimeNanosecondsSinceAdvZeroEpoch = utcStartTimeNanosecondsSinceAdvZeroEpoch;
 	m_UtcExposureNanoseconds = utcExposureNanoseconds;
@@ -85,17 +79,6 @@ void Adv2StatusSection::BeginFrame(__int64 utcStartTimeNanosecondsSinceAdvZeroEp
 void Adv2StatusSection::AddFrameStatusTagUTF8String(unsigned int tagIndex, const char* tagValue)
 {
 	m_FrameStatusTags.insert(make_pair(tagIndex, string(tagValue == nullptr ? "" : tagValue)));
-}
-
-void Adv2StatusSection::AddFrameStatusTagMessage(unsigned int tagIndex, const char* tagValue)
-{
-	list<string> messageList = m_FrameStatusTagsMessages[tagIndex];
-	
-	if (messageList.size() == 16) messageList.pop_front();
-	
-	messageList.push_back(string(tagValue == nullptr ? "" : tagValue));
-	
-	m_FrameStatusTagsMessages[tagIndex] = messageList;
 }
 
 void Adv2StatusSection::AddFrameStatusTagUInt8(unsigned int tagIndex, unsigned char tagValue)
@@ -168,7 +151,7 @@ Adv2StatusSection::Adv2StatusSection(FILE* pFile)
 		unsigned char tagType;
 		advfread(&tagType, 1, 1, pFile);
 
-		DefineTag(tagName, (AdvTagType)tagType);
+		DefineTag(tagName, (Adv2TagType)tagType);
 	}
 }
 
@@ -190,9 +173,9 @@ void Adv2StatusSection::WriteHeader(FILE* pFile)
 		char* tagName = const_cast<char*>(m_TagDefinitionNames[i].c_str());
 		WriteUTF8String(pFile, tagName);
 		
-		map<string, AdvTagType>::iterator currDef = m_TagDefinition.find(tagName);
+		map<string, Adv2TagType>::iterator currDef = m_TagDefinition.find(tagName);
 
-		buffChar = (unsigned char)(int)((AdvTagType)(currDef->second));
+		buffChar = (unsigned char)(int)((Adv2TagType)(currDef->second));
 		advfwrite(&buffChar, 1, 1, pFile);
 	}
 }
@@ -210,23 +193,6 @@ unsigned char* Adv2StatusSection::GetDataBytes(unsigned int *bytesCount)
 		
 		arrayLength += (int)strlen(tagValue) + 1 /* TagId*/  + 2 /* length */ ;
 		curr++;
-		numTagEntries++;
-	}
-	
-	map<unsigned int, list<string> >::iterator currLst = m_FrameStatusTagsMessages.begin();
-	while (currLst != m_FrameStatusTagsMessages.end()) 
-	{
-		list<string> lst = currLst->second;
-		list<string>::iterator currMsg = lst.begin();
-		while (currMsg != lst.end()) 
-		{
-			char* tagValue = const_cast<char*>(currMsg->c_str());
-			
-			arrayLength += (int)strlen(tagValue) + 2 /* length*/;
-			currMsg++;
-		}
-		arrayLength+= (1 /* TagId*/ + 1 /* num messages*/);
-		currLst++;
 		numTagEntries++;
 	}
 	
@@ -365,34 +331,6 @@ unsigned char* Adv2StatusSection::GetDataBytes(unsigned int *bytesCount)
 			
 			curr++;
 		}
-
-		currLst = m_FrameStatusTagsMessages.begin();
-		while (currLst != m_FrameStatusTagsMessages.end()) 
-		{
-			unsigned char tagId = (unsigned char)(currLst->first & 0xFF);
-			statusData[dataPos] = tagId;
-			
-			list<string> lst = currLst->second;
-			statusData[dataPos + 1] = (unsigned char)lst.size();
-			
-			dataPos+=2;
-			
-			list<string>::iterator currMsg = lst.begin();
-			while (currMsg != lst.end()) 
-			{
-				char* tagValue = const_cast<char*>(currMsg->c_str());
-				
-				int strLen = (int)strlen(tagValue);
-				statusData[dataPos] = strLen & 0xFF;
-				statusData[dataPos + 1] = (strLen >> 8) & 0xFF;
-				memcpy(&statusData[dataPos + 2], tagValue, strLen);
-				dataPos+= strLen + 2;
-			
-				currMsg++;
-			}
-
-			currLst++;
-		}	
 	}
 	
 	*bytesCount = size;
@@ -409,6 +347,12 @@ void Adv2StatusSection::GetDataFromDataBytes(unsigned char* data, int sectionDat
 	frameInfo->UtcTimestampHi = statusData[4] + (statusData[5] << 8) + (statusData[6] << 16) + (statusData[7] << 24);
 	statusData+=12;
 
+	m_FrameStatusTagsUInt8.clear();
+	m_FrameStatusTagsUInt16.clear();
+	m_FrameStatusTagsUInt64.clear();
+	m_FrameStatusTagsUInt32.clear();
+	m_FrameStatusTagsReal.clear();	
+
 	unsigned char tagsCount = *statusData;
 	statusData++;
 
@@ -418,113 +362,122 @@ void Adv2StatusSection::GetDataFromDataBytes(unsigned char* data, int sectionDat
 		
 		string currById = m_TagDefinitionNames[tagId];
 		const char* tagName = currById.c_str();
-		map<string, AdvTagType>::iterator currDef = m_TagDefinition.find(tagName);
-		AdvTagType type = (AdvTagType)(currDef->second);
+		map<string, Adv2TagType>::iterator currDef = m_TagDefinition.find(tagName);
+		Adv2TagType type = (Adv2TagType)(currDef->second);
 		
-		if (strcmp("GPSTrackedSatellites", tagName) == 0)
+		if (strcmp("TrackedSatellites", tagName) == 0)
 		{
 			char val = *(statusData + 1);
 			frameInfo->GPSTrackedSattelites = val;
+			m_FrameStatusTagsUInt8.insert(make_pair(tagId, val));
 			statusData+=2;
 		}
-		else if (strcmp("GPSAlmanacStatus", tagName) == 0)
+		else if (strcmp("AlmanacStatus", tagName) == 0)
 		{
 			char val = *(statusData + 1);
 			frameInfo->GPSAlmanacStatus = val;
+			m_FrameStatusTagsUInt8.insert(make_pair(tagId, val));
 			statusData+=2;
 		}
-		else if (strcmp("GPSAlmanacOffset", tagName) == 0)
+		else if (strcmp("AlmanacOffset", tagName) == 0)
 		{
 			char val = *(statusData + 1);
 			frameInfo->GPSAlmanacOffset = val;
+			m_FrameStatusTagsUInt8.insert(make_pair(tagId, val));
 			statusData+=2;
 		}
-		else if (strcmp("GPSFixStatus", tagName) == 0)
+		else if (strcmp("SatelliteFixStatus", tagName) == 0)
 		{
 			char val = *(statusData + 1);
 			frameInfo->GPSFixStatus = val;
+			m_FrameStatusTagsUInt8.insert(make_pair(tagId, val));
 			statusData+=2;
 		}
 		else if (strcmp("Gain", tagName) == 0)
 		{
-			unsigned char  b1 = *(statusData + 1);
-			unsigned char  b2 = *(statusData + 2);
-			unsigned char  b3 = *(statusData + 3);
-			unsigned char  b4 = *(statusData + 4);
+			unsigned char b1 = *(statusData + 1);
+			unsigned char b2 = *(statusData + 2);
+			unsigned char b3 = *(statusData + 3);
+			unsigned char b4 = *(statusData + 4);
 
 			unsigned int value = (unsigned int)(((int)b4 << 24) + ((int)b3 << 16) + ((int)b2 << 8) + (int)b1);
 			float fVal = IntToFloat(value);
 
 			frameInfo->Gain = fVal;
-			
+			m_FrameStatusTagsReal.insert(make_pair(tagId, fVal));
+
 			statusData+=5;
 		}
 		else if (strcmp("Gamma", tagName) == 0)
 		{
-			unsigned char  b1 = *(statusData + 1);
-			unsigned char  b2 = *(statusData + 2);
-			unsigned char  b3 = *(statusData + 3);
-			unsigned char  b4 = *(statusData + 4);
+			unsigned char b1 = *(statusData + 1);
+			unsigned char b2 = *(statusData + 2);
+			unsigned char b3 = *(statusData + 3);
+			unsigned char b4 = *(statusData + 4);
 
 			unsigned int value = (unsigned int)(((int)b4 << 24) + ((int)b3 << 16) + ((int)b2 << 8) + (int)b1);
 			float fVal = IntToFloat(value);
 
 			frameInfo->Gamma = fVal;
-			
+			m_FrameStatusTagsReal.insert(make_pair(tagId, fVal));
+
 			statusData+=5;			
 		}
 		else if (strcmp("Temperature", tagName) == 0)
 		{
-			unsigned char  b1 = *(statusData + 1);
-			unsigned char  b2 = *(statusData + 2);
-			unsigned char  b3 = *(statusData + 3);
-			unsigned char  b4 = *(statusData + 4);
+			unsigned char b1 = *(statusData + 1);
+			unsigned char b2 = *(statusData + 2);
+			unsigned char b3 = *(statusData + 3);
+			unsigned char b4 = *(statusData + 4);
 
 			unsigned int value = (unsigned int)(((int)b4 << 24) + ((int)b3 << 16) + ((int)b2 << 8) + (int)b1);
 			float fVal = IntToFloat(value);
 
 			frameInfo->Temperature = fVal;
-			
+			m_FrameStatusTagsReal.insert(make_pair(tagId, fVal));
+
 			statusData+=5;			
 		}
 		else if (strcmp("Shutter", tagName) == 0)
 		{
-			unsigned char  b1 = *(statusData + 1);
-			unsigned char  b2 = *(statusData + 2);
-			unsigned char  b3 = *(statusData + 3);
-			unsigned char  b4 = *(statusData + 4);
+			unsigned char b1 = *(statusData + 1);
+			unsigned char b2 = *(statusData + 2);
+			unsigned char b3 = *(statusData + 3);
+			unsigned char b4 = *(statusData + 4);
 
 			unsigned int value = (unsigned int)(((int)b4 << 24) + ((int)b3 << 16) + ((int)b2 << 8) + (int)b1);
 			float fVal = IntToFloat(value);
 
 			frameInfo->Shutter = fVal;
+			m_FrameStatusTagsReal.insert(make_pair(tagId, fVal));
 
 			statusData+=5;			
 		}
 		else if (strcmp("Offset", tagName) == 0)
 		{
-			unsigned char  b1 = *(statusData + 1);
-			unsigned char  b2 = *(statusData + 2);
-			unsigned char  b3 = *(statusData + 3);
-			unsigned char  b4 = *(statusData + 4);
+			unsigned char b1 = *(statusData + 1);
+			unsigned char b2 = *(statusData + 2);
+			unsigned char b3 = *(statusData + 3);
+			unsigned char b4 = *(statusData + 4);
 
 			unsigned int value = (unsigned int)(((int)b4 << 24) + ((int)b3 << 16) + ((int)b2 << 8) + (int)b1);
 			float fVal = IntToFloat(value);
 
 			frameInfo->Offset = fVal;
-			
+			m_FrameStatusTagsReal.insert(make_pair(tagId, fVal));
+
 			statusData+=5;			
 		}
-		else if (strcmp("VideoCameraFrameId", tagName) == 0)
+		else if (strcmp("VideoCameraFrameId", tagName) == 0 || strcmp("HardwareTimerFrameId", tagName) == 0 || strcmp("SystemTimestamp", tagName) == 0)
 		{
-			unsigned char  b1 = *(statusData + 1);
-			unsigned char  b2 = *(statusData + 2);
-			unsigned char  b3 = *(statusData + 3);
-			unsigned char  b4 = *(statusData + 4);
-			unsigned char  b5 = *(statusData + 5);
-			unsigned char  b6 = *(statusData + 6);
-			unsigned char  b7 = *(statusData + 7);
-			unsigned char  b8 = *(statusData + 8);
+			unsigned char b1 = *(statusData + 1);
+			unsigned char b2 = *(statusData + 2);
+			unsigned char b3 = *(statusData + 3);
+			unsigned char b4 = *(statusData + 4);
+			unsigned char b5 = *(statusData + 5);
+			unsigned char b6 = *(statusData + 6);
+			unsigned char b7 = *(statusData + 7);
+			unsigned char b8 = *(statusData + 8);
 
 			long valLo = (long)(((long)b4 << 24) + ((long)b3 << 16) + ((long)b2 << 8) + (long)b1);
 			long valHi = (long)(((long)b8 << 24) + ((long)b7 << 16) + ((long)b6 << 8) + (long)b5);
@@ -534,65 +487,106 @@ void Adv2StatusSection::GetDataFromDataBytes(unsigned char* data, int sectionDat
 				frameInfo->VideoCameraFrameIdLo = valLo;
 				frameInfo->VideoCameraFrameIdHi = valHi;			
 			}
-			
-			statusData+=9;
-		}
-		else if (
-			strcmp("SystemError", tagName) == 0)
-		{
-			char* destBuffer = systemError;
-
-			unsigned char count = *(statusData + 1);
-			statusData += 2;
-			for (int j = 0; j < count; j++)
+			else if (strcmp("HardwareTimerFrameId", tagName) == 0)
 			{
-				unsigned char len = *statusData;
-				
-				if (destBuffer != NULL)
-				{
-					strncpy(destBuffer,  (char*)(statusData + 1), len);
-					destBuffer+=len;
-					*destBuffer = '\n';
-					*(destBuffer + 1) = '\r';
-					destBuffer+=2;
+				frameInfo->HardwareTimerFrameIdLo = valLo;
+				frameInfo->HardwareTimerFrameIdHi = valHi;			
+			}
+			else
+			{
+				frameInfo->SystemTimestampLo = valLo;
+				frameInfo->SystemTimestampHi = valHi;			
+			}
+			
+			long long value = valLo + (valHi << 32);
+			m_FrameStatusTagsUInt64.insert(make_pair(tagId, value));
 
-					*destBuffer = '\0';
-				}
-
-				statusData += 1 + len;
-			}			
+			statusData+=9;
 		}
 		else
 		{
 			switch(type)
 			{
-				case UInt8:
-					statusData+=2;
-					break;
-				case UInt16:
-					statusData+=3;
-					break;
-				case UInt32:
-					statusData+=5;
-					break;
-				case ULong64:
-					statusData+=9;
-					break;
-				case AnsiString255:
+				case Adv2TagType::Int8:
 					{
-						unsigned char strLen = *(statusData + 1);
-						statusData += 2 + strLen;
+						char val = *(statusData + 1);
+						statusData+=2;
+						m_FrameStatusTagsUInt8.insert(make_pair(tagId, val));
+						break;
 					}
-					break;
-				case List16OfAnsiString255:
+				case Adv2TagType::Int16:
 					{
-						unsigned char count = *(statusData + 1);
-						statusData += 2;
-						for (int j = 0; j < count; j++)
-						{
-							unsigned char len = *statusData;
-							statusData += 1 + len;
-						}							
+						char b1 = *(statusData + 1);
+						char b2 = *(statusData + 2);
+						short val = b1 + (b2 << 8);
+						m_FrameStatusTagsUInt16.insert(make_pair(tagId, val));
+						statusData+=3;
+						break;
+					}
+				case Adv2TagType::Int32:
+					{
+						unsigned char  b1 = *(statusData + 1);
+						unsigned char  b2 = *(statusData + 2);
+						unsigned char  b3 = *(statusData + 3);
+						unsigned char  b4 = *(statusData + 4);
+
+						unsigned int value = (unsigned int)(((int)b4 << 24) + ((int)b3 << 16) + ((int)b2 << 8) + (int)b1);
+						m_FrameStatusTagsUInt32.insert(make_pair(tagId, value));
+
+						statusData+=5;
+						break;
+					}
+				case Adv2TagType::Long64:
+					{
+						unsigned char b1 = *(statusData + 1);
+						unsigned char b2 = *(statusData + 2);
+						unsigned char b3 = *(statusData + 3);
+						unsigned char b4 = *(statusData + 4);
+						unsigned char b5 = *(statusData + 5);
+						unsigned char b6 = *(statusData + 6);
+						unsigned char b7 = *(statusData + 7);
+						unsigned char b8 = *(statusData + 8);
+
+						long valLo = (long)(((long)b4 << 24) + ((long)b3 << 16) + ((long)b2 << 8) + (long)b1);
+						long valHi = (long)(((long)b8 << 24) + ((long)b7 << 16) + ((long)b6 << 8) + (long)b5);
+						
+						long long value = valLo + (valHi << 32);
+						m_FrameStatusTagsUInt64.insert(make_pair(tagId, value));
+
+						statusData+=9;
+						break;
+					}
+				case AdvTagType::Real: /* Real = 4 is defined in AdvTagType */
+					{
+						unsigned char  b1 = *(statusData + 1);
+						unsigned char  b2 = *(statusData + 2);
+						unsigned char  b3 = *(statusData + 3);
+						unsigned char  b4 = *(statusData + 4);
+
+						unsigned int value = (unsigned int)(((int)b4 << 24) + ((int)b3 << 16) + ((int)b2 << 8) + (int)b1);
+						float fVal = IntToFloat(value);
+
+						m_FrameStatusTagsReal.insert(make_pair(tagId, fVal));
+
+						statusData+=5;
+						break;
+					}
+				case Adv2TagType::UTF8String:
+					{
+						unsigned char b1 = *(statusData + 1);
+						unsigned char b2 = *(statusData + 2);
+
+						unsigned short byteCount = b1 + (b2 << 8);
+						statusData += 3;
+
+						char* destBuffer = (char*)malloc(byteCount + 1);
+
+						strncpy(destBuffer,  (char*)(statusData), byteCount);
+						*(destBuffer + byteCount) = '\0';
+
+						m_FrameStatusTags.insert(make_pair(tagId, string(destBuffer)));
+
+						statusData += byteCount;
 					}
 					break;
 			}

@@ -23,9 +23,16 @@ enum AdvTagType
 	ULong64 = 3,
 	Real = 4, // IEEE/REAL*4
 	AnsiString255 = 5,
-	List16OfAnsiString255 = 6,
-	UTF8String = 7,
-	List16OfUTF8String = 8,
+	List16OfAnsiString255 = 6
+};
+
+enum Adv2TagType
+{
+	Int8 = 0,
+	Int16 = 1,
+	Int32 = 2,
+	Long64 = 3,
+	UTF8String = 5
 };
 
 enum TagPairType

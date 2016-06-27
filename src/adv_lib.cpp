@@ -585,7 +585,7 @@ void AdvVer2_DefineImageLayout(unsigned char layoutId, const char* layoutType, c
 unsigned int AdvVer2_DefineStatusSectionTag(const char* tagName, int tagType)
 {
 	AdvProfiling_StartProcessing();
-	unsigned int statusTagId = g_Adv2File->StatusSection->DefineTag(tagName, (AdvTagType)tagType);
+	unsigned int statusTagId = g_Adv2File->StatusSection->DefineTag(tagName, (Adv2TagType)tagType);
 	AdvProfiling_EndProcessing();
 	return statusTagId;
 }
@@ -617,13 +617,6 @@ void AdvVer2_FrameAddStatusTagUTF8String(unsigned int tagIndex, const char* tagV
 {
 	AdvProfiling_StartProcessing();
 	g_Adv2File->AddFrameStatusTagUTF8String(tagIndex, tagValue);
-	AdvProfiling_EndProcessing();
-}
-
-void AdvVer2_FrameAddStatusTagMessage(unsigned int tagIndex, const char* tagValue)
-{
-	AdvProfiling_StartProcessing();
-	g_Adv2File->AddFrameStatusTagMessage(tagIndex, tagValue);
 	AdvProfiling_EndProcessing();
 }
 

@@ -40,14 +40,19 @@ namespace AdvLib2
 
 		int VideoCameraFrameIdLo;
 		int VideoCameraFrameIdHi;
+		int HardwareTimerFrameIdLo;
+		int HardwareTimerFrameIdHi;
 		float Temperature;
+
+		int SystemTimestampLo;
+		int SystemTimestampHi;
 	};
 
 	class Adv2StatusSection {
 
 		private:
 			vector<string> m_TagDefinitionNames;
-			map<string, AdvTagType> m_TagDefinition;
+			map<string, Adv2TagType> m_TagDefinition;
 		
 			map<unsigned int, string> m_FrameStatusTags;
 			map<unsigned int, unsigned char> m_FrameStatusTagsUInt8;
@@ -55,7 +60,6 @@ namespace AdvLib2
 			map<unsigned int, unsigned int> m_FrameStatusTagsUInt32;
 			map<unsigned int, __int64> m_FrameStatusTagsUInt64;
 			map<unsigned int, float> m_FrameStatusTagsReal;
-			map<unsigned int, list<string> > m_FrameStatusTagsMessages;
 
 			__int64 m_UtcStartTimeNanosecondsSinceAdvZeroEpoch;
 			unsigned int m_UtcExposureNanoseconds;
@@ -69,12 +73,11 @@ namespace AdvLib2
 			Adv2StatusSection(FILE* pFile);
 			~Adv2StatusSection();
 
-			unsigned int DefineTag(const char* tagName, enum AdvTagType tagType);
+			unsigned int DefineTag(const char* tagName, enum Adv2TagType tagType);
 
 			void BeginFrame(__int64 utcStartTimeNanosecondsSinceAdvZeroEpoch, unsigned int utcExposureNanoseconds);
 			void WriteHeader(FILE* pfile);
 			void AddFrameStatusTagUTF8String(unsigned int tagIndex, const char* tagValue);
-			void AddFrameStatusTagMessage(unsigned int tagIndex, const char* tagValue);
 			void AddFrameStatusTagUInt8(unsigned int tagIndex, unsigned char tagValue);
 			void AddFrameStatusTagUInt16(unsigned int tagIndex, unsigned short tagValue);
 			void AddFrameStatusTagReal(unsigned int tagIndex, float tagValue);
