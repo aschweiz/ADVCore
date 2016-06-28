@@ -689,7 +689,7 @@ HRESULT AdvVer2_FrameAddImageBytes(unsigned char layoutId, unsigned char* pixels
 	return rv;
 }
 
-HRESULT AdvVer2_GetFramePixels(int streamId, int frameNo, unsigned int* pixels, AdvLib2::AdvFrameInfo* frameInfo, char* systemError)
+HRESULT AdvVer2_GetFramePixels(int streamId, int frameNo, unsigned int* pixels, AdvLib2::AdvFrameInfo* frameInfo, int* systemErrorLen)
 {
 	if (streamId == 0 && frameNo >= g_Adv2File->TotalNumberOfMainFrames)
 		return E_FAIL;
@@ -704,7 +704,7 @@ HRESULT AdvVer2_GetFramePixels(int streamId, int frameNo, unsigned int* pixels, 
 
 		AdvLib2::Adv2ImageLayout* layout = g_Adv2File->ImageSection->GetImageLayoutById(layoutId);
 		
-        g_Adv2File->GetFrameSectionData(streamId, frameNo, pixels, frameInfo, systemError);
+        g_Adv2File->GetFrameSectionData(streamId, frameNo, pixels, frameInfo, systemErrorLen);
 	
 		return S_OK;
 }

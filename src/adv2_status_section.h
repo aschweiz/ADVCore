@@ -19,14 +19,14 @@ namespace AdvLib2
 {
 	struct AdvFrameInfo
 	{	
-		int StartTicksLo;
-		int StartTicksHi;
-		int EndTicksLo;
-		int EndTicksHi;
+		unsigned int StartTicksLo;
+		unsigned int StartTicksHi;
+		unsigned int EndTicksLo;
+		unsigned int EndTicksHi;
 		
-		int UtcTimestampLo;
-		int UtcTimestampHi;
-		int Exposure;
+		unsigned int UtcTimestampLo;
+		unsigned int UtcTimestampHi;
+		unsigned int Exposure;
 
 		float Gamma;
 		float Gain;
@@ -38,14 +38,13 @@ namespace AdvLib2
 		unsigned char GPSFixStatus;
 		char GPSAlmanacOffset;
 
-		int VideoCameraFrameIdLo;
-		int VideoCameraFrameIdHi;
-		int HardwareTimerFrameIdLo;
-		int HardwareTimerFrameIdHi;
-		float Temperature;
+		unsigned int VideoCameraFrameIdLo;
+		unsigned int VideoCameraFrameIdHi;
+		unsigned int HardwareTimerFrameIdLo;
+		unsigned int HardwareTimerFrameIdHi;
 
-		int SystemTimestampLo;
-		int SystemTimestampHi;
+		unsigned int SystemTimestampLo;
+		unsigned int SystemTimestampHi;
 	};
 
 	class Adv2StatusSection {
@@ -85,7 +84,7 @@ namespace AdvLib2
 			void AddFrameStatusTagUInt64(unsigned int tagIndex, __int64 tagValue);
 
 			unsigned char* GetDataBytes(unsigned int *bytesCount);
-			void GetDataFromDataBytes(unsigned char* data, int sectionDataLength, int startOffset, AdvFrameInfo* frameInfo, char* systemError);
+			void GetDataFromDataBytes(unsigned char* data, int sectionDataLength, int startOffset, AdvFrameInfo* frameInfo, int* systemErrorLen);
 	};
 }
 

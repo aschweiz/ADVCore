@@ -810,7 +810,7 @@ void Adv2File::GetFrameImageSectionHeader(int streamId, int frameId, unsigned ch
 	}
 }
 
-void Adv2File::GetFrameSectionData(int streamId, int frameId, unsigned int* pixels, AdvFrameInfo* frameInfo, char* systemError)
+void Adv2File::GetFrameSectionData(int streamId, int frameId, unsigned int* pixels, AdvFrameInfo* frameInfo, int* systemErrorLen)
 {
 	AdvLib2::Index2Entry* indexEntry = m_Index->GetIndexForFrame(streamId, frameId);
 
@@ -839,7 +839,7 @@ void Adv2File::GetFrameSectionData(int streamId, int frameId, unsigned int* pixe
 		dataOffset += sectionDataLength + 4;
 
 		sectionDataLength = data[dataOffset] + (data[dataOffset + 1] << 8) + (data[dataOffset + 2] << 16) + (data[dataOffset + 3] << 24);
-		StatusSection->GetDataFromDataBytes(data, sectionDataLength, dataOffset + 4, frameInfo, systemError);
+		StatusSection->GetDataFromDataBytes(data, sectionDataLength, dataOffset + 4, frameInfo, systemErrorLen);
 		
 		delete data;
 	}

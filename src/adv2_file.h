@@ -127,7 +127,7 @@ namespace AdvLib2
 			HRESULT AddFrameImage(unsigned char layoutId, unsigned char* pixels, unsigned char pixelsBpp);
 
 			void GetFrameImageSectionHeader(int streamId, int frameId, unsigned char* layoutId, enum GetByteMode* mode);
-			void GetFrameSectionData(int streamId, int frameId, unsigned int* pixels, AdvFrameInfo* frameInfo, char* systemError);
+			void GetFrameSectionData(int streamId, int frameId, unsigned int* pixels, AdvFrameInfo* frameInfo, int* systemErrorLen);
 			HRESULT GetMainStreamTagSizes(int tagId, int* tagNameSize, int* tagValueSize);
 			HRESULT GetMainStreamTag(int tagId, char* tagName, char* tagValue);
 			HRESULT GetCalibrationStreamTagSizes(int tagId, int* tagNameSize, int* tagValueSize);
