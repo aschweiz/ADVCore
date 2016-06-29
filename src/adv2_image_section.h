@@ -7,6 +7,7 @@
 
 #include <stdio.h>
 #include "adv2_image_layout.h"
+#include "utils.h"
 
 #include <map>
 #include <string>
@@ -45,7 +46,7 @@ namespace AdvLib2
 	public:
 
 		Adv2ImageSection(unsigned int width, unsigned int height, unsigned char dataBpp);
-		Adv2ImageSection(FILE* pfile);
+		Adv2ImageSection(FILE* pfile, AdvFileInfo* fileInfo);
 		~Adv2ImageSection();
 
 		void WriteHeader(FILE* pfile);

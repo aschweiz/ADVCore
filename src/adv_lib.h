@@ -64,7 +64,6 @@ DLL_PUBLIC bool AdvVer2_BeginFrame(unsigned int streamId, __int64 utcStartTimeNa
 DLL_PUBLIC HRESULT AdvVer2_FrameAddImage(unsigned char layoutId, unsigned short* pixels, unsigned char pixelsBpp);
 DLL_PUBLIC HRESULT AdvVer2_FrameAddImageBytes(unsigned char layoutId, unsigned char* pixels, unsigned char pixelsBpp);
 DLL_PUBLIC void AdvVer2_FrameAddStatusTagUTF8String(unsigned int tagIndex, const char* tagValue);
-DLL_PUBLIC void AdvVer2_FrameAddStatusTagMessage(unsigned int tagIndex, const char* tagValue);
 DLL_PUBLIC void AdvVer2_FrameAddStatusTagUInt8(unsigned int tagIndex, unsigned char tagValue);
 DLL_PUBLIC void AdvVer2_FrameAddStatusTag16(unsigned int tagIndex, unsigned short tagValue);
 DLL_PUBLIC void AdvVer2_FrameAddStatusTagReal(unsigned int tagIndex, float tagValue);
@@ -75,6 +74,16 @@ DLL_PUBLIC void AdvVer2_EndFrame();
 DLL_PUBLIC HRESULT AdvVer2_GetFramePixels(int streamId, int frameNo, unsigned int* pixels, AdvLib2::AdvFrameInfo* frameInfo, int* systemErrorLen);
 DLL_PUBLIC HRESULT AdvVer2_GetTagPairSizes(TagPairType tagPairType, int tagId, int* tagNameSize, int* tagValueSize);
 DLL_PUBLIC HRESULT AdvVer2_GetTagPairValues(TagPairType tagPairType, int tagId, char* tagName, char* tagValue);
+
+DLL_PUBLIC HRESULT AdvVer2_GetStatusTagNameSize(int tagId, int* tagNameSize);
+DLL_PUBLIC HRESULT AdvVer2_GetStatusTagInfo(int tagId, char* tagName, Adv2TagType* tagType);
+DLL_PUBLIC HRESULT AdvVer2_GetStatusTagSizeUTF8String(unsigned int tagIndex, int* tagValueSize);
+DLL_PUBLIC HRESULT AdvVer2_GetStatusTagUTF8String(unsigned int tagIndex, char* tagValue);
+DLL_PUBLIC HRESULT AdvVer2_GetStatusTagUInt8(unsigned int tagIndex, unsigned char* tagValue);
+DLL_PUBLIC HRESULT AdvVer2_GetStatusTag16(unsigned int tagIndex, unsigned short* tagValue);
+DLL_PUBLIC HRESULT AdvVer2_GetStatusTagReal(unsigned int tagIndex, float* tagValue);
+DLL_PUBLIC HRESULT AdvVer2_GetStatusTag32(unsigned int tagIndex, unsigned int* tagValue);
+DLL_PUBLIC HRESULT AdvVer2_GetStatusTag64(unsigned int tagIndex, __int64* tagValue);
 
 DLL_PUBLIC void GetLibraryVersion(char* version);
 DLL_PUBLIC void GetLibraryPlatformId( char* platform);

@@ -9,6 +9,7 @@
 #include "adv2_status_section.h"
 #include "adv2_image_layout.h"
 #include "adv2_frames_index.h"
+#include "utils.h"
 
 #include <map>
 #include <string>
@@ -20,26 +21,6 @@ using std::string;
 
 namespace AdvLib2
 {
-	struct AdvFileInfo
-	{
-       int Width;
-       int Height;
-       int CountMaintFrames;
-       int CountCalibrationFrames;
-       int DataBpp;
-       int MaxPixelValue;	   
-       __int64 MainClockFrequency;
-       int MainStreamAccuracy;
-       __int64 CalibrationClockFrequency;
-       int CalibrationStreamAccuracy;
-	   unsigned char MainStreamTagsCount;
-	   unsigned char CalibrationStreamTagsCount;
-	   unsigned char SystemMetadataTagsCount;
-	   unsigned char UserMetadataTagsCount;
-	   __int64 UtcTimestampAccuracyInNanoseconds;
-	   bool IsColourImage;
-	};
-
 	class Adv2File {
 		public:
 			AdvLib2::Adv2ImageSection* ImageSection;

@@ -68,6 +68,61 @@ enum ImageByteOrder
 	LittleEndian = 1
 };
 
+namespace AdvLib2
+{
+	struct AdvFileInfo
+	{
+       int Width;
+       int Height;
+       int CountMaintFrames;
+       int CountCalibrationFrames;
+       int DataBpp;
+       int MaxPixelValue;	   
+       __int64 MainClockFrequency;
+       int MainStreamAccuracy;
+       __int64 CalibrationClockFrequency;
+       int CalibrationStreamAccuracy;
+	   unsigned char MainStreamTagsCount;
+	   unsigned char CalibrationStreamTagsCount;
+	   unsigned char SystemMetadataTagsCount;
+	   unsigned char UserMetadataTagsCount;
+	   __int64 UtcTimestampAccuracyInNanoseconds;
+	   bool IsColourImage;
+	   int ImageLayoutsCount;
+	   int StatusTagsCount;
+	};
+
+	struct AdvFrameInfo
+	{	
+		unsigned int StartTicksLo;
+		unsigned int StartTicksHi;
+		unsigned int EndTicksLo;
+		unsigned int EndTicksHi;
+		
+		unsigned int UtcTimestampLo;
+		unsigned int UtcTimestampHi;
+		unsigned int Exposure;
+
+		float Gamma;
+		float Gain;
+		float Shutter;
+		float Offset;
+
+		unsigned char GPSTrackedSattelites;
+		unsigned char GPSAlmanacStatus;
+		unsigned char GPSFixStatus;
+		char GPSAlmanacOffset;
+
+		unsigned int VideoCameraFrameIdLo;
+		unsigned int VideoCameraFrameIdHi;
+		unsigned int HardwareTimerFrameIdLo;
+		unsigned int HardwareTimerFrameIdHi;
+
+		unsigned int SystemTimestampLo;
+		unsigned int SystemTimestampHi;
+	};
+}
+
 void crc32_init(void);
 unsigned int compute_crc32(unsigned char *data, int len);
 

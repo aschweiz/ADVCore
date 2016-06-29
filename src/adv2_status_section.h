@@ -17,36 +17,6 @@ using std::string;
 
 namespace AdvLib2
 {
-	struct AdvFrameInfo
-	{	
-		unsigned int StartTicksLo;
-		unsigned int StartTicksHi;
-		unsigned int EndTicksLo;
-		unsigned int EndTicksHi;
-		
-		unsigned int UtcTimestampLo;
-		unsigned int UtcTimestampHi;
-		unsigned int Exposure;
-
-		float Gamma;
-		float Gain;
-		float Shutter;
-		float Offset;
-
-		unsigned char GPSTrackedSattelites;
-		unsigned char GPSAlmanacStatus;
-		unsigned char GPSFixStatus;
-		char GPSAlmanacOffset;
-
-		unsigned int VideoCameraFrameIdLo;
-		unsigned int VideoCameraFrameIdHi;
-		unsigned int HardwareTimerFrameIdLo;
-		unsigned int HardwareTimerFrameIdHi;
-
-		unsigned int SystemTimestampLo;
-		unsigned int SystemTimestampHi;
-	};
-
 	class Adv2StatusSection {
 
 		private:
@@ -69,7 +39,7 @@ namespace AdvLib2
 
 		public:
 			Adv2StatusSection(__int64 utcTimestampAccuracyInNanoseconds);
-			Adv2StatusSection(FILE* pFile);
+			Adv2StatusSection(FILE* pFile, AdvFileInfo* fileInfo);
 			~Adv2StatusSection();
 
 			unsigned int DefineTag(const char* tagName, enum Adv2TagType tagType);
@@ -85,6 +55,16 @@ namespace AdvLib2
 
 			unsigned char* GetDataBytes(unsigned int *bytesCount);
 			void GetDataFromDataBytes(unsigned char* data, int sectionDataLength, int startOffset, AdvFrameInfo* frameInfo, int* systemErrorLen);
+
+			HRESULT GetStatusTagNameSize(int tagId, int* tagNameSize);
+			HRESULT GetStatusTagInfo(int tagId, char* tagName, Adv2TagType* tagType);
+			HRESULT GetStatusTagSizeUTF8String(unsigned int tagIndex, int* tagValueSize);
+			HRESULT GetStatusTagUTF8String(unsigned int tagIndex, char* tagValue);
+			HRESULT GetStatusTagUInt8(unsigned int tagIndex, unsigned char* tagValue);
+			HRESULT GetStatusTag16(unsigned int tagIndex, unsigned short* tagValue);
+			HRESULT GetStatusTagReal(unsigned int tagIndex, float* tagValue);
+			HRESULT GetStatusTag32(unsigned int tagIndex, unsigned int* tagValue);
+			HRESULT GetStatusTag64(unsigned int tagIndex, __int64* tagValue);
 	};
 }
 

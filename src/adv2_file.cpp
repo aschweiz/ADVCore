@@ -317,18 +317,10 @@ int Adv2File::LoadFile(const char* fileName, AdvFileInfo* fileInfo)
 	advfread(&sectionHeaderOffsets[1], 8, 1, m_Adv2File);
 
 	advfsetpos64(m_Adv2File, &sectionHeaderOffsets[0]);
-	ImageSection = new AdvLib2::Adv2ImageSection(m_Adv2File);
-
-	fileInfo->Width = ImageSection->Width;
-	fileInfo->Height = ImageSection->Height;
-	fileInfo->DataBpp = ImageSection->DataBpp;
-	fileInfo->MaxPixelValue = ImageSection->MaxPixelValue;
-	fileInfo->IsColourImage = ImageSection->IsColourImage;
+	ImageSection = new AdvLib2::Adv2ImageSection(m_Adv2File, fileInfo);
 
 	advfsetpos64(m_Adv2File, &sectionHeaderOffsets[1]);
-	StatusSection = new AdvLib2::Adv2StatusSection(m_Adv2File);
-
-	fileInfo->UtcTimestampAccuracyInNanoseconds = StatusSection->UtcTimestampAccuracyInNanoseconds;
+	StatusSection = new AdvLib2::Adv2StatusSection(m_Adv2File, fileInfo);
 
 	unsigned char tagsCount;
 

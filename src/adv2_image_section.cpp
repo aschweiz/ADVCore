@@ -92,7 +92,7 @@ void Adv2ImageSection::AddOrUpdateTag(const char* tagName, const char* tagValue)
 	m_ImageTags.insert(make_pair(string(tagName), string(tagValue == nullptr ? "" : tagValue)));
 }
 
-Adv2ImageSection::Adv2ImageSection(FILE* pFile)
+Adv2ImageSection::Adv2ImageSection(FILE* pFile, AdvFileInfo* fileInfo)
 {
 	unsigned char version;
 	advfread(&version, 1, 1, pFile); /* Version */
@@ -129,6 +129,13 @@ Adv2ImageSection::Adv2ImageSection(FILE* pFile)
 
 		AddOrUpdateTag(tagName, tagValue);
 	}
+
+	fileInfo->Width = Width;
+	fileInfo->Height = Height;
+	fileInfo->DataBpp = DataBpp;
+	fileInfo->MaxPixelValue = MaxPixelValue;
+	fileInfo->IsColourImage = IsColourImage;
+	fileInfo->ImageLayoutsCount = m_ImageLayouts.size();
 }
 
 void Adv2ImageSection::WriteHeader(FILE* pFile)

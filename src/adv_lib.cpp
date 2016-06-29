@@ -737,3 +737,74 @@ HRESULT AdvVer2_GetTagPairValues(TagPairType tagPairType, int tagId, char* tagNa
 	return E_FAIL;
 }
 
+HRESULT AdvVer2_GetStatusTagNameSize(int tagId, int* tagNameSize)
+{
+	if (g_Adv2File == nullptr || g_Adv2File->StatusSection == nullptr)
+	return E_FAIL;
+
+	return g_Adv2File->StatusSection->GetStatusTagNameSize(tagId, tagNameSize);
+}
+
+HRESULT AdvVer2_GetStatusTagInfo(int tagId, char* tagName, Adv2TagType* tagType)
+{
+	if (g_Adv2File == nullptr || g_Adv2File->StatusSection == nullptr)
+	return E_FAIL;
+
+	return g_Adv2File->StatusSection->GetStatusTagInfo(tagId, tagName, tagType);
+}
+
+HRESULT AdvVer2_GetStatusTagSizeUTF8String(unsigned int tagIndex, int* tagValueSize)
+{
+	if (g_Adv2File == nullptr || g_Adv2File->StatusSection == nullptr)
+		return E_FAIL;
+
+	return g_Adv2File->StatusSection->GetStatusTagSizeUTF8String(tagIndex, tagValueSize);
+}
+
+HRESULT AdvVer2_GetStatusTagUTF8String(unsigned int tagIndex, char* tagValue)
+{
+	if (g_Adv2File == nullptr || g_Adv2File->StatusSection == nullptr)
+		return E_FAIL;
+
+	return g_Adv2File->StatusSection->GetStatusTagUTF8String(tagIndex, tagValue);
+}
+
+HRESULT AdvVer2_GetStatusTagUInt8(unsigned int tagIndex, unsigned char* tagValue)
+{
+	if (g_Adv2File == nullptr || g_Adv2File->StatusSection == nullptr)
+		return E_FAIL;
+
+	return g_Adv2File->StatusSection->GetStatusTagUInt8(tagIndex, tagValue);
+}
+
+HRESULT AdvVer2_GetStatusTag16(unsigned int tagIndex, unsigned short* tagValue)
+{
+	if (g_Adv2File == nullptr || g_Adv2File->StatusSection == nullptr)
+		return E_FAIL;
+
+	return g_Adv2File->StatusSection->GetStatusTag16(tagIndex, tagValue);
+}
+
+HRESULT AdvVer2_GetStatusTagReal(unsigned int tagIndex, float* tagValue)
+{
+	if (g_Adv2File == nullptr || g_Adv2File->StatusSection == nullptr)
+		return E_FAIL;
+
+	return g_Adv2File->StatusSection->GetStatusTagReal(tagIndex, tagValue);
+}
+
+HRESULT AdvVer2_GetStatusTag32(unsigned int tagIndex, unsigned int* tagValue)
+{
+	if (g_Adv2File == nullptr || g_Adv2File->StatusSection == nullptr)
+		return E_FAIL;
+
+	return g_Adv2File->StatusSection->GetStatusTag32(tagIndex, tagValue);
+}
+
+HRESULT AdvVer2_GetStatusTag64(unsigned int tagIndex, __int64* tagValue)
+{
+	if (g_Adv2File == nullptr || g_Adv2File->StatusSection == nullptr)
+		return E_FAIL;
+
+	return g_Adv2File->StatusSection->GetStatusTag64(tagIndex, tagValue);
+}

@@ -5,6 +5,7 @@
 #include "stdafx.h"
 #include "adv2_status_section.h"
 #include <string>
+#include <algorithm>
 #include <stdlib.h>
 
 using namespace std;
@@ -106,6 +107,106 @@ void Adv2StatusSection::AddFrameStatusTagUInt64(unsigned int tagIndex, __int64 t
 	m_FrameStatusTagsUInt64.insert(make_pair(tagIndex, tagValue));
 }
 
+HRESULT Adv2StatusSection::GetStatusTagNameSize(int tagId, int* tagNameSize)
+{
+	if (tagId < 0 || tagId > m_TagDefinitionNames.size())
+		return E_FAIL;
+
+	string tag = m_TagDefinitionNames[tagId];
+	*tagNameSize = strlen(tag.c_str());
+	return S_OK;
+}
+
+HRESULT Adv2StatusSection::GetStatusTagInfo(int tagId, char* tagName, Adv2TagType* tagType)
+{
+	if (tagId < 0 || tagId > m_TagDefinitionNames.size())
+		return E_FAIL;
+
+	string tag = m_TagDefinitionNames[tagId];
+	strcpy(tagName, tag.c_str());
+
+	map<string, Adv2TagType>::iterator curr = m_TagDefinition.find(tag);
+	*tagType = curr->second;
+
+	return S_OK;
+}
+
+HRESULT Adv2StatusSection::GetStatusTagSizeUTF8String(unsigned int tagIndex, int* tagValueSize)
+{
+	map<unsigned int, std::string>::iterator curr = m_FrameStatusTags.find(tagIndex);
+	if (curr == m_FrameStatusTags.end())
+		return E_FAIL;
+
+	*tagValueSize = strlen(curr->second.c_str());
+	return S_OK;
+}
+
+HRESULT Adv2StatusSection::GetStatusTagUTF8String(unsigned int tagIndex, char* tagValue)
+{
+	map<unsigned int, std::string>::iterator curr = m_FrameStatusTags.find(tagIndex);
+	if (curr == m_FrameStatusTags.end())
+		return E_FAIL;
+
+	strcpy(tagValue, curr->second.c_str());
+
+	return S_OK;
+}
+
+HRESULT Adv2StatusSection::GetStatusTagUInt8(unsigned int tagIndex, unsigned char* tagValue)
+{
+	map<unsigned int, unsigned char>::iterator curr = m_FrameStatusTagsUInt8.find(tagIndex);
+	if (curr == m_FrameStatusTagsUInt8.end())
+		return E_FAIL;
+
+	*tagValue = curr->second;
+
+	return S_OK;
+}
+
+HRESULT Adv2StatusSection::GetStatusTag16(unsigned int tagIndex, unsigned short* tagValue)
+{
+	map<unsigned int, unsigned short>::iterator curr = m_FrameStatusTagsUInt16.find(tagIndex);
+	if (curr == m_FrameStatusTagsUInt16.end())
+		return E_FAIL;
+
+	*tagValue = curr->second;
+
+	return S_OK;
+}
+
+HRESULT Adv2StatusSection::GetStatusTagReal(unsigned int tagIndex, float* tagValue)
+{
+	map<unsigned int, float>::iterator curr = m_FrameStatusTagsReal.find(tagIndex);
+	if (curr == m_FrameStatusTagsReal.end())
+		return E_FAIL;
+
+	*tagValue = curr->second;
+
+	return S_OK;
+}
+
+HRESULT Adv2StatusSection::GetStatusTag32(unsigned int tagIndex, unsigned int* tagValue)
+{
+	map<unsigned int, unsigned int>::iterator curr = m_FrameStatusTagsUInt32.find(tagIndex);
+	if (curr == m_FrameStatusTagsUInt32.end())
+		return E_FAIL;
+
+	*tagValue = curr->second;
+
+	return S_OK;
+}
+
+HRESULT Adv2StatusSection::GetStatusTag64(unsigned int tagIndex, __int64* tagValue)
+{
+	map<unsigned int, __int64>::iterator curr = m_FrameStatusTagsUInt64.find(tagIndex);
+	if (curr == m_FrameStatusTagsUInt64.end())
+		return E_FAIL;
+
+	*tagValue = curr->second;
+
+	return S_OK;
+}
+
 
 unsigned int FloatToIntBits(const float x)
 {
@@ -130,7 +231,7 @@ float IntToFloat(unsigned int x)
 	return u.f;
 }
 
-Adv2StatusSection::Adv2StatusSection(FILE* pFile)
+Adv2StatusSection::Adv2StatusSection(FILE* pFile, AdvFileInfo* fileInfo)
 {
 	MaxFrameBufferSize = 0;
 	
@@ -153,6 +254,9 @@ Adv2StatusSection::Adv2StatusSection(FILE* pFile)
 
 		DefineTag(tagName, (Adv2TagType)tagType);
 	}
+
+	fileInfo->UtcTimestampAccuracyInNanoseconds = UtcTimestampAccuracyInNanoseconds;
+	fileInfo->StatusTagsCount = tagsCount;
 }
 
 void Adv2StatusSection::WriteHeader(FILE* pFile)
@@ -385,9 +489,9 @@ void Adv2StatusSection::GetDataFromDataBytes(unsigned char* data, int sectionDat
 				}
 			case Adv2TagType::Int16:
 				{
-					char b1 = *(statusData + 1);
-					char b2 = *(statusData + 2);
-					short val = b1 + (b2 << 8);
+					unsigned char b1 = *(statusData + 1);
+					unsigned char b2 = *(statusData + 2);
+					unsigned short val = b1 + (b2 << 8);
 					m_FrameStatusTagsUInt16.insert(make_pair(tagId, val));
 					statusData+=3;
 					break;
