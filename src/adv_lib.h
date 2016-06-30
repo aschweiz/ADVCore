@@ -75,6 +75,8 @@ DLL_PUBLIC HRESULT AdvVer2_GetFramePixels(int streamId, int frameNo, unsigned in
 DLL_PUBLIC HRESULT AdvVer2_GetTagPairSizes(TagPairType tagPairType, int tagId, int* tagNameSize, int* tagValueSize);
 DLL_PUBLIC HRESULT AdvVer2_GetTagPairValues(TagPairType tagPairType, int tagId, char* tagName, char* tagValue);
 
+DLL_PUBLIC HRESULT AdvVer2_GetImageLayoutInfo(int layoutIndex, AdvLib2::AdvImageLayoutInfo* imageLayoutInfo);
+
 DLL_PUBLIC HRESULT AdvVer2_GetStatusTagNameSize(int tagId, int* tagNameSize);
 DLL_PUBLIC HRESULT AdvVer2_GetStatusTagInfo(int tagId, char* tagName, Adv2TagType* tagType);
 DLL_PUBLIC HRESULT AdvVer2_GetStatusTagSizeUTF8String(unsigned int tagIndex, int* tagValueSize);

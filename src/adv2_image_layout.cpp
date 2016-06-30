@@ -474,6 +474,44 @@ void Adv2ImageLayout::GetPixelsFrom12BitByteArray(unsigned char* layoutData, uns
     return;
 }
 
+HRESULT Adv2ImageLayout::GetImageLayoutInfo(AdvLib2::AdvImageLayoutInfo* imageLayoutInfo)
+{
+	imageLayoutInfo->ImageLayoutId = LayoutId;
+	imageLayoutInfo->ImageLayoutTagsCount = m_LayoutTags.size();
+	imageLayoutInfo->ImageLayoutBpp = Bpp;
+	imageLayoutInfo->IsFullImageRaw = IsFullImageRaw;
+	imageLayoutInfo->Is12BitImagePacked = Is12BitImagePacked;
+	imageLayoutInfo->Is8BitColourImage = Is8BitColourImage;
+	return S_OK;
+}
 
+HRESULT Adv2ImageLayout::GetImageLayoutTagSizes(int tagId, int* tagNameSize, int* tagValueSize)
+{
+	if (tagId < 0 || tagId >= m_LayoutTags.size())
+		return E_FAIL;
+
+	map<string, string>::iterator iter = m_LayoutTags.begin();
+	if (tagId > 0) std::advance(iter, tagId);	
+
+	*tagNameSize = (int)iter->first.size();
+	*tagValueSize = (int)iter->second.size();
+
+	return S_OK;
+
+}
+
+HRESULT Adv2ImageLayout::GetImageLayoutTag(int tagId, char* tagName, char* tagValue)
+{
+	if (tagId < 0 || tagId >= m_LayoutTags.size())
+		return E_FAIL;
+
+	map<string, string>::iterator iter = m_LayoutTags.begin();
+	if (tagId > 0) std::advance(iter, tagId);	
+
+	strcpy_s(tagName, iter->first.size() + 1, iter->first.c_str());
+	strcpy_s(tagValue, iter->second.size() + 1, iter->second.c_str());
+
+	return S_OK;
+}
 
 }

@@ -719,6 +719,10 @@ HRESULT AdvVer2_GetTagPairSizes(TagPairType tagPairType, int tagId, int* tagName
 		return g_Adv2File->GetSystemMetadataTagSizes(tagId, tagNameSize, tagValueSize);
 	else if (tagPairType == TagPairType::UserMetadata)
 		return g_Adv2File->GetUserMetadataTagSizes(tagId, tagNameSize, tagValueSize);
+	else if (tagPairType == TagPairType::ImageSection)
+		return g_Adv2File->ImageSection->GetImageSectionTagSizes(tagId, tagNameSize, tagValueSize);
+	else if (tagPairType >= TagPairType::FirstImageLayout)
+		return g_Adv2File->ImageSection->GetImageLayoutTagSizes(tagPairType - TagPairType::FirstImageLayout, tagId, tagNameSize, tagValueSize);
 
 	return E_FAIL;
 }
@@ -733,6 +737,10 @@ HRESULT AdvVer2_GetTagPairValues(TagPairType tagPairType, int tagId, char* tagNa
 		return g_Adv2File->GetSystemMetadataTag(tagId, tagName, tagValue);
 	else if (tagPairType == TagPairType::UserMetadata)
 		return g_Adv2File->GetUserMetadataTag(tagId, tagName, tagValue);
+	else if (tagPairType == TagPairType::ImageSection)
+		return g_Adv2File->ImageSection->GetImageSectionTag(tagId, tagName, tagValue);
+	else if (tagPairType >= TagPairType::FirstImageLayout)
+		return g_Adv2File->ImageSection->GetImageLayoutTag(tagPairType - TagPairType::FirstImageLayout, tagId, tagName, tagValue);
 
 	return E_FAIL;
 }
@@ -807,4 +815,12 @@ HRESULT AdvVer2_GetStatusTag64(unsigned int tagIndex, __int64* tagValue)
 		return E_FAIL;
 
 	return g_Adv2File->StatusSection->GetStatusTag64(tagIndex, tagValue);
+}
+
+HRESULT AdvVer2_GetImageLayoutInfo(int layoutIndex, AdvLib2::AdvImageLayoutInfo* imageLayoutInfo)
+{
+	if (g_Adv2File == nullptr || g_Adv2File->ImageSection == nullptr)
+		return E_FAIL;
+
+	return g_Adv2File->ImageSection->GetImageLayoutInfo(layoutIndex, imageLayoutInfo);
 }

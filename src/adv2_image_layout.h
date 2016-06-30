@@ -67,6 +67,9 @@ namespace AdvLib2
 		unsigned char* GetDataBytes(unsigned short* currFramePixels, unsigned int *bytesCount, unsigned char dataPixelsBpp, enum GetByteOperation operation);
 		void GetDataFromDataBytes(unsigned char* data, unsigned int* pixels, int sectionDataLength, int startOffset);
 	
+		HRESULT GetImageLayoutInfo(AdvLib2::AdvImageLayoutInfo* imageLayoutInfo);
+		HRESULT GetImageLayoutTagSizes(int tagId, int* tagNameSize, int* tagValueSize);
+		HRESULT GetImageLayoutTag(int tagId, char* tagName, char* tagValue);
 	private:
 		unsigned char* GetFullImageRawDataBytes(unsigned short* currFramePixels, unsigned int *bytesCount, unsigned char dataPixelsBpp, enum GetByteOperation operation);
 		

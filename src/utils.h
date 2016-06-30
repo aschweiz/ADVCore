@@ -40,7 +40,9 @@ enum TagPairType
 	MainStream = 0,
 	CalibrationStream = 1,
 	SystemMetadata = 2,
-	UserMetadata = 3
+	UserMetadata = 3,
+	ImageSection = 4,
+	FirstImageLayout = 100
 };
 
 enum GetByteMode
@@ -90,6 +92,8 @@ namespace AdvLib2
 	   bool IsColourImage;
 	   int ImageLayoutsCount;
 	   int StatusTagsCount;
+	   int ImageSectionTagsCount;
+	   int ErrorStatusTagId;
 	};
 
 	struct AdvFrameInfo
@@ -120,6 +124,16 @@ namespace AdvLib2
 
 		unsigned int SystemTimestampLo;
 		unsigned int SystemTimestampHi;
+	};
+
+	struct AdvImageLayoutInfo
+	{
+		int ImageLayoutId;
+		int ImageLayoutTagsCount;
+		char ImageLayoutBpp;
+		bool IsFullImageRaw;
+		bool Is12BitImagePacked;
+		bool Is8BitColourImage;
 	};
 }
 

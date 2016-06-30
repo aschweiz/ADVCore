@@ -60,6 +60,12 @@ namespace AdvLib2
 		int MaxFrameBufferSize();
 
 		void GetDataFromDataBytes(unsigned char* data, unsigned int* pixels, int sectionDataLength, int startOffset);
+
+		HRESULT GetImageLayoutInfo(int layoutIndex, AdvLib2::AdvImageLayoutInfo* imageLayoutInfo);
+		HRESULT GetImageSectionTagSizes(int tagId, int* tagNameSize, int* tagValueSize);
+		HRESULT GetImageLayoutTagSizes(int layoutId, int tagId, int* tagNameSize, int* tagValueSize);
+		HRESULT GetImageSectionTag(int tagId, char* tagName, char* tagValue);
+		HRESULT GetImageLayoutTag(int layoutId, int tagId, char* tagName, char* tagValue);
 	};
 }
 

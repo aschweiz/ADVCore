@@ -246,6 +246,8 @@ Adv2StatusSection::Adv2StatusSection(FILE* pFile, AdvFileInfo* fileInfo)
 	unsigned char tagsCount;
 	advfread(&tagsCount, 1, 1, pFile);
 
+	fileInfo->ErrorStatusTagId = -1;
+
 	for (int i = 0; i < tagsCount; i++)
 	{
 		char* tagName = ReadUTF8String(pFile);
@@ -253,6 +255,8 @@ Adv2StatusSection::Adv2StatusSection(FILE* pFile, AdvFileInfo* fileInfo)
 		advfread(&tagType, 1, 1, pFile);
 
 		DefineTag(tagName, (Adv2TagType)tagType);
+
+		if (strcmp("Error", tagName) == 0) fileInfo->ErrorStatusTagId = i;
 	}
 
 	fileInfo->UtcTimestampAccuracyInNanoseconds = UtcTimestampAccuracyInNanoseconds;

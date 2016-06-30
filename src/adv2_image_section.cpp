@@ -136,6 +136,7 @@ Adv2ImageSection::Adv2ImageSection(FILE* pFile, AdvFileInfo* fileInfo)
 	fileInfo->MaxPixelValue = MaxPixelValue;
 	fileInfo->IsColourImage = IsColourImage;
 	fileInfo->ImageLayoutsCount = (int)m_ImageLayouts.size();
+	fileInfo->ImageSectionTagsCount = m_ImageTags.size();	
 }
 
 void Adv2ImageSection::WriteHeader(FILE* pFile)
@@ -228,16 +229,9 @@ unsigned char* Adv2ImageSection::GetDataBytes(unsigned char layoutId, unsigned s
 
 AdvLib2::Adv2ImageLayout* Adv2ImageSection::GetImageLayoutById(unsigned char layoutId)
 {
-	map<unsigned char, Adv2ImageLayout*>::iterator curr = m_ImageLayouts.begin();
-	while (curr != m_ImageLayouts.end()) 
-	{
-		unsigned char id =curr->first;
-	
-		if (id == layoutId)
-			return curr->second;
-			
-		curr++;
-	}
+	map<unsigned char, Adv2ImageLayout*>::iterator curr = m_ImageLayouts.find(layoutId);
+	if (curr != m_ImageLayouts.end()) 
+		return curr->second;
 	
 	return nullptr;
 }
@@ -253,6 +247,68 @@ void Adv2ImageSection::GetDataFromDataBytes(unsigned char* data, unsigned int* p
 
 	Adv2ImageLayout* imageLayout = GetImageLayoutById(layoutId);	
 	imageLayout->GetDataFromDataBytes(data, pixels, sectionDataLength - 2, startOffset + 2);
+}
+
+HRESULT Adv2ImageSection::GetImageSectionTagSizes(int tagId, int* tagNameSize, int* tagValueSize)
+{
+	if (tagId < 0 || tagId >= m_ImageTags.size())
+		return E_FAIL;
+
+	map<string, string>::iterator iter = m_ImageTags.begin();
+	if (tagId > 0) std::advance(iter, tagId);	
+
+	*tagNameSize = (int)iter->first.size();
+	*tagValueSize = (int)iter->second.size();
+
+	return S_OK;
+}
+
+HRESULT Adv2ImageSection::GetImageLayoutTagSizes(int layoutId, int tagId, int* tagNameSize, int* tagValueSize)
+{
+	Adv2ImageLayout* layout = GetImageLayoutById(layoutId);
+
+	if (layout == nullptr)
+		return E_FAIL;
+	else
+		return layout->GetImageLayoutTagSizes(tagId, tagNameSize, tagValueSize);
+}
+
+HRESULT Adv2ImageSection::GetImageLayoutInfo(int layoutIndex, AdvLib2::AdvImageLayoutInfo* imageLayoutInfo)
+{
+	if (layoutIndex < 0 || layoutIndex >= m_ImageLayouts.size())
+		return E_FAIL;
+
+	map<unsigned char, Adv2ImageLayout*>::iterator it = m_ImageLayouts.begin();
+	std::advance(it, layoutIndex);
+
+	if (it != m_ImageLayouts.end()) 
+		return it->second->GetImageLayoutInfo(imageLayoutInfo);
+	else
+		return E_FAIL;
+}
+
+HRESULT Adv2ImageSection::GetImageSectionTag(int tagId, char* tagName, char* tagValue)
+{
+	if (tagId < 0 || tagId >= m_ImageTags.size())
+		return E_FAIL;
+
+	map<string, string>::iterator iter = m_ImageTags.begin();
+	if (tagId > 0) std::advance(iter, tagId);	
+
+	strcpy_s(tagName, iter->first.size() + 1, iter->first.c_str());
+	strcpy_s(tagValue, iter->second.size() + 1, iter->second.c_str());
+
+	return S_OK;
+}
+
+HRESULT Adv2ImageSection::GetImageLayoutTag(int layoutId, int tagId, char* tagName, char* tagValue)
+{
+	Adv2ImageLayout* layout = GetImageLayoutById(layoutId);
+
+	if (layout == nullptr)
+		return E_FAIL;
+	else
+		return layout->GetImageLayoutTag(tagId, tagName, tagValue);
 }
 
 }
