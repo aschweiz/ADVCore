@@ -353,7 +353,7 @@ int Adv2File::LoadFile(const char* fileName, AdvFileInfo* fileInfo)
 	unsigned int tagsCountInt;
 	advfread(&tagsCountInt, 4, 1, m_Adv2File);
 	fileInfo->SystemMetadataTagsCount = tagsCountInt;
-	for (int i = 0; i < tagsCountInt; i++)
+	for (unsigned int i = 0; i < tagsCountInt; i++)
 	{
 		char* tagName = ReadUTF8String(m_Adv2File);
 		char* tagValue = ReadUTF8String(m_Adv2File);
@@ -367,7 +367,7 @@ int Adv2File::LoadFile(const char* fileName, AdvFileInfo* fileInfo)
 	advfsetpos64(m_Adv2File, &userMetaTableOffset);
 	advfread(&tagsCountInt, 4, 1, m_Adv2File);
 	fileInfo->UserMetadataTagsCount = tagsCountInt;
-	for (int i = 0; i < tagsCountInt; i++)
+	for (unsigned int i = 0; i < tagsCountInt; i++)
 	{
 		char* tagName = ReadUTF8String(m_Adv2File);
 		char* tagValue = ReadUTF8String(m_Adv2File);
@@ -845,8 +845,8 @@ HRESULT Adv2File::GetMainStreamTag(int tagId, char* tagName, char* tagValue)
 	map<string, string>::iterator iter = m_MainStreamTags.begin();
 	if (tagId > 0) std::advance(iter, tagId);	
 
-	strcpy(tagName, iter->first.c_str());
-	strcpy(tagValue, iter->second.c_str());
+	strcpy_s(tagName, iter->first.size() + 1, iter->first.c_str());
+	strcpy_s(tagValue, iter->second.size() + 1, iter->second.c_str());
 
 	return S_OK;
 }
@@ -859,8 +859,8 @@ HRESULT Adv2File::GetMainStreamTagSizes(int tagId, int* tagNameSize, int* tagVal
 	map<string, string>::iterator iter = m_MainStreamTags.begin();
 	if (tagId > 0) std::advance(iter, tagId);	
 
-	*tagNameSize = strlen(iter->first.c_str());
-	*tagValueSize = strlen(iter->second.c_str());
+	*tagNameSize = (int)iter->first.size();
+	*tagValueSize = (int)iter->second.size();
 
 	return S_OK;
 }
@@ -873,8 +873,8 @@ HRESULT Adv2File::GetCalibrationStreamTagSizes(int tagId, int* tagNameSize, int*
 	map<string, string>::iterator iter = m_CalibrationStreamTags.begin();
 	if (tagId > 0) std::advance(iter, tagId);
 
-	*tagNameSize = strlen(iter->first.c_str());
-	*tagValueSize = strlen(iter->second.c_str());
+	*tagNameSize = (int)iter->first.size();
+	*tagValueSize = (int)iter->second.size();
 
 	return S_OK;
 }
@@ -887,8 +887,8 @@ HRESULT Adv2File::GetCalibrationStreamTag(int tagId, char* tagName, char* tagVal
 	map<string, string>::iterator iter = m_CalibrationStreamTags.begin();
 	if (tagId > 0) std::advance(iter, tagId);
 
-	strcpy(tagName, iter->first.c_str());
-	strcpy(tagValue, iter->second.c_str());
+	strcpy_s(tagName, iter->first.size() + 1, iter->first.c_str());
+	strcpy_s(tagValue, iter->second.size() + 1, iter->second.c_str());
 
 	return S_OK;
 }
@@ -901,8 +901,8 @@ HRESULT Adv2File::GetSystemMetadataTagSizes(int tagId, int* tagNameSize, int* ta
 	map<string, string>::iterator iter = m_FileTags.begin();
 	if (tagId > 0) std::advance(iter, tagId);
 
-	*tagNameSize = strlen(iter->first.c_str());
-	*tagValueSize = strlen(iter->second.c_str());
+	*tagNameSize = (int)iter->first.size();
+	*tagValueSize = (int)iter->second.size();
 
 	return S_OK;
 }
@@ -915,8 +915,8 @@ HRESULT Adv2File::GetSystemMetadataTag(int tagId, char* tagName, char* tagValue)
 	map<string, string>::iterator iter = m_FileTags.begin();
 	if (tagId > 0) std::advance(iter, tagId);
 
-	strcpy(tagName, iter->first.c_str());
-	strcpy(tagValue, iter->second.c_str());
+	strcpy_s(tagName, iter->first.size() + 1, iter->first.c_str());
+	strcpy_s(tagValue, iter->second.size() + 1, iter->second.c_str());
 
 	return S_OK;
 }
@@ -929,8 +929,8 @@ HRESULT Adv2File::GetUserMetadataTagSizes(int tagId, int* tagNameSize, int* tagV
 	map<string, string>::iterator iter = m_UserMetadataTags.begin();
 	if (tagId > 0) std::advance(iter, tagId);
 
-	*tagNameSize = strlen(iter->first.c_str());
-	*tagValueSize = strlen(iter->second.c_str());
+	*tagNameSize = (int)iter->first.size();
+	*tagValueSize = (int)iter->second.size();
 
 	return S_OK;
 }
@@ -943,8 +943,8 @@ HRESULT Adv2File::GetUserMetadataTag(int tagId, char* tagName, char* tagValue)
 	map<string, string>::iterator iter = m_UserMetadataTags.begin();
 	if (tagId > 0) std::advance(iter, tagId);
 
-	strcpy(tagName, iter->first.c_str());
-	strcpy(tagValue, iter->second.c_str());
+	strcpy_s(tagName, iter->first.size() + 1, iter->first.c_str());
+	strcpy_s(tagValue, iter->second.size() + 1, iter->second.c_str());
 
 	return S_OK;
 }

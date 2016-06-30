@@ -135,7 +135,7 @@ Adv2ImageSection::Adv2ImageSection(FILE* pFile, AdvFileInfo* fileInfo)
 	fileInfo->DataBpp = DataBpp;
 	fileInfo->MaxPixelValue = MaxPixelValue;
 	fileInfo->IsColourImage = IsColourImage;
-	fileInfo->ImageLayoutsCount = m_ImageLayouts.size();
+	fileInfo->ImageLayoutsCount = (int)m_ImageLayouts.size();
 }
 
 void Adv2ImageSection::WriteHeader(FILE* pFile)

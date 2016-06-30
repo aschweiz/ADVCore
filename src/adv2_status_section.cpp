@@ -113,7 +113,7 @@ HRESULT Adv2StatusSection::GetStatusTagNameSize(int tagId, int* tagNameSize)
 		return E_FAIL;
 
 	string tag = m_TagDefinitionNames[tagId];
-	*tagNameSize = strlen(tag.c_str());
+	*tagNameSize = (int)tag.size();
 	return S_OK;
 }
 
@@ -123,7 +123,7 @@ HRESULT Adv2StatusSection::GetStatusTagInfo(int tagId, char* tagName, Adv2TagTyp
 		return E_FAIL;
 
 	string tag = m_TagDefinitionNames[tagId];
-	strcpy(tagName, tag.c_str());
+	strcpy_s(tagName, tag.size() + 1, tag.c_str());
 
 	map<string, Adv2TagType>::iterator curr = m_TagDefinition.find(tag);
 	*tagType = curr->second;
@@ -137,7 +137,7 @@ HRESULT Adv2StatusSection::GetStatusTagSizeUTF8String(unsigned int tagIndex, int
 	if (curr == m_FrameStatusTags.end())
 		return E_FAIL;
 
-	*tagValueSize = strlen(curr->second.c_str());
+	*tagValueSize = (int)curr->second.size();
 	return S_OK;
 }
 
@@ -147,7 +147,7 @@ HRESULT Adv2StatusSection::GetStatusTagUTF8String(unsigned int tagIndex, char* t
 	if (curr == m_FrameStatusTags.end())
 		return E_FAIL;
 
-	strcpy(tagValue, curr->second.c_str());
+	strcpy_s(tagValue, curr->second.size() + 1, curr->second.c_str());
 
 	return S_OK;
 }
@@ -445,7 +445,9 @@ void Adv2StatusSection::GetDataFromDataBytes(unsigned char* data, int sectionDat
 {
 	unsigned char* statusData = data + startOffset;
 
-	m_UtcStartTimeNanosecondsSinceAdvZeroEpoch = statusData[0] + (statusData[1] << 8) + (statusData[2] << 16) + (statusData[3] << 24) + (statusData[4] << 32)+ (statusData[5] << 40)+ (statusData[6] << 48)+ (statusData[7] << 56);
+	m_UtcStartTimeNanosecondsSinceAdvZeroEpoch = 
+		 (statusData[0] + (statusData[1] << 8) + (statusData[2] << 16) + (statusData[3] << 24) +
+		 ((__int64)(statusData[4] + (statusData[5] << 8) + (statusData[6] << 16) + (statusData[7] << 24)) << 32));
 	frameInfo->Exposure = m_UtcExposureNanoseconds = statusData[8] + (statusData[9] << 8) + (statusData[10] << 16) + (statusData[11] << 24);
 	frameInfo->UtcTimestampLo = statusData[0] + (statusData[1] << 8) + (statusData[2] << 16) + (statusData[3] << 24);
 	frameInfo->UtcTimestampHi = statusData[4] + (statusData[5] << 8) + (statusData[6] << 16) + (statusData[7] << 24);
@@ -581,8 +583,11 @@ void Adv2StatusSection::GetDataFromDataBytes(unsigned char* data, int sectionDat
 					statusData += 3;
 
 					char* destBuffer = (char*)malloc(byteCount + 1);
-
-					strncpy(destBuffer,  (char*)(statusData), byteCount);
+					for (int i = 0; i < byteCount; i++)
+					{
+						*(destBuffer + i) = *statusData;
+						statusData++;
+					}
 					*(destBuffer + byteCount) = '\0';
 
 					m_FrameStatusTags.insert(make_pair(tagId, string(destBuffer)));

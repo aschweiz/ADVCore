@@ -365,9 +365,9 @@ void Adv2ImageLayout::GetPixelsFrom8BitByteArrayRawLayout(unsigned char* layoutD
 	if (Bpp == 8)
 	{		
 		unsigned int* pPixelsOut = pixelsOut;
-		for (int y = 0; y < Height; ++y)
+		for (unsigned int y = 0; y < Height; ++y)
 		{
-			for (int x = 0; x < Width; ++x)
+			for (unsigned int x = 0; x < Width; ++x)
 			{
 				unsigned char bt1 = *layoutData;
 				layoutData++;
@@ -396,9 +396,9 @@ void Adv2ImageLayout::GetPixelsFrom16BitByteArrayRawLayout(unsigned char* layout
 		unsigned int* pPixelsOut = pixelsOut;
 		bool isLittleEndian = m_ImageSection->ByteOrder == LittleEndian;
 
-		for (int y = 0; y < Height; ++y)
+		for (unsigned int y = 0; y < Height; ++y)
 		{
-			for (int x = 0; x < Width; ++x)
+			for (unsigned int x = 0; x < Width; ++x)
 			{
 				unsigned char bt1 = *layoutData;
 				layoutData++;
@@ -420,9 +420,9 @@ void Adv2ImageLayout::GetPixelsFrom16BitByteArrayRawLayout(unsigned char* layout
 	{
 		unsigned int* pPixelsOut = pixelsOut;
 
-		for (int y = 0; y < Height; ++y)
+		for (unsigned int y = 0; y < Height; ++y)
 		{
-			for (int x = 0; x < Width; ++x)
+			for (unsigned int x = 0; x < Width; ++x)
 			{
 				unsigned char bt = *layoutData;
 				layoutData++;
