@@ -60,6 +60,7 @@
     <ClCompile Include="src\utils.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\adv2_error_codes.h" />
     <ClInclude Include="src\adv2_file.h" />
     <ClInclude Include="src\adv2_frames_index.h" />
     <ClInclude Include="src\adv2_image_layout.h" />

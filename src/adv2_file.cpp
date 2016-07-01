@@ -647,7 +647,7 @@ void Adv2File::AddFrameStatusTagUInt64(unsigned int tagIndex, __int64 tagValue)
     
 	All other combinations which are not listed above are invalid.
 */
-HRESULT Adv2File::AddFrameImage(unsigned char layoutId, unsigned short* pixels, unsigned char pixelsBpp)
+ADVRESULT Adv2File::AddFrameImage(unsigned char layoutId, unsigned short* pixels, unsigned char pixelsBpp)
 {
 	unsigned char bpp = ImageSection->DataBpp;
 	m_CurrentImageLayout = ImageSection->GetImageLayoutById(layoutId);
@@ -682,7 +682,7 @@ HRESULT Adv2File::AddFrameImage(unsigned char layoutId, unsigned short* pixels, 
 
 	All other combinations which are not listed above are invalid.
 */
-HRESULT Adv2File::AddFrameImage(unsigned char layoutId, unsigned char* pixels, unsigned char pixelsBpp)
+ADVRESULT Adv2File::AddFrameImage(unsigned char layoutId, unsigned char* pixels, unsigned char pixelsBpp)
 {
 	unsigned char bpp = ImageSection->DataBpp;
 	m_CurrentImageLayout = ImageSection->GetImageLayoutById(layoutId);
@@ -837,7 +837,7 @@ void Adv2File::GetFrameSectionData(int streamId, int frameId, unsigned int* pixe
 	}
 }
 
-HRESULT Adv2File::GetMainStreamTag(int tagId, char* tagName, char* tagValue)
+ADVRESULT Adv2File::GetMainStreamTag(int tagId, char* tagName, char* tagValue)
 {
 	if (tagId < 0 || tagId >= m_MainStreamTags.size())
 		return E_FAIL;
@@ -851,7 +851,7 @@ HRESULT Adv2File::GetMainStreamTag(int tagId, char* tagName, char* tagValue)
 	return S_OK;
 }
 
-HRESULT Adv2File::GetMainStreamTagSizes(int tagId, int* tagNameSize, int* tagValueSize)
+ADVRESULT Adv2File::GetMainStreamTagSizes(int tagId, int* tagNameSize, int* tagValueSize)
 {
 	if (tagId < 0 || tagId >= m_MainStreamTags.size())
 		return E_FAIL;
@@ -865,7 +865,7 @@ HRESULT Adv2File::GetMainStreamTagSizes(int tagId, int* tagNameSize, int* tagVal
 	return S_OK;
 }
 
-HRESULT Adv2File::GetCalibrationStreamTagSizes(int tagId, int* tagNameSize, int* tagValueSize)
+ADVRESULT Adv2File::GetCalibrationStreamTagSizes(int tagId, int* tagNameSize, int* tagValueSize)
 {
 	if (tagId < 0 || tagId >= m_CalibrationStreamTags.size())
 		return E_FAIL;
@@ -879,7 +879,7 @@ HRESULT Adv2File::GetCalibrationStreamTagSizes(int tagId, int* tagNameSize, int*
 	return S_OK;
 }
 
-HRESULT Adv2File::GetCalibrationStreamTag(int tagId, char* tagName, char* tagValue)
+ADVRESULT Adv2File::GetCalibrationStreamTag(int tagId, char* tagName, char* tagValue)
 {
 	if (tagId < 0 || tagId >= m_CalibrationStreamTags.size())
 		return E_FAIL;
@@ -893,7 +893,7 @@ HRESULT Adv2File::GetCalibrationStreamTag(int tagId, char* tagName, char* tagVal
 	return S_OK;
 }
 
-HRESULT Adv2File::GetSystemMetadataTagSizes(int tagId, int* tagNameSize, int* tagValueSize)
+ADVRESULT Adv2File::GetSystemMetadataTagSizes(int tagId, int* tagNameSize, int* tagValueSize)
 {
 	if (tagId < 0 || tagId >= m_FileTags.size())
 		return E_FAIL;
@@ -907,7 +907,7 @@ HRESULT Adv2File::GetSystemMetadataTagSizes(int tagId, int* tagNameSize, int* ta
 	return S_OK;
 }
 
-HRESULT Adv2File::GetSystemMetadataTag(int tagId, char* tagName, char* tagValue)
+ADVRESULT Adv2File::GetSystemMetadataTag(int tagId, char* tagName, char* tagValue)
 {
 	if (tagId < 0 || tagId >= m_FileTags.size())
 		return E_FAIL;
@@ -921,7 +921,7 @@ HRESULT Adv2File::GetSystemMetadataTag(int tagId, char* tagName, char* tagValue)
 	return S_OK;
 }
 
-HRESULT Adv2File::GetUserMetadataTagSizes(int tagId, int* tagNameSize, int* tagValueSize)
+ADVRESULT Adv2File::GetUserMetadataTagSizes(int tagId, int* tagNameSize, int* tagValueSize)
 {
 	if (tagId < 0 || tagId >= m_UserMetadataTags.size())
 		return E_FAIL;
@@ -935,7 +935,7 @@ HRESULT Adv2File::GetUserMetadataTagSizes(int tagId, int* tagNameSize, int* tagV
 	return S_OK;
 }
 
-HRESULT Adv2File::GetUserMetadataTag(int tagId, char* tagName, char* tagValue)
+ADVRESULT Adv2File::GetUserMetadataTag(int tagId, char* tagName, char* tagValue)
 {
 	if (tagId < 0 || tagId >= m_UserMetadataTags.size())
 		return E_FAIL;

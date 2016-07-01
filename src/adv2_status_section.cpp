@@ -107,7 +107,7 @@ void Adv2StatusSection::AddFrameStatusTagUInt64(unsigned int tagIndex, __int64 t
 	m_FrameStatusTagsUInt64.insert(make_pair(tagIndex, tagValue));
 }
 
-HRESULT Adv2StatusSection::GetStatusTagNameSize(int tagId, int* tagNameSize)
+ADVRESULT Adv2StatusSection::GetStatusTagNameSize(int tagId, int* tagNameSize)
 {
 	if (tagId < 0 || tagId > m_TagDefinitionNames.size())
 		return E_FAIL;
@@ -117,7 +117,7 @@ HRESULT Adv2StatusSection::GetStatusTagNameSize(int tagId, int* tagNameSize)
 	return S_OK;
 }
 
-HRESULT Adv2StatusSection::GetStatusTagInfo(int tagId, char* tagName, Adv2TagType* tagType)
+ADVRESULT Adv2StatusSection::GetStatusTagInfo(int tagId, char* tagName, Adv2TagType* tagType)
 {
 	if (tagId < 0 || tagId > m_TagDefinitionNames.size())
 		return E_FAIL;
@@ -131,7 +131,7 @@ HRESULT Adv2StatusSection::GetStatusTagInfo(int tagId, char* tagName, Adv2TagTyp
 	return S_OK;
 }
 
-HRESULT Adv2StatusSection::GetStatusTagSizeUTF8String(unsigned int tagIndex, int* tagValueSize)
+ADVRESULT Adv2StatusSection::GetStatusTagSizeUTF8String(unsigned int tagIndex, int* tagValueSize)
 {
 	map<unsigned int, std::string>::iterator curr = m_FrameStatusTags.find(tagIndex);
 	if (curr == m_FrameStatusTags.end())
@@ -141,7 +141,7 @@ HRESULT Adv2StatusSection::GetStatusTagSizeUTF8String(unsigned int tagIndex, int
 	return S_OK;
 }
 
-HRESULT Adv2StatusSection::GetStatusTagUTF8String(unsigned int tagIndex, char* tagValue)
+ADVRESULT Adv2StatusSection::GetStatusTagUTF8String(unsigned int tagIndex, char* tagValue)
 {
 	map<unsigned int, std::string>::iterator curr = m_FrameStatusTags.find(tagIndex);
 	if (curr == m_FrameStatusTags.end())
@@ -152,7 +152,7 @@ HRESULT Adv2StatusSection::GetStatusTagUTF8String(unsigned int tagIndex, char* t
 	return S_OK;
 }
 
-HRESULT Adv2StatusSection::GetStatusTagUInt8(unsigned int tagIndex, unsigned char* tagValue)
+ADVRESULT Adv2StatusSection::GetStatusTagUInt8(unsigned int tagIndex, unsigned char* tagValue)
 {
 	map<unsigned int, unsigned char>::iterator curr = m_FrameStatusTagsUInt8.find(tagIndex);
 	if (curr == m_FrameStatusTagsUInt8.end())
@@ -163,7 +163,7 @@ HRESULT Adv2StatusSection::GetStatusTagUInt8(unsigned int tagIndex, unsigned cha
 	return S_OK;
 }
 
-HRESULT Adv2StatusSection::GetStatusTag16(unsigned int tagIndex, unsigned short* tagValue)
+ADVRESULT Adv2StatusSection::GetStatusTag16(unsigned int tagIndex, unsigned short* tagValue)
 {
 	map<unsigned int, unsigned short>::iterator curr = m_FrameStatusTagsUInt16.find(tagIndex);
 	if (curr == m_FrameStatusTagsUInt16.end())
@@ -174,7 +174,7 @@ HRESULT Adv2StatusSection::GetStatusTag16(unsigned int tagIndex, unsigned short*
 	return S_OK;
 }
 
-HRESULT Adv2StatusSection::GetStatusTagReal(unsigned int tagIndex, float* tagValue)
+ADVRESULT Adv2StatusSection::GetStatusTagReal(unsigned int tagIndex, float* tagValue)
 {
 	map<unsigned int, float>::iterator curr = m_FrameStatusTagsReal.find(tagIndex);
 	if (curr == m_FrameStatusTagsReal.end())
@@ -185,7 +185,7 @@ HRESULT Adv2StatusSection::GetStatusTagReal(unsigned int tagIndex, float* tagVal
 	return S_OK;
 }
 
-HRESULT Adv2StatusSection::GetStatusTag32(unsigned int tagIndex, unsigned int* tagValue)
+ADVRESULT Adv2StatusSection::GetStatusTag32(unsigned int tagIndex, unsigned int* tagValue)
 {
 	map<unsigned int, unsigned int>::iterator curr = m_FrameStatusTagsUInt32.find(tagIndex);
 	if (curr == m_FrameStatusTagsUInt32.end())
@@ -196,7 +196,7 @@ HRESULT Adv2StatusSection::GetStatusTag32(unsigned int tagIndex, unsigned int* t
 	return S_OK;
 }
 
-HRESULT Adv2StatusSection::GetStatusTag64(unsigned int tagIndex, __int64* tagValue)
+ADVRESULT Adv2StatusSection::GetStatusTag64(unsigned int tagIndex, __int64* tagValue)
 {
 	map<unsigned int, __int64>::iterator curr = m_FrameStatusTagsUInt64.find(tagIndex);
 	if (curr == m_FrameStatusTagsUInt64.end())

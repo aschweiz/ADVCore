@@ -89,6 +89,7 @@
     <File Name="src/Compressor.h"/>
     <File Name="src/ProbabilityCoder.h"/>
     <File Name="src/RangeCoder.h"/>
+    <File Name="src/adv2_error_codes.h"/>
   </VirtualDirectory>
   <Settings Type="Dynamic Library">
     <GlobalSettings>

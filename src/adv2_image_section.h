@@ -17,13 +17,6 @@ using std::string;
 
 namespace AdvLib2
 {
-	enum GetByteOperation
-	{
-		None = 0,
-		ConvertTo12BitPacked = 1,
-		ConvertTo8BitBytesLooseHighByte = 2
-	};
-
 	class Adv2ImageLayout;
 
 	class Adv2ImageSection {
@@ -61,11 +54,11 @@ namespace AdvLib2
 
 		void GetDataFromDataBytes(unsigned char* data, unsigned int* pixels, int sectionDataLength, int startOffset);
 
-		HRESULT GetImageLayoutInfo(int layoutIndex, AdvLib2::AdvImageLayoutInfo* imageLayoutInfo);
-		HRESULT GetImageSectionTagSizes(int tagId, int* tagNameSize, int* tagValueSize);
-		HRESULT GetImageLayoutTagSizes(int layoutId, int tagId, int* tagNameSize, int* tagValueSize);
-		HRESULT GetImageSectionTag(int tagId, char* tagName, char* tagValue);
-		HRESULT GetImageLayoutTag(int layoutId, int tagId, char* tagName, char* tagValue);
+		ADVRESULT GetImageLayoutInfo(int layoutIndex, AdvLib2::AdvImageLayoutInfo* imageLayoutInfo);
+		ADVRESULT GetImageSectionTagSizes(int tagId, int* tagNameSize, int* tagValueSize);
+		ADVRESULT GetImageLayoutTagSizes(int layoutId, int tagId, int* tagNameSize, int* tagValueSize);
+		ADVRESULT GetImageSectionTag(int tagId, char* tagName, char* tagValue);
+		ADVRESULT GetImageLayoutTag(int layoutId, int tagId, char* tagName, char* tagValue);
 	};
 }
 

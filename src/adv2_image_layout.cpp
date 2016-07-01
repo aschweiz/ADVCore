@@ -474,7 +474,7 @@ void Adv2ImageLayout::GetPixelsFrom12BitByteArray(unsigned char* layoutData, uns
     return;
 }
 
-HRESULT Adv2ImageLayout::GetImageLayoutInfo(AdvLib2::AdvImageLayoutInfo* imageLayoutInfo)
+ADVRESULT Adv2ImageLayout::GetImageLayoutInfo(AdvLib2::AdvImageLayoutInfo* imageLayoutInfo)
 {
 	imageLayoutInfo->ImageLayoutId = LayoutId;
 	imageLayoutInfo->ImageLayoutTagsCount = m_LayoutTags.size();
@@ -485,7 +485,7 @@ HRESULT Adv2ImageLayout::GetImageLayoutInfo(AdvLib2::AdvImageLayoutInfo* imageLa
 	return S_OK;
 }
 
-HRESULT Adv2ImageLayout::GetImageLayoutTagSizes(int tagId, int* tagNameSize, int* tagValueSize)
+ADVRESULT Adv2ImageLayout::GetImageLayoutTagSizes(int tagId, int* tagNameSize, int* tagValueSize)
 {
 	if (tagId < 0 || tagId >= m_LayoutTags.size())
 		return E_FAIL;
@@ -500,7 +500,7 @@ HRESULT Adv2ImageLayout::GetImageLayoutTagSizes(int tagId, int* tagNameSize, int
 
 }
 
-HRESULT Adv2ImageLayout::GetImageLayoutTag(int tagId, char* tagName, char* tagValue)
+ADVRESULT Adv2ImageLayout::GetImageLayoutTag(int tagId, char* tagName, char* tagValue)
 {
 	if (tagId < 0 || tagId >= m_LayoutTags.size())
 		return E_FAIL;

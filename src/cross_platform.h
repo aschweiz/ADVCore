@@ -7,23 +7,17 @@
 
 #define _FILE_OFFSET_BITS  64
 #include "stdio.h"
+#include "adv2_error_codes.h"
 
 #ifndef _WIN32
 typedef int long long __int64;
 typedef unsigned int long long __uint64;
 
-typedef int HRESULT;
 typedef int BOOL;
 typedef int LONG;
 typedef unsigned short int WORD;
 typedef unsigned char BYTE;
 typedef unsigned int DWORD;
-
-#define S_OK 0
-#define E_FAIL ((HRESULT)0x80004005L)
-#define E_NOTIMPL ((HRESULT)0x80004001L)
-
-BOOL SUCCEEDED(HRESULT hr);
 
 #define BI_RGB 0
 

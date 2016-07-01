@@ -5,6 +5,7 @@
 #include "stdafx.h"
 #include "adv2_image_section.h"
 #include "utils.h"
+#include <cstdlib>
 
 namespace AdvLib2
 {
@@ -86,7 +87,7 @@ void Adv2ImageSection::AddOrUpdateTag(const char* tagName, const char* tagValue)
 	{
 		m_RGBorBGR = strcmp("RGB", tagValue) == 0 || strcmp("BGR", tagValue) == 0;
 		IsColourImage = strcmp("MONOCHROME", tagValue) != 0;
-		strcpy_s(ImageBayerPattern, tagValue);
+		strcpy_s(ImageBayerPattern, strlen(tagValue) + 1, tagValue);
 	}
 	
 	m_ImageTags.insert(make_pair(string(tagName), string(tagValue == nullptr ? "" : tagValue)));
@@ -249,7 +250,7 @@ void Adv2ImageSection::GetDataFromDataBytes(unsigned char* data, unsigned int* p
 	imageLayout->GetDataFromDataBytes(data, pixels, sectionDataLength - 2, startOffset + 2);
 }
 
-HRESULT Adv2ImageSection::GetImageSectionTagSizes(int tagId, int* tagNameSize, int* tagValueSize)
+ADVRESULT Adv2ImageSection::GetImageSectionTagSizes(int tagId, int* tagNameSize, int* tagValueSize)
 {
 	if (tagId < 0 || tagId >= m_ImageTags.size())
 		return E_FAIL;
@@ -263,7 +264,7 @@ HRESULT Adv2ImageSection::GetImageSectionTagSizes(int tagId, int* tagNameSize, i
 	return S_OK;
 }
 
-HRESULT Adv2ImageSection::GetImageLayoutTagSizes(int layoutId, int tagId, int* tagNameSize, int* tagValueSize)
+ADVRESULT Adv2ImageSection::GetImageLayoutTagSizes(int layoutId, int tagId, int* tagNameSize, int* tagValueSize)
 {
 	Adv2ImageLayout* layout = GetImageLayoutById(layoutId);
 
@@ -273,7 +274,7 @@ HRESULT Adv2ImageSection::GetImageLayoutTagSizes(int layoutId, int tagId, int* t
 		return layout->GetImageLayoutTagSizes(tagId, tagNameSize, tagValueSize);
 }
 
-HRESULT Adv2ImageSection::GetImageLayoutInfo(int layoutIndex, AdvLib2::AdvImageLayoutInfo* imageLayoutInfo)
+ADVRESULT Adv2ImageSection::GetImageLayoutInfo(int layoutIndex, AdvLib2::AdvImageLayoutInfo* imageLayoutInfo)
 {
 	if (layoutIndex < 0 || layoutIndex >= m_ImageLayouts.size())
 		return E_FAIL;
@@ -287,7 +288,7 @@ HRESULT Adv2ImageSection::GetImageLayoutInfo(int layoutIndex, AdvLib2::AdvImageL
 		return E_FAIL;
 }
 
-HRESULT Adv2ImageSection::GetImageSectionTag(int tagId, char* tagName, char* tagValue)
+ADVRESULT Adv2ImageSection::GetImageSectionTag(int tagId, char* tagName, char* tagValue)
 {
 	if (tagId < 0 || tagId >= m_ImageTags.size())
 		return E_FAIL;
@@ -301,7 +302,7 @@ HRESULT Adv2ImageSection::GetImageSectionTag(int tagId, char* tagName, char* tag
 	return S_OK;
 }
 
-HRESULT Adv2ImageSection::GetImageLayoutTag(int layoutId, int tagId, char* tagName, char* tagValue)
+ADVRESULT Adv2ImageSection::GetImageLayoutTag(int layoutId, int tagId, char* tagName, char* tagValue)
 {
 	Adv2ImageLayout* layout = GetImageLayoutById(layoutId);
 

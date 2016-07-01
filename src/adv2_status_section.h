@@ -56,15 +56,15 @@ namespace AdvLib2
 			unsigned char* GetDataBytes(unsigned int *bytesCount);
 			void GetDataFromDataBytes(unsigned char* data, int sectionDataLength, int startOffset, AdvFrameInfo* frameInfo, int* systemErrorLen);
 
-			HRESULT GetStatusTagNameSize(int tagId, int* tagNameSize);
-			HRESULT GetStatusTagInfo(int tagId, char* tagName, Adv2TagType* tagType);
-			HRESULT GetStatusTagSizeUTF8String(unsigned int tagIndex, int* tagValueSize);
-			HRESULT GetStatusTagUTF8String(unsigned int tagIndex, char* tagValue);
-			HRESULT GetStatusTagUInt8(unsigned int tagIndex, unsigned char* tagValue);
-			HRESULT GetStatusTag16(unsigned int tagIndex, unsigned short* tagValue);
-			HRESULT GetStatusTagReal(unsigned int tagIndex, float* tagValue);
-			HRESULT GetStatusTag32(unsigned int tagIndex, unsigned int* tagValue);
-			HRESULT GetStatusTag64(unsigned int tagIndex, __int64* tagValue);
+			ADVRESULT GetStatusTagNameSize(int tagId, int* tagNameSize);
+			ADVRESULT GetStatusTagInfo(int tagId, char* tagName, Adv2TagType* tagType);
+			ADVRESULT GetStatusTagSizeUTF8String(unsigned int tagIndex, int* tagValueSize);
+			ADVRESULT GetStatusTagUTF8String(unsigned int tagIndex, char* tagValue);
+			ADVRESULT GetStatusTagUInt8(unsigned int tagIndex, unsigned char* tagValue);
+			ADVRESULT GetStatusTag16(unsigned int tagIndex, unsigned short* tagValue);
+			ADVRESULT GetStatusTagReal(unsigned int tagIndex, float* tagValue);
+			ADVRESULT GetStatusTag32(unsigned int tagIndex, unsigned int* tagValue);
+			ADVRESULT GetStatusTag64(unsigned int tagIndex, __int64* tagValue);
 	};
 }
 

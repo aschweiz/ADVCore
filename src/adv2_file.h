@@ -104,19 +104,19 @@ namespace AdvLib2
 			void AddFrameStatusTagUInt64(unsigned int tagIndex, __int64 tagValue);
 			void AddFrameStatusTagReal(unsigned int tagIndex, float tagValue);
 
-			HRESULT AddFrameImage(unsigned char layoutId, unsigned short* pixels, unsigned char pixelsBpp);
-			HRESULT AddFrameImage(unsigned char layoutId, unsigned char* pixels, unsigned char pixelsBpp);
+			ADVRESULT AddFrameImage(unsigned char layoutId, unsigned short* pixels, unsigned char pixelsBpp);
+			ADVRESULT AddFrameImage(unsigned char layoutId, unsigned char* pixels, unsigned char pixelsBpp);
 
 			void GetFrameImageSectionHeader(int streamId, int frameId, unsigned char* layoutId, enum GetByteMode* mode);
 			void GetFrameSectionData(int streamId, int frameId, unsigned int* pixels, AdvFrameInfo* frameInfo, int* systemErrorLen);
-			HRESULT GetMainStreamTagSizes(int tagId, int* tagNameSize, int* tagValueSize);
-			HRESULT GetMainStreamTag(int tagId, char* tagName, char* tagValue);
-			HRESULT GetCalibrationStreamTagSizes(int tagId, int* tagNameSize, int* tagValueSize);
-			HRESULT GetCalibrationStreamTag(int tagId, char* tagName, char* tagValue);
-			HRESULT GetSystemMetadataTagSizes(int tagId, int* tagNameSize, int* tagValueSize);
-			HRESULT GetSystemMetadataTag(int tagId, char* tagName, char* tagValue);
-			HRESULT GetUserMetadataTagSizes(int tagId, int* tagNameSize, int* tagValueSize);
-			HRESULT GetUserMetadataTag(int tagId, char* tagName, char* tagValue);
+			ADVRESULT GetMainStreamTagSizes(int tagId, int* tagNameSize, int* tagValueSize);
+			ADVRESULT GetMainStreamTag(int tagId, char* tagName, char* tagValue);
+			ADVRESULT GetCalibrationStreamTagSizes(int tagId, int* tagNameSize, int* tagValueSize);
+			ADVRESULT GetCalibrationStreamTag(int tagId, char* tagName, char* tagValue);
+			ADVRESULT GetSystemMetadataTagSizes(int tagId, int* tagNameSize, int* tagValueSize);
+			ADVRESULT GetSystemMetadataTag(int tagId, char* tagName, char* tagValue);
+			ADVRESULT GetUserMetadataTagSizes(int tagId, int* tagNameSize, int* tagValueSize);
+			ADVRESULT GetUserMetadataTag(int tagId, char* tagName, char* tagValue);
 		};
 
 }
