@@ -8,12 +8,14 @@
 
 typedef int ADVRESULT;
 
+#define E_ADV_NOFILE ((ADVRESULT)0x81000001L)
+
+#define E_ADV_STATUS_ENTRY_ALREADY_ADDED ((ADVRESULT)0x81001001L)
+
 #ifndef _WIN32
 #define S_OK 0
 #define E_FAIL ((ADVRESULT)0x80004005L)
 #define E_NOTIMPL ((ADVRESULT)0x80004001L)
 #endif
-
-
 
 #endif

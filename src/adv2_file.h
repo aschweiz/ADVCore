@@ -96,14 +96,6 @@ namespace AdvLib2
 			void BeginFrame(unsigned char streamId, __int64 utcStartTimeNanosecondsSinceAdvZeroEpoch, unsigned int utcExposureNanoseconds);
 			void EndFrame();
 
-			void AddFrameStatusTagUTF8String(unsigned int tagIndex, const char* tagValue);
-			void AddFrameStatusTagMessage(unsigned int tagIndex, const char* tagValue);
-			void AddFrameStatusTagUInt8(unsigned int tagIndex, unsigned char tagValue);
-			void AddFrameStatusTagUInt16(unsigned int tagIndex, unsigned short tagValue);
-			void AddFrameStatusTagUInt32(unsigned int tagIndex, unsigned int tagValue);
-			void AddFrameStatusTagUInt64(unsigned int tagIndex, __int64 tagValue);
-			void AddFrameStatusTagReal(unsigned int tagIndex, float tagValue);
-
 			ADVRESULT AddFrameImage(unsigned char layoutId, unsigned short* pixels, unsigned char pixelsBpp);
 			ADVRESULT AddFrameImage(unsigned char layoutId, unsigned char* pixels, unsigned char pixelsBpp);
 

@@ -63,12 +63,12 @@ DLL_PUBLIC bool AdvVer2_BeginFrameWithTicks(unsigned int streamId, __int64 start
 DLL_PUBLIC bool AdvVer2_BeginFrame(unsigned int streamId, __int64 utcStartTimeNanosecondsSinceAdvZeroEpoch, unsigned int utcExposureNanoseconds);
 DLL_PUBLIC ADVRESULT AdvVer2_FrameAddImage(unsigned char layoutId, unsigned short* pixels, unsigned char pixelsBpp);
 DLL_PUBLIC ADVRESULT AdvVer2_FrameAddImageBytes(unsigned char layoutId, unsigned char* pixels, unsigned char pixelsBpp);
-DLL_PUBLIC void AdvVer2_FrameAddStatusTagUTF8String(unsigned int tagIndex, const char* tagValue);
-DLL_PUBLIC void AdvVer2_FrameAddStatusTagUInt8(unsigned int tagIndex, unsigned char tagValue);
-DLL_PUBLIC void AdvVer2_FrameAddStatusTag16(unsigned int tagIndex, unsigned short tagValue);
-DLL_PUBLIC void AdvVer2_FrameAddStatusTagReal(unsigned int tagIndex, float tagValue);
-DLL_PUBLIC void AdvVer2_FrameAddStatusTag32(unsigned int tagIndex, unsigned int tagValue);
-DLL_PUBLIC void AdvVer2_FrameAddStatusTag64(unsigned int tagIndex, __int64 tagValue);
+DLL_PUBLIC ADVRESULT AdvVer2_FrameAddStatusTagUTF8String(unsigned int tagIndex, const char* tagValue);
+DLL_PUBLIC ADVRESULT AdvVer2_FrameAddStatusTagUInt8(unsigned int tagIndex, unsigned char tagValue);
+DLL_PUBLIC ADVRESULT AdvVer2_FrameAddStatusTag16(unsigned int tagIndex, unsigned short tagValue);
+DLL_PUBLIC ADVRESULT AdvVer2_FrameAddStatusTagReal(unsigned int tagIndex, float tagValue);
+DLL_PUBLIC ADVRESULT AdvVer2_FrameAddStatusTag32(unsigned int tagIndex, unsigned int tagValue);
+DLL_PUBLIC ADVRESULT AdvVer2_FrameAddStatusTag64(unsigned int tagIndex, __int64 tagValue);
 DLL_PUBLIC void AdvVer2_EndFrame();
 
 DLL_PUBLIC ADVRESULT AdvVer2_GetFramePixels(int streamId, int frameNo, unsigned int* pixels, AdvLib2::AdvFrameInfo* frameInfo, int* systemErrorLen);

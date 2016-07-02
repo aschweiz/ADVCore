@@ -77,34 +77,58 @@ void Adv2StatusSection::BeginFrame(__int64 utcStartTimeNanosecondsSinceAdvZeroEp
 	m_UtcExposureNanoseconds = utcExposureNanoseconds;
 }
 
-void Adv2StatusSection::AddFrameStatusTagUTF8String(unsigned int tagIndex, const char* tagValue)
+ADVRESULT Adv2StatusSection::AddFrameStatusTagUTF8String(unsigned int tagIndex, const char* tagValue)
 {
+	if (m_FrameStatusTags.find(tagIndex) != m_FrameStatusTags.end())
+		return E_ADV_STATUS_ENTRY_ALREADY_ADDED;
+
 	m_FrameStatusTags.insert(make_pair(tagIndex, string(tagValue == nullptr ? "" : tagValue)));
+	return S_OK;
 }
 
-void Adv2StatusSection::AddFrameStatusTagUInt8(unsigned int tagIndex, unsigned char tagValue)
+ADVRESULT Adv2StatusSection::AddFrameStatusTagUInt8(unsigned int tagIndex, unsigned char tagValue)
 {
+	if (m_FrameStatusTagsUInt8.find(tagIndex) != m_FrameStatusTagsUInt8.end())
+		return E_ADV_STATUS_ENTRY_ALREADY_ADDED;
+
 	m_FrameStatusTagsUInt8.insert(make_pair(tagIndex, tagValue));
+	return S_OK;
 }
 
-void Adv2StatusSection::AddFrameStatusTagUInt16(unsigned int tagIndex, unsigned short tagValue)
+ADVRESULT Adv2StatusSection::AddFrameStatusTagUInt16(unsigned int tagIndex, unsigned short tagValue)
 {
+	if (m_FrameStatusTagsUInt16.find(tagIndex) != m_FrameStatusTagsUInt16.end())
+		return E_ADV_STATUS_ENTRY_ALREADY_ADDED;
+
 	m_FrameStatusTagsUInt16.insert(make_pair(tagIndex, tagValue));
+	return S_OK;
 }
 
-void Adv2StatusSection::AddFrameStatusTagReal(unsigned int tagIndex, float tagValue)
+ADVRESULT Adv2StatusSection::AddFrameStatusTagReal(unsigned int tagIndex, float tagValue)
 {
+	if (m_FrameStatusTagsReal.find(tagIndex) != m_FrameStatusTagsReal.end())
+		return E_ADV_STATUS_ENTRY_ALREADY_ADDED;
+
 	m_FrameStatusTagsReal.insert(make_pair(tagIndex, tagValue));
+	return S_OK;
 }
 
-void Adv2StatusSection::AddFrameStatusTagUInt32(unsigned int tagIndex, unsigned int tagValue)
+ADVRESULT Adv2StatusSection::AddFrameStatusTagUInt32(unsigned int tagIndex, unsigned int tagValue)
 {
+	if (m_FrameStatusTagsUInt32.find(tagIndex) != m_FrameStatusTagsUInt32.end())
+		return E_ADV_STATUS_ENTRY_ALREADY_ADDED;
+
 	m_FrameStatusTagsUInt32.insert(make_pair(tagIndex, tagValue));
+	return S_OK;
 }
 
-void Adv2StatusSection::AddFrameStatusTagUInt64(unsigned int tagIndex, __int64 tagValue)
+ADVRESULT Adv2StatusSection::AddFrameStatusTagUInt64(unsigned int tagIndex, __int64 tagValue)
 {
+	if (m_FrameStatusTagsUInt64.find(tagIndex) != m_FrameStatusTagsUInt64.end())
+		return E_ADV_STATUS_ENTRY_ALREADY_ADDED;
+
 	m_FrameStatusTagsUInt64.insert(make_pair(tagIndex, tagValue));
+	return S_OK;
 }
 
 ADVRESULT Adv2StatusSection::GetStatusTagNameSize(int tagId, int* tagNameSize)

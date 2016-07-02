@@ -607,36 +607,6 @@ void Adv2File::BeginFrame(unsigned char streamId, __int64 startFrameTicks, __int
 	AdvProfiling_EndBytesOperation();
 }
 
-void Adv2File::AddFrameStatusTagUTF8String(unsigned int tagIndex, const char* tagValue)
-{
-	StatusSection->AddFrameStatusTagUTF8String(tagIndex, tagValue);
-}
-
-void Adv2File::AddFrameStatusTagUInt16(unsigned int tagIndex, unsigned short tagValue)
-{
-	StatusSection->AddFrameStatusTagUInt16(tagIndex, tagValue);
-}
-
-void Adv2File::AddFrameStatusTagReal(unsigned int tagIndex, float tagValue)
-{
-	StatusSection->AddFrameStatusTagReal(tagIndex, tagValue);
-}
-
-void Adv2File::AddFrameStatusTagUInt8(unsigned int tagIndex, unsigned char tagValue)
-{
-	StatusSection->AddFrameStatusTagUInt8(tagIndex, tagValue);
-}
-
-void Adv2File::AddFrameStatusTagUInt32(unsigned int tagIndex, unsigned int tagValue)
-{
-	StatusSection->AddFrameStatusTagUInt32(tagIndex, tagValue);
-}
-
-void Adv2File::AddFrameStatusTagUInt64(unsigned int tagIndex, __int64 tagValue)
-{
-	StatusSection->AddFrameStatusTagUInt64(tagIndex, tagValue);
-}
-
 /* Assumed pixel format by AdvCore when this method is called
 
     |    Layout Type    |  ImageSection.DataBpp |          Assumed Pixel Format                                 |

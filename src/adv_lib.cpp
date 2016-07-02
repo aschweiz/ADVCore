@@ -609,50 +609,74 @@ unsigned int AdvVer2_AddUserTag(const char* tagName, const char* tagValue)
 void AdvVer2_AddOrUpdateImageSectionTag(const char* tagName, const char* tagValue)
 {
 	AdvProfiling_StartProcessing();
-	return g_Adv2File->ImageSection->AddOrUpdateTag(tagName, tagValue);
+	g_Adv2File->ImageSection->AddOrUpdateTag(tagName, tagValue);
 	AdvProfiling_EndProcessing();
 }
 
-void AdvVer2_FrameAddStatusTagUTF8String(unsigned int tagIndex, const char* tagValue)
+ADVRESULT AdvVer2_FrameAddStatusTagUTF8String(unsigned int tagIndex, const char* tagValue)
 {
+	if (g_Adv2File == nullptr || g_Adv2File->StatusSection == nullptr)
+		return E_ADV_NOFILE;
+
 	AdvProfiling_StartProcessing();
-	g_Adv2File->AddFrameStatusTagUTF8String(tagIndex, tagValue);
+	ADVRESULT rv = g_Adv2File->StatusSection->AddFrameStatusTagUTF8String(tagIndex, tagValue);
 	AdvProfiling_EndProcessing();
+	return rv;
 }
 
-void AdvVer2_FrameAddStatusTagUInt8(unsigned int tagIndex, unsigned char tagValue)
+ADVRESULT AdvVer2_FrameAddStatusTagUInt8(unsigned int tagIndex, unsigned char tagValue)
 {
+	if (g_Adv2File == nullptr || g_Adv2File->StatusSection == nullptr)
+		return E_ADV_NOFILE;
+
 	AdvProfiling_StartProcessing();
-	g_Adv2File->AddFrameStatusTagUInt8(tagIndex, tagValue);
+	ADVRESULT rv = g_Adv2File->StatusSection->AddFrameStatusTagUInt8(tagIndex, tagValue);
 	AdvProfiling_EndProcessing();
+	return rv;
 }
 
-void AdvVer2_FrameAddStatusTag16(unsigned int tagIndex, unsigned short tagValue)
+ADVRESULT AdvVer2_FrameAddStatusTag16(unsigned int tagIndex, unsigned short tagValue)
 {
+	if (g_Adv2File == nullptr || g_Adv2File->StatusSection == nullptr)
+		return E_ADV_NOFILE;
+
 	AdvProfiling_StartProcessing();
-	g_Adv2File->AddFrameStatusTagUInt16(tagIndex, tagValue);
+	ADVRESULT rv = g_Adv2File->StatusSection->AddFrameStatusTagUInt16(tagIndex, tagValue);
 	AdvProfiling_EndProcessing();
+	return rv;
 }
 
-void AdvVer2_FrameAddStatusTagReal(unsigned int tagIndex, float tagValue)
+ADVRESULT AdvVer2_FrameAddStatusTagReal(unsigned int tagIndex, float tagValue)
 {
+	if (g_Adv2File == nullptr || g_Adv2File->StatusSection == nullptr)
+		return E_ADV_NOFILE;
+	
 	AdvProfiling_StartProcessing();
-	g_Adv2File->AddFrameStatusTagReal(tagIndex, tagValue);
+	ADVRESULT rv = g_Adv2File->StatusSection->AddFrameStatusTagReal(tagIndex, tagValue);
 	AdvProfiling_EndProcessing();
+	return rv;
 }
 
-void AdvVer2_FrameAddStatusTag32(unsigned int tagIndex, unsigned int tagValue)
+ADVRESULT AdvVer2_FrameAddStatusTag32(unsigned int tagIndex, unsigned int tagValue)
 {
+	if (g_Adv2File == nullptr || g_Adv2File->StatusSection == nullptr)
+		return E_ADV_NOFILE;
+
 	AdvProfiling_StartProcessing();
-	g_Adv2File->AddFrameStatusTagUInt32(tagIndex, tagValue);
+	ADVRESULT rv = g_Adv2File->StatusSection->AddFrameStatusTagUInt32(tagIndex, tagValue);
 	AdvProfiling_EndProcessing();
+	return rv;
 }
 
-void AdvVer2_FrameAddStatusTag64(unsigned int tagIndex, __int64 tagValue)
+ADVRESULT AdvVer2_FrameAddStatusTag64(unsigned int tagIndex, __int64 tagValue)
 {
+	if (g_Adv2File == nullptr || g_Adv2File->StatusSection == nullptr)
+		return E_ADV_NOFILE;
+
 	AdvProfiling_StartProcessing();
-	g_Adv2File->AddFrameStatusTagUInt64(tagIndex, tagValue);
+	ADVRESULT rv = g_Adv2File->StatusSection->AddFrameStatusTagUInt64(tagIndex, tagValue);
 	AdvProfiling_EndProcessing();
+	return rv;
 }
 
 /* Assumed pixel format by AdvCore when this method is called
@@ -665,6 +689,9 @@ void AdvVer2_FrameAddStatusTag64(unsigned int tagIndex, __int64 tagValue)
 */
 ADVRESULT AdvVer2_FrameAddImage(unsigned char layoutId, unsigned short* pixels, unsigned char pixelsBpp)
 {
+	if (g_Adv2File == nullptr)
+		return E_ADV_NOFILE;
+
 	AdvProfiling_StartProcessing();
 	ADVRESULT rv = g_Adv2File->AddFrameImage(layoutId, pixels, pixelsBpp);
 	AdvProfiling_EndProcessing();
@@ -683,6 +710,9 @@ ADVRESULT AdvVer2_FrameAddImage(unsigned char layoutId, unsigned short* pixels, 
 */
 ADVRESULT AdvVer2_FrameAddImageBytes(unsigned char layoutId, unsigned char* pixels, unsigned char pixelsBpp)
 {
+	if (g_Adv2File == nullptr)
+		return E_ADV_NOFILE;
+
 	AdvProfiling_StartProcessing();
 	ADVRESULT rv = g_Adv2File->AddFrameImage(layoutId, pixels, pixelsBpp);
 	AdvProfiling_EndProcessing();
@@ -691,6 +721,9 @@ ADVRESULT AdvVer2_FrameAddImageBytes(unsigned char layoutId, unsigned char* pixe
 
 ADVRESULT AdvVer2_GetFramePixels(int streamId, int frameNo, unsigned int* pixels, AdvLib2::AdvFrameInfo* frameInfo, int* systemErrorLen)
 {
+	if (g_Adv2File == nullptr || g_Adv2File->ImageSection == nullptr)
+		return E_ADV_NOFILE;
+
 	if (streamId == 0 && frameNo >= g_Adv2File->TotalNumberOfMainFrames)
 		return E_FAIL;
 
@@ -711,6 +744,9 @@ ADVRESULT AdvVer2_GetFramePixels(int streamId, int frameNo, unsigned int* pixels
 
 ADVRESULT AdvVer2_GetTagPairSizes(TagPairType tagPairType, int tagId, int* tagNameSize, int* tagValueSize)
 {
+	if (g_Adv2File == nullptr)
+		return E_ADV_NOFILE;
+
 	if (tagPairType == TagPairType::MainStream)
 		return g_Adv2File->GetMainStreamTagSizes(tagId, tagNameSize, tagValueSize);
 	else if (tagPairType == TagPairType::CalibrationStream)
@@ -729,6 +765,9 @@ ADVRESULT AdvVer2_GetTagPairSizes(TagPairType tagPairType, int tagId, int* tagNa
 
 ADVRESULT AdvVer2_GetTagPairValues(TagPairType tagPairType, int tagId, char* tagName, char* tagValue)
 {
+	if (g_Adv2File == nullptr)
+		return E_ADV_NOFILE;
+
 	if (tagPairType == TagPairType::MainStream)
 		return g_Adv2File->GetMainStreamTag(tagId, tagName, tagValue);
 	else if (tagPairType == TagPairType::CalibrationStream)
@@ -748,7 +787,7 @@ ADVRESULT AdvVer2_GetTagPairValues(TagPairType tagPairType, int tagId, char* tag
 ADVRESULT AdvVer2_GetStatusTagNameSize(int tagId, int* tagNameSize)
 {
 	if (g_Adv2File == nullptr || g_Adv2File->StatusSection == nullptr)
-	return E_FAIL;
+	return E_ADV_NOFILE;
 
 	return g_Adv2File->StatusSection->GetStatusTagNameSize(tagId, tagNameSize);
 }
@@ -756,7 +795,7 @@ ADVRESULT AdvVer2_GetStatusTagNameSize(int tagId, int* tagNameSize)
 ADVRESULT AdvVer2_GetStatusTagInfo(int tagId, char* tagName, Adv2TagType* tagType)
 {
 	if (g_Adv2File == nullptr || g_Adv2File->StatusSection == nullptr)
-	return E_FAIL;
+	return E_ADV_NOFILE;
 
 	return g_Adv2File->StatusSection->GetStatusTagInfo(tagId, tagName, tagType);
 }
@@ -764,7 +803,7 @@ ADVRESULT AdvVer2_GetStatusTagInfo(int tagId, char* tagName, Adv2TagType* tagTyp
 ADVRESULT AdvVer2_GetStatusTagSizeUTF8String(unsigned int tagIndex, int* tagValueSize)
 {
 	if (g_Adv2File == nullptr || g_Adv2File->StatusSection == nullptr)
-		return E_FAIL;
+		return E_ADV_NOFILE;
 
 	return g_Adv2File->StatusSection->GetStatusTagSizeUTF8String(tagIndex, tagValueSize);
 }
@@ -772,7 +811,7 @@ ADVRESULT AdvVer2_GetStatusTagSizeUTF8String(unsigned int tagIndex, int* tagValu
 ADVRESULT AdvVer2_GetStatusTagUTF8String(unsigned int tagIndex, char* tagValue)
 {
 	if (g_Adv2File == nullptr || g_Adv2File->StatusSection == nullptr)
-		return E_FAIL;
+		return E_ADV_NOFILE;
 
 	return g_Adv2File->StatusSection->GetStatusTagUTF8String(tagIndex, tagValue);
 }
@@ -780,7 +819,7 @@ ADVRESULT AdvVer2_GetStatusTagUTF8String(unsigned int tagIndex, char* tagValue)
 ADVRESULT AdvVer2_GetStatusTagUInt8(unsigned int tagIndex, unsigned char* tagValue)
 {
 	if (g_Adv2File == nullptr || g_Adv2File->StatusSection == nullptr)
-		return E_FAIL;
+		return E_ADV_NOFILE;
 
 	return g_Adv2File->StatusSection->GetStatusTagUInt8(tagIndex, tagValue);
 }
@@ -788,7 +827,7 @@ ADVRESULT AdvVer2_GetStatusTagUInt8(unsigned int tagIndex, unsigned char* tagVal
 ADVRESULT AdvVer2_GetStatusTag16(unsigned int tagIndex, unsigned short* tagValue)
 {
 	if (g_Adv2File == nullptr || g_Adv2File->StatusSection == nullptr)
-		return E_FAIL;
+		return E_ADV_NOFILE;
 
 	return g_Adv2File->StatusSection->GetStatusTag16(tagIndex, tagValue);
 }
@@ -796,7 +835,7 @@ ADVRESULT AdvVer2_GetStatusTag16(unsigned int tagIndex, unsigned short* tagValue
 ADVRESULT AdvVer2_GetStatusTagReal(unsigned int tagIndex, float* tagValue)
 {
 	if (g_Adv2File == nullptr || g_Adv2File->StatusSection == nullptr)
-		return E_FAIL;
+		return E_ADV_NOFILE;
 
 	return g_Adv2File->StatusSection->GetStatusTagReal(tagIndex, tagValue);
 }
@@ -804,7 +843,7 @@ ADVRESULT AdvVer2_GetStatusTagReal(unsigned int tagIndex, float* tagValue)
 ADVRESULT AdvVer2_GetStatusTag32(unsigned int tagIndex, unsigned int* tagValue)
 {
 	if (g_Adv2File == nullptr || g_Adv2File->StatusSection == nullptr)
-		return E_FAIL;
+		return E_ADV_NOFILE;
 
 	return g_Adv2File->StatusSection->GetStatusTag32(tagIndex, tagValue);
 }
@@ -812,7 +851,7 @@ ADVRESULT AdvVer2_GetStatusTag32(unsigned int tagIndex, unsigned int* tagValue)
 ADVRESULT AdvVer2_GetStatusTag64(unsigned int tagIndex, __int64* tagValue)
 {
 	if (g_Adv2File == nullptr || g_Adv2File->StatusSection == nullptr)
-		return E_FAIL;
+		return E_ADV_NOFILE;
 
 	return g_Adv2File->StatusSection->GetStatusTag64(tagIndex, tagValue);
 }
@@ -820,7 +859,7 @@ ADVRESULT AdvVer2_GetStatusTag64(unsigned int tagIndex, __int64* tagValue)
 ADVRESULT AdvVer2_GetImageLayoutInfo(int layoutIndex, AdvLib2::AdvImageLayoutInfo* imageLayoutInfo)
 {
 	if (g_Adv2File == nullptr || g_Adv2File->ImageSection == nullptr)
-		return E_FAIL;
+		return E_ADV_NOFILE;
 
 	return g_Adv2File->ImageSection->GetImageLayoutInfo(layoutIndex, imageLayoutInfo);
 }

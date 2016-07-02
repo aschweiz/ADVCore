@@ -46,12 +46,12 @@ namespace AdvLib2
 
 			void BeginFrame(__int64 utcStartTimeNanosecondsSinceAdvZeroEpoch, unsigned int utcExposureNanoseconds);
 			void WriteHeader(FILE* pfile);
-			void AddFrameStatusTagUTF8String(unsigned int tagIndex, const char* tagValue);
-			void AddFrameStatusTagUInt8(unsigned int tagIndex, unsigned char tagValue);
-			void AddFrameStatusTagUInt16(unsigned int tagIndex, unsigned short tagValue);
-			void AddFrameStatusTagReal(unsigned int tagIndex, float tagValue);
-			void AddFrameStatusTagUInt32(unsigned int tagIndex, unsigned int tagValue);
-			void AddFrameStatusTagUInt64(unsigned int tagIndex, __int64 tagValue);
+			ADVRESULT AddFrameStatusTagUTF8String(unsigned int tagIndex, const char* tagValue);
+			ADVRESULT AddFrameStatusTagUInt8(unsigned int tagIndex, unsigned char tagValue);
+			ADVRESULT AddFrameStatusTagUInt16(unsigned int tagIndex, unsigned short tagValue);
+			ADVRESULT AddFrameStatusTagReal(unsigned int tagIndex, float tagValue);
+			ADVRESULT AddFrameStatusTagUInt32(unsigned int tagIndex, unsigned int tagValue);
+			ADVRESULT AddFrameStatusTagUInt64(unsigned int tagIndex, __int64 tagValue);
 
 			unsigned char* GetDataBytes(unsigned int *bytesCount);
 			void GetDataFromDataBytes(unsigned char* data, int sectionDataLength, int startOffset, AdvFrameInfo* frameInfo, int* systemErrorLen);
