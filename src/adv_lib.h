@@ -77,8 +77,8 @@ DLL_PUBLIC ADVRESULT AdvVer2_GetTagPairValues(TagPairType tagPairType, int tagId
 
 DLL_PUBLIC ADVRESULT AdvVer2_GetImageLayoutInfo(int layoutIndex, AdvLib2::AdvImageLayoutInfo* imageLayoutInfo);
 
-DLL_PUBLIC ADVRESULT AdvVer2_GetStatusTagNameSize(int tagId, int* tagNameSize);
-DLL_PUBLIC ADVRESULT AdvVer2_GetStatusTagInfo(int tagId, char* tagName, Adv2TagType* tagType);
+DLL_PUBLIC ADVRESULT AdvVer2_GetStatusTagNameSize(unsigned int tagId, int* tagNameSize);
+DLL_PUBLIC ADVRESULT AdvVer2_GetStatusTagInfo(unsigned int tagId, char* tagName, Adv2TagType* tagType);
 DLL_PUBLIC ADVRESULT AdvVer2_GetStatusTagSizeUTF8String(unsigned int tagIndex, int* tagValueSize);
 DLL_PUBLIC ADVRESULT AdvVer2_GetStatusTagUTF8String(unsigned int tagIndex, char* tagValue);
 DLL_PUBLIC ADVRESULT AdvVer2_GetStatusTagUInt8(unsigned int tagIndex, unsigned char* tagValue);

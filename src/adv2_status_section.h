@@ -33,7 +33,8 @@ namespace AdvLib2
 			__int64 m_UtcStartTimeNanosecondsSinceAdvZeroEpoch;
 			unsigned int m_UtcExposureNanoseconds;
 
-			ADVRESULT VaidateStatusTagId(unsigned int tagIndex, Adv2TagType expectedTagType);
+			bool m_FrameStatusLoaded;
+			ADVRESULT VaidateStatusTagId(unsigned int tagIndex, Adv2TagType expectedTagType, bool write);
 
 		public:
 			int MaxFrameBufferSize;
@@ -58,8 +59,8 @@ namespace AdvLib2
 			unsigned char* GetDataBytes(unsigned int *bytesCount);
 			void GetDataFromDataBytes(unsigned char* data, int sectionDataLength, int startOffset, AdvFrameInfo* frameInfo, int* systemErrorLen);
 
-			ADVRESULT GetStatusTagNameSize(int tagId, int* tagNameSize);
-			ADVRESULT GetStatusTagInfo(int tagId, char* tagName, Adv2TagType* tagType);
+			ADVRESULT GetStatusTagNameSize(unsigned int tagId, int* tagNameSize);
+			ADVRESULT GetStatusTagInfo(unsigned int tagId, char* tagName, Adv2TagType* tagType);
 			ADVRESULT GetStatusTagSizeUTF8String(unsigned int tagIndex, int* tagValueSize);
 			ADVRESULT GetStatusTagUTF8String(unsigned int tagIndex, char* tagValue);
 			ADVRESULT GetStatusTagUInt8(unsigned int tagIndex, unsigned char* tagValue);

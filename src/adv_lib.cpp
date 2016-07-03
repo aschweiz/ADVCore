@@ -784,7 +784,7 @@ ADVRESULT AdvVer2_GetTagPairValues(TagPairType tagPairType, int tagId, char* tag
 	return E_FAIL;
 }
 
-ADVRESULT AdvVer2_GetStatusTagNameSize(int tagId, int* tagNameSize)
+ADVRESULT AdvVer2_GetStatusTagNameSize(unsigned int tagId, int* tagNameSize)
 {
 	if (g_Adv2File == nullptr || g_Adv2File->StatusSection == nullptr)
 	return E_ADV_NOFILE;
@@ -792,7 +792,7 @@ ADVRESULT AdvVer2_GetStatusTagNameSize(int tagId, int* tagNameSize)
 	return g_Adv2File->StatusSection->GetStatusTagNameSize(tagId, tagNameSize);
 }
 
-ADVRESULT AdvVer2_GetStatusTagInfo(int tagId, char* tagName, Adv2TagType* tagType)
+ADVRESULT AdvVer2_GetStatusTagInfo(unsigned int tagId, char* tagName, Adv2TagType* tagType)
 {
 	if (g_Adv2File == nullptr || g_Adv2File->StatusSection == nullptr)
 	return E_ADV_NOFILE;
