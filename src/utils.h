@@ -32,6 +32,7 @@ enum Adv2TagType
 	Int16 = 1,
 	Int32 = 2,
 	Long64 = 3,
+	Real4 = 4,
 	UTF8String = 5
 };
 

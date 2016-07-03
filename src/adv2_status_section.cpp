@@ -35,27 +35,27 @@ unsigned int Adv2StatusSection::DefineTag(const char* tagName, Adv2TagType tagTy
 	
 	switch(tagType)
 	{
-		case UInt8:
+		case Adv2TagType::Int8:
 			MaxFrameBufferSize+=1;
 			break;
 			
-		case UInt16:
+		case Adv2TagType::Int16:
 			MaxFrameBufferSize+=2;
 			break;
 
-		case UInt32:
+		case Adv2TagType::Int32:
 			MaxFrameBufferSize+=4;
 			break;
 			
-		case ULong64:
+		case Adv2TagType::Long64:
 			MaxFrameBufferSize+=8;
 			break;			
 			
-		case Real:
+		case Adv2TagType::Real4:
 			MaxFrameBufferSize+=4;
 			break;	
 			
-		case UTF8String:
+		case Adv2TagType::UTF8String:
 			MaxFrameBufferSize+=0x10001;
 			break;
 	}
@@ -77,13 +77,33 @@ void Adv2StatusSection::BeginFrame(__int64 utcStartTimeNanosecondsSinceAdvZeroEp
 	m_UtcExposureNanoseconds = utcExposureNanoseconds;
 }
 
+ADVRESULT Adv2StatusSection::VaidateStatusTagId(unsigned int tagIndex, Adv2TagType expectedTagType)
+{
+	if (tagIndex < 0 || tagIndex >= m_TagDefinitionNames.size())
+		return E_ADV_INVALID_STATUS_TAG_ID;
+
+	map<string, Adv2TagType>::iterator curr = m_TagDefinition.find(m_TagDefinitionNames[tagIndex]);
+	if (curr == m_TagDefinition.end())
+		return E_ADV_INVALID_STATUS_TAG_ID;
+	
+	if (curr->second != expectedTagType)
+		return E_ADV_INVALID_STATUS_TAG_TYPE;
+
+	return S_OK;
+}
+
 ADVRESULT Adv2StatusSection::AddFrameStatusTagUTF8String(unsigned int tagIndex, const char* tagValue)
 {
 	if (m_FrameStatusTags.find(tagIndex) != m_FrameStatusTags.end())
 		return E_ADV_STATUS_ENTRY_ALREADY_ADDED;
 
-	m_FrameStatusTags.insert(make_pair(tagIndex, string(tagValue == nullptr ? "" : tagValue)));
-	return S_OK;
+	ADVRESULT rv = VaidateStatusTagId(tagIndex, Adv2TagType::UTF8String);
+	if (rv == S_OK)
+	{
+		m_FrameStatusTags.insert(make_pair(tagIndex, string(tagValue == nullptr ? "" : tagValue)));
+	}
+	
+	return rv;
 }
 
 ADVRESULT Adv2StatusSection::AddFrameStatusTagUInt8(unsigned int tagIndex, unsigned char tagValue)
@@ -91,8 +111,12 @@ ADVRESULT Adv2StatusSection::AddFrameStatusTagUInt8(unsigned int tagIndex, unsig
 	if (m_FrameStatusTagsUInt8.find(tagIndex) != m_FrameStatusTagsUInt8.end())
 		return E_ADV_STATUS_ENTRY_ALREADY_ADDED;
 
-	m_FrameStatusTagsUInt8.insert(make_pair(tagIndex, tagValue));
-	return S_OK;
+	ADVRESULT rv = VaidateStatusTagId(tagIndex, Adv2TagType::Int8);
+	if (rv == S_OK)
+	{
+		m_FrameStatusTagsUInt8.insert(make_pair(tagIndex, tagValue));
+	}
+	return rv;
 }
 
 ADVRESULT Adv2StatusSection::AddFrameStatusTagUInt16(unsigned int tagIndex, unsigned short tagValue)
@@ -100,8 +124,12 @@ ADVRESULT Adv2StatusSection::AddFrameStatusTagUInt16(unsigned int tagIndex, unsi
 	if (m_FrameStatusTagsUInt16.find(tagIndex) != m_FrameStatusTagsUInt16.end())
 		return E_ADV_STATUS_ENTRY_ALREADY_ADDED;
 
-	m_FrameStatusTagsUInt16.insert(make_pair(tagIndex, tagValue));
-	return S_OK;
+	ADVRESULT rv = VaidateStatusTagId(tagIndex, Adv2TagType::Int16);
+	if (rv == S_OK)
+	{
+		m_FrameStatusTagsUInt16.insert(make_pair(tagIndex, tagValue));
+	}
+	return rv;
 }
 
 ADVRESULT Adv2StatusSection::AddFrameStatusTagReal(unsigned int tagIndex, float tagValue)
@@ -109,8 +137,12 @@ ADVRESULT Adv2StatusSection::AddFrameStatusTagReal(unsigned int tagIndex, float 
 	if (m_FrameStatusTagsReal.find(tagIndex) != m_FrameStatusTagsReal.end())
 		return E_ADV_STATUS_ENTRY_ALREADY_ADDED;
 
-	m_FrameStatusTagsReal.insert(make_pair(tagIndex, tagValue));
-	return S_OK;
+	ADVRESULT rv = VaidateStatusTagId(tagIndex, Adv2TagType::Real4);
+	if (rv == S_OK)
+	{
+		m_FrameStatusTagsReal.insert(make_pair(tagIndex, tagValue));
+	}
+	return rv;
 }
 
 ADVRESULT Adv2StatusSection::AddFrameStatusTagUInt32(unsigned int tagIndex, unsigned int tagValue)
@@ -118,8 +150,12 @@ ADVRESULT Adv2StatusSection::AddFrameStatusTagUInt32(unsigned int tagIndex, unsi
 	if (m_FrameStatusTagsUInt32.find(tagIndex) != m_FrameStatusTagsUInt32.end())
 		return E_ADV_STATUS_ENTRY_ALREADY_ADDED;
 
-	m_FrameStatusTagsUInt32.insert(make_pair(tagIndex, tagValue));
-	return S_OK;
+	ADVRESULT rv = VaidateStatusTagId(tagIndex, Adv2TagType::Int32);
+	if (rv == S_OK)
+	{
+		m_FrameStatusTagsUInt32.insert(make_pair(tagIndex, tagValue));
+	}
+	return rv;
 }
 
 ADVRESULT Adv2StatusSection::AddFrameStatusTagUInt64(unsigned int tagIndex, __int64 tagValue)
@@ -127,8 +163,12 @@ ADVRESULT Adv2StatusSection::AddFrameStatusTagUInt64(unsigned int tagIndex, __in
 	if (m_FrameStatusTagsUInt64.find(tagIndex) != m_FrameStatusTagsUInt64.end())
 		return E_ADV_STATUS_ENTRY_ALREADY_ADDED;
 
-	m_FrameStatusTagsUInt64.insert(make_pair(tagIndex, tagValue));
-	return S_OK;
+	ADVRESULT rv = VaidateStatusTagId(tagIndex, Adv2TagType::Long64);
+	if (rv == S_OK)
+	{
+		m_FrameStatusTagsUInt64.insert(make_pair(tagIndex, tagValue));
+	}
+	return rv;
 }
 
 ADVRESULT Adv2StatusSection::GetStatusTagNameSize(int tagId, int* tagNameSize)
@@ -576,7 +616,7 @@ void Adv2StatusSection::GetDataFromDataBytes(unsigned char* data, int sectionDat
 
 					break;
 				}
-			case AdvTagType::Real: // Real = 4 bytes is defined in AdvTagType
+			case Adv2TagType::Real4: 
 				{
 					unsigned char b1 = *(statusData + 1);
 					unsigned char b2 = *(statusData + 2);

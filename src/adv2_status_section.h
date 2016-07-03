@@ -33,6 +33,8 @@ namespace AdvLib2
 			__int64 m_UtcStartTimeNanosecondsSinceAdvZeroEpoch;
 			unsigned int m_UtcExposureNanoseconds;
 
+			ADVRESULT VaidateStatusTagId(unsigned int tagIndex, Adv2TagType expectedTagType);
+
 		public:
 			int MaxFrameBufferSize;
 			__int64 UtcTimestampAccuracyInNanoseconds;
