@@ -624,8 +624,11 @@ ADVRESULT Adv2File::BeginFrame(unsigned char streamId, __int64 startFrameTicks, 
 	
 	m_FrameBufferIndex = 17;
 	
-	ImageSection->BeginFrame();	
-	StatusSection->BeginFrame(utcStartTimeNanosecondsSinceAdvZeroEpoch, utcExposureNanoseconds);
+	ADVRESULT rv = ImageSection->BeginFrame();	
+	if (rv != S_OK) return rv;
+
+	rv = StatusSection->BeginFrame(utcStartTimeNanosecondsSinceAdvZeroEpoch, utcExposureNanoseconds);
+	if (rv != S_OK) return rv;
 
 	AdvProfiling_EndBytesOperation();
 
@@ -645,8 +648,16 @@ ADVRESULT Adv2File::BeginFrame(unsigned char streamId, __int64 startFrameTicks, 
 */
 ADVRESULT Adv2File::AddFrameImage(unsigned char layoutId, unsigned short* pixels, unsigned char pixelsBpp)
 {
+	if (ImageSection == nullptr)
+		return E_ADV_IMAGE_SECTION_UNDEFINED;
+
+	if (!m_FrameStarted)
+		return E_ADV_FRAME_NOT_STARTED;
+
 	unsigned char bpp = ImageSection->DataBpp;
-	m_CurrentImageLayout = ImageSection->GetImageLayoutById(layoutId);
+	ADVRESULT rv = ImageSection->GetImageLayoutById(layoutId, &m_CurrentImageLayout);	
+	if (rv != S_OK)
+		return rv;
 
 	if (m_CurrentImageLayout->Is12BitImagePacked && bpp == 12)
 	{
@@ -680,8 +691,17 @@ ADVRESULT Adv2File::AddFrameImage(unsigned char layoutId, unsigned short* pixels
 */
 ADVRESULT Adv2File::AddFrameImage(unsigned char layoutId, unsigned char* pixels, unsigned char pixelsBpp)
 {
+	if (ImageSection == nullptr)
+		return E_ADV_IMAGE_SECTION_UNDEFINED;
+
+	if (!m_FrameStarted)
+		return E_ADV_FRAME_NOT_STARTED;
+
 	unsigned char bpp = ImageSection->DataBpp;
-	m_CurrentImageLayout = ImageSection->GetImageLayoutById(layoutId);
+
+	ADVRESULT rv = ImageSection->GetImageLayoutById(layoutId, &m_CurrentImageLayout);	
+	if (rv != S_OK)
+		return rv;
 
 	if (m_CurrentImageLayout->Is12BitImagePacked && bpp == 12)
 	{
@@ -782,6 +802,8 @@ ADVRESULT Adv2File::EndFrame()
 
 	m_FrameStarted = false;
 	m_ImageAdded = false;
+
+	return S_OK;
 }
 
 void Adv2File::GetFrameImageSectionHeader(int streamId, int frameId, unsigned char* layoutId, enum GetByteMode* mode)

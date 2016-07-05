@@ -47,7 +47,7 @@ namespace AdvLib2
 
 			unsigned int DefineTag(const char* tagName, enum Adv2TagType tagType);
 
-			void BeginFrame(__int64 utcStartTimeNanosecondsSinceAdvZeroEpoch, unsigned int utcExposureNanoseconds);
+			ADVRESULT BeginFrame(__int64 utcStartTimeNanosecondsSinceAdvZeroEpoch, unsigned int utcExposureNanoseconds);
 			void WriteHeader(FILE* pfile);
 			ADVRESULT AddFrameStatusTagUTF8String(unsigned int tagIndex, const char* tagValue);
 			ADVRESULT AddFrameStatusTagUInt8(unsigned int tagIndex, unsigned char tagValue);

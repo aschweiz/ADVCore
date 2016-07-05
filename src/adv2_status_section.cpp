@@ -66,7 +66,7 @@ unsigned int Adv2StatusSection::DefineTag(const char* tagName, Adv2TagType tagTy
 }
 
 
-void Adv2StatusSection::BeginFrame(__int64 utcStartTimeNanosecondsSinceAdvZeroEpoch, unsigned int utcExposureNanoseconds)
+ADVRESULT Adv2StatusSection::BeginFrame(__int64 utcStartTimeNanosecondsSinceAdvZeroEpoch, unsigned int utcExposureNanoseconds)
 {
 	m_FrameStatusTags.clear();
 	m_FrameStatusTagsUInt8.clear();
@@ -77,6 +77,8 @@ void Adv2StatusSection::BeginFrame(__int64 utcStartTimeNanosecondsSinceAdvZeroEp
 
 	m_UtcStartTimeNanosecondsSinceAdvZeroEpoch = utcStartTimeNanosecondsSinceAdvZeroEpoch;
 	m_UtcExposureNanoseconds = utcExposureNanoseconds;
+
+	return S_OK;
 }
 
 ADVRESULT Adv2StatusSection::VaidateStatusTagId(unsigned int tagIndex, Adv2TagType expectedTagType, bool write)

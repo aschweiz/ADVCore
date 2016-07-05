@@ -43,10 +43,10 @@ namespace AdvLib2
 		~Adv2ImageSection();
 
 		void WriteHeader(FILE* pfile);
-		void BeginFrame();
+		ADVRESULT BeginFrame();
 
 		unsigned char* GetDataBytes(unsigned char layoutId, unsigned short* currFramePixels, unsigned int *bytesCount, unsigned char pixelsBpp, enum GetByteOperation operation);
-		AdvLib2::Adv2ImageLayout* GetImageLayoutById(unsigned char layoutId);
+		ADVRESULT GetImageLayoutById(unsigned char layoutId, AdvLib2::Adv2ImageLayout** layout);
 		void AddOrUpdateTag(const char* tagName, const char* tagValue);
 		Adv2ImageLayout* AddImageLayout(unsigned char layoutId, const char* layoutType, const char* compression, unsigned char layoutBpp);
 

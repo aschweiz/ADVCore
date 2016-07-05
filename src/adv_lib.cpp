@@ -747,8 +747,11 @@ ADVRESULT AdvVer2_GetFramePixels(int streamId, int frameNo, unsigned int* pixels
 
         g_Adv2File->GetFrameImageSectionHeader(streamId, frameNo, &layoutId, &byteMode);
 
-		AdvLib2::Adv2ImageLayout* layout = g_Adv2File->ImageSection->GetImageLayoutById(layoutId);
-		
+		AdvLib2::Adv2ImageLayout* layout;
+		ADVRESULT rv = g_Adv2File->ImageSection->GetImageLayoutById(layoutId, &layout);
+		if (rv != S_OK) 
+			return rv;
+
         g_Adv2File->GetFrameSectionData(streamId, frameNo, pixels, frameInfo, systemErrorLen);
 	
 		return S_OK;

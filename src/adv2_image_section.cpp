@@ -183,9 +183,12 @@ void Adv2ImageSection::WriteHeader(FILE* pFile)
 	}
 }
 
-void Adv2ImageSection::BeginFrame()
+ADVRESULT Adv2ImageSection::BeginFrame()
 {
-	// Nothing special to do here
+	if (m_ImageLayouts.size() == 0)
+		return E_ADV_IMAGE_LAYOUTS_UNDEFINED;
+
+	return S_OK;
 }
 
 int m_MaxImageLayoutFrameBufferSize = -1;
@@ -212,7 +215,8 @@ int Adv2ImageSection::MaxFrameBufferSize()
 
 unsigned char* Adv2ImageSection::GetDataBytes(unsigned char layoutId, unsigned short* currFramePixels, unsigned int *bytesCount, unsigned char pixelsBpp, enum GetByteOperation operation)
 {
-	Adv2ImageLayout* currentLayout = GetImageLayoutById(layoutId);
+	Adv2ImageLayout* currentLayout;
+	ADVRESULT rv = GetImageLayoutById(layoutId, &currentLayout);	
 	
 	if (m_PreviousLayoutId == layoutId)
 		m_NumFramesInThisLayoutId++;
@@ -228,13 +232,16 @@ unsigned char* Adv2ImageSection::GetDataBytes(unsigned char layoutId, unsigned s
 	return pixels;
 }
 
-AdvLib2::Adv2ImageLayout* Adv2ImageSection::GetImageLayoutById(unsigned char layoutId)
+ADVRESULT Adv2ImageSection::GetImageLayoutById(unsigned char layoutId, AdvLib2::Adv2ImageLayout** layout)
 {
 	map<unsigned char, Adv2ImageLayout*>::iterator curr = m_ImageLayouts.find(layoutId);
 	if (curr != m_ImageLayouts.end()) 
-		return curr->second;
-	
-	return nullptr;
+	{
+		*layout = curr->second;
+		return S_OK;
+	}
+
+	return E_ADV_INVALID_IMAGE_LAYOUT_ID;
 }
 
 void Adv2ImageSection::GetDataFromDataBytes(unsigned char* data, unsigned int* pixels, int sectionDataLength, int startOffset)
@@ -246,7 +253,9 @@ void Adv2ImageSection::GetDataFromDataBytes(unsigned char* data, unsigned int* p
 	enum GetByteMode reservedUnusedField = (GetByteMode)*sectionData;
 	sectionData++;
 
-	Adv2ImageLayout* imageLayout = GetImageLayoutById(layoutId);	
+	Adv2ImageLayout* imageLayout;
+	ADVRESULT rv = GetImageLayoutById(layoutId, &imageLayout);	
+
 	imageLayout->GetDataFromDataBytes(data, pixels, sectionDataLength - 2, startOffset + 2);
 }
 
@@ -266,12 +275,13 @@ ADVRESULT Adv2ImageSection::GetImageSectionTagSizes(int tagId, int* tagNameSize,
 
 ADVRESULT Adv2ImageSection::GetImageLayoutTagSizes(int layoutId, int tagId, int* tagNameSize, int* tagValueSize)
 {
-	Adv2ImageLayout* layout = GetImageLayoutById(layoutId);
+	Adv2ImageLayout* imageLayout;
+	ADVRESULT rv = GetImageLayoutById(layoutId, &imageLayout);	
 
-	if (layout == nullptr)
-		return E_FAIL;
+	if (rv != S_OK)
+		return rv;
 	else
-		return layout->GetImageLayoutTagSizes(tagId, tagNameSize, tagValueSize);
+		return imageLayout->GetImageLayoutTagSizes(tagId, tagNameSize, tagValueSize);
 }
 
 ADVRESULT Adv2ImageSection::GetImageLayoutInfo(int layoutIndex, AdvLib2::AdvImageLayoutInfo* imageLayoutInfo)
@@ -304,12 +314,13 @@ ADVRESULT Adv2ImageSection::GetImageSectionTag(int tagId, char* tagName, char* t
 
 ADVRESULT Adv2ImageSection::GetImageLayoutTag(int layoutId, int tagId, char* tagName, char* tagValue)
 {
-	Adv2ImageLayout* layout = GetImageLayoutById(layoutId);
+	Adv2ImageLayout* imageLayout;
+	ADVRESULT rv = GetImageLayoutById(layoutId, &imageLayout);	
 
-	if (layout == nullptr)
-		return E_FAIL;
+	if (rv != S_OK)
+		return rv;
 	else
-		return layout->GetImageLayoutTag(tagId, tagName, tagValue);
+		return imageLayout->GetImageLayoutTag(tagId, tagName, tagValue);
 }
 
 }
