@@ -64,6 +64,10 @@ namespace AdvLib2
 			int m_NumberOfMainFrames;
 			int m_NumberOfCalibrationFrames;
 
+			bool m_ImageAdded;
+			bool m_FrameStarted;
+			int m_LastSystemSpecificFileError;
+
 			void InitFileState();
 			void AddFrameImageInternal(unsigned char layoutId, unsigned short* pixels, unsigned char pixelsBpp, enum GetByteOperation operation);
 
@@ -74,7 +78,7 @@ namespace AdvLib2
 			Adv2File();
 			~Adv2File();
 			
-			bool BeginFile(const char* fileName);
+			ADVRESULT BeginFile(const char* fileName);
 			void SetTicksTimingPrecision(int mainStreamAccuracy, int calibrationStreamAccuracy);
 			void DefineExternalClockForMainStream(__int64 clockFrequency, int ticksTimingAccuracy);
 			void DefineExternalClockForCalibrationStream(__int64 clockFrequency, int ticksTimingAccuracy);
@@ -92,9 +96,9 @@ namespace AdvLib2
 			int AddMainStreamTag(const char* tagName, const char* tagValue);
 			int AddCalibrationStreamTag(const char* tagName, const char* tagValue);
 			
-			void BeginFrame(unsigned char streamId, __int64 startFrameTicks, __int64 endFrameTicks,__int64 elapsedTicksSinceFirstFrame, __int64 utcStartTimeNanosecondsSinceAdvZeroEpoch, unsigned int utcExposureNanoseconds);
-			void BeginFrame(unsigned char streamId, __int64 utcStartTimeNanosecondsSinceAdvZeroEpoch, unsigned int utcExposureNanoseconds);
-			void EndFrame();
+			ADVRESULT BeginFrame(unsigned char streamId, __int64 startFrameTicks, __int64 endFrameTicks,__int64 elapsedTicksSinceFirstFrame, __int64 utcStartTimeNanosecondsSinceAdvZeroEpoch, unsigned int utcExposureNanoseconds);
+			ADVRESULT BeginFrame(unsigned char streamId, __int64 utcStartTimeNanosecondsSinceAdvZeroEpoch, unsigned int utcExposureNanoseconds);
+			ADVRESULT EndFrame();
 
 			ADVRESULT AddFrameImage(unsigned char layoutId, unsigned short* pixels, unsigned char pixelsBpp);
 			ADVRESULT AddFrameImage(unsigned char layoutId, unsigned char* pixels, unsigned char pixelsBpp);
@@ -109,6 +113,8 @@ namespace AdvLib2
 			ADVRESULT GetSystemMetadataTag(int tagId, char* tagName, char* tagValue);
 			ADVRESULT GetUserMetadataTagSizes(int tagId, int* tagNameSize, int* tagValueSize);
 			ADVRESULT GetUserMetadataTag(int tagId, char* tagName, char* tagValue);
+
+			int GetLastSystemSpecificFileError();
 		};
 
 }

@@ -25,6 +25,7 @@ Adv2File::Adv2File()
 	
 	m_FrameBytes = nullptr;
 	ImageSection = nullptr;
+	StatusSection = nullptr;
 	m_Index = nullptr;
 
 	m_NumberOfMainFrames = 0;
@@ -33,6 +34,10 @@ Adv2File::Adv2File()
 	m_UsesExternalCalibrationStreamClock = false;
 	TotalNumberOfMainFrames = 0;
 	TotalNumberOfCalibrationFrames = 0;
+
+	m_ImageAdded = false;
+	m_FrameStarted = false;
+	m_LastSystemSpecificFileError = 0;
 }
 
 Adv2File::~Adv2File()
@@ -40,13 +45,28 @@ Adv2File::~Adv2File()
 	CloseFile();
 }
 
+int Adv2File::GetLastSystemSpecificFileError()
+{
+	return m_LastSystemSpecificFileError;
+}
+
 unsigned char CURRENT_DATAFORMAT_VERSION = 2;
 
-bool Adv2File::BeginFile(const char* fileName)
+ADVRESULT Adv2File::BeginFile(const char* fileName)
 {
+	if (ImageSection == nullptr)
+		return E_ADV_IMAGE_SECTION_UNDEFINED;
+
+	if (StatusSection == nullptr)
+		return E_ADV_STATUS_SECTION_UNDEFINED;
+
 	m_Adv2File = advfopen(fileName, "wb");
-	if (m_Adv2File == 0) return false;
-	
+	if (m_Adv2File == 0) 
+	{
+		m_LastSystemSpecificFileError = errno;
+		return E_ADV_IO_ERROR;
+	}
+
 	unsigned int buffInt;
 	__int64 buffLong;
 	unsigned char buffChar;
@@ -213,7 +233,7 @@ bool Adv2File::BeginFile(const char* fileName)
 
     advfflush(m_Adv2File);
     
-	return true;
+	return S_OK;
 }
 
 int Adv2File::LoadFile(const char* fileName, AdvFileInfo* fileInfo)
@@ -534,7 +554,7 @@ int Adv2File::AddUserTag(const char* tagName, const char* tagValue)
 	return (int)m_UserMetadataTags.size();	
 }
 
-void Adv2File::BeginFrame(unsigned char streamId, __int64 utcStartTimeNanosecondsSinceAdvZeroEpoch, unsigned int utcExposureNanoseconds)
+ADVRESULT Adv2File::BeginFrame(unsigned char streamId, __int64 utcStartTimeNanosecondsSinceAdvZeroEpoch, unsigned int utcExposureNanoseconds)
 {
 	__int64 endFrameTicks = advgetclockticks();
 
@@ -549,11 +569,14 @@ void Adv2File::BeginFrame(unsigned char streamId, __int64 utcStartTimeNanosecond
 	m_PrevFrameInStreamTicks[streamId] = endFrameTicks;
 	__int64 elapsedTicksSinceFirstFrame = endFrameTicks - m_FirstFrameInStreamTicks[streamId];
 
-	BeginFrame(streamId, startFrameTicks, endFrameTicks, elapsedTicksSinceFirstFrame, utcStartTimeNanosecondsSinceAdvZeroEpoch, utcExposureNanoseconds);
+	return BeginFrame(streamId, startFrameTicks, endFrameTicks, elapsedTicksSinceFirstFrame, utcStartTimeNanosecondsSinceAdvZeroEpoch, utcExposureNanoseconds);
 }
 
-void Adv2File::BeginFrame(unsigned char streamId, __int64 startFrameTicks, __int64 endFrameTicks,__int64 elapsedTicksSinceFirstFrame, __int64 utcStartTimeNanosecondsSinceAdvZeroEpoch, unsigned int utcExposureNanoseconds)
+ADVRESULT Adv2File::BeginFrame(unsigned char streamId, __int64 startFrameTicks, __int64 endFrameTicks,__int64 elapsedTicksSinceFirstFrame, __int64 utcStartTimeNanosecondsSinceAdvZeroEpoch, unsigned int utcExposureNanoseconds)
 {
+	if (streamId != 0 && streamId != 1)
+		return E_ADV_INVALID_STREAM_ID;
+
 	AdvProfiling_StartBytesOperation();
 
 	advfgetpos64(m_Adv2File, &m_NewFrameOffset);
@@ -605,6 +628,9 @@ void Adv2File::BeginFrame(unsigned char streamId, __int64 startFrameTicks, __int
 	StatusSection->BeginFrame(utcStartTimeNanosecondsSinceAdvZeroEpoch, utcExposureNanoseconds);
 
 	AdvProfiling_EndBytesOperation();
+
+	m_FrameStarted = true;
+	return S_OK;
 }
 
 /* Assumed pixel format by AdvCore when this method is called
@@ -718,10 +744,18 @@ void Adv2File::AddFrameImageInternal(unsigned char layoutId, unsigned short* pix
 	
 	AdvProfiling_EndBytesOperation();
 	AdvProfiling_EndGenericProcessing();
+
+	m_ImageAdded = true;
 }
 			
-void Adv2File::EndFrame()
-{	
+ADVRESULT Adv2File::EndFrame()
+{
+	if (!m_FrameStarted)
+		return E_ADV_FRAME_NOT_STARTED;
+	
+	if (!m_ImageAdded)
+		return E_ADV_IMAGE_NOT_ADDED_TO_FRAME;
+
 	AdvProfiling_StartGenericProcessing();
 	
 	__int64 frameOffset;
@@ -745,6 +779,9 @@ void Adv2File::EndFrame()
 	AdvProfiling_NewFrameProcessed();
 	
 	AdvProfiling_EndGenericProcessing();
+
+	m_FrameStarted = false;
+	m_ImageAdded = false;
 }
 
 void Adv2File::GetFrameImageSectionHeader(int streamId, int frameId, unsigned char* layoutId, enum GetByteMode* mode)

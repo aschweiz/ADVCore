@@ -471,8 +471,10 @@ void AdvVer2_DefineExternalClockForCalibrationStream(__int64 clockFrequency, int
 }
 
 
-void AdvVer2_EndFile()
+ADVRESULT AdvVer2_EndFile()
 {
+	ADVRESULT rv = S_OK;
+
 	if (nullptr != g_Adv2File)
 	{
 		g_Adv2File->EndFile();
@@ -480,6 +482,8 @@ void AdvVer2_EndFile()
 		delete g_Adv2File;
 		g_Adv2File = nullptr;
 	}
+	else
+		rv = E_ADV_NOFILE;
 	
 	if (nullptr != g_CurrentAdvFile)
 	{
@@ -488,6 +492,7 @@ void AdvVer2_EndFile()
 	}
 	
 	g_FileStarted = false;
+	return rv;
 }
 
 unsigned int AdvVer2_AddMainStreamTag(const char* tagName, const char* tagValue)
@@ -508,55 +513,62 @@ unsigned int AdvVer2_AddCalibrationStreamTag(const char* tagName, const char* ta
 	return tagId;
 }
 
-bool AdvVer2_BeginFrame(unsigned int streamId, __int64 utcStartTimeNanosecondsSinceAdvZeroEpoch, unsigned int utcExposureNanoseconds)
+ADVRESULT AdvVer2_BeginFrame(unsigned int streamId, __int64 utcStartTimeNanosecondsSinceAdvZeroEpoch, unsigned int utcExposureNanoseconds)
 {
+	ADVRESULT rv = S_OK;
 	AdvProfiling_StartProcessing();
 	if (!g_FileStarted)
 	{
-		bool success = g_Adv2File->BeginFile(g_CurrentAdvFile);
-		if (success)
+		rv = g_Adv2File->BeginFile(g_CurrentAdvFile);
+		if (rv == S_OK)
 		{
 			g_FileStarted = true;
 		}
 		else
 		{
 			g_FileStarted = false;
-			return false;
+			return rv;
 		}		
 	}
 	
-	g_Adv2File->BeginFrame(streamId, utcStartTimeNanosecondsSinceAdvZeroEpoch, utcExposureNanoseconds);
+	rv = g_Adv2File->BeginFrame(streamId, utcStartTimeNanosecondsSinceAdvZeroEpoch, utcExposureNanoseconds);
 	AdvProfiling_EndProcessing();
-	return true;
+	return rv;
 }
 
-bool AdvVer2_BeginFrameWithTicks(unsigned int streamId, __int64 startFrameTicks, __int64 endFrameTicks, __int64 elapsedTicksSinceFirstFrame, __int64 utcStartTimeNanosecondsSinceAdvZeroEpoch, unsigned int utcExposureNanoseconds)
+ADVRESULT AdvVer2_BeginFrameWithTicks(unsigned int streamId, __int64 startFrameTicks, __int64 endFrameTicks, __int64 elapsedTicksSinceFirstFrame, __int64 utcStartTimeNanosecondsSinceAdvZeroEpoch, unsigned int utcExposureNanoseconds)
 {
+	ADVRESULT rv = S_OK;
 	AdvProfiling_StartProcessing();
 	if (!g_FileStarted)
 	{
-		bool success = g_Adv2File->BeginFile(g_CurrentAdvFile);
-		if (success)
+		rv = g_Adv2File->BeginFile(g_CurrentAdvFile);
+		if (rv == S_OK)
 		{
 			g_FileStarted = true;	
 		}
 		else
 		{
 			g_FileStarted = false;
-			return false;
+			return rv;
 		}		
 	}
 	
-	g_Adv2File->BeginFrame(streamId, startFrameTicks, endFrameTicks, elapsedTicksSinceFirstFrame, utcStartTimeNanosecondsSinceAdvZeroEpoch, utcExposureNanoseconds);
+	rv = g_Adv2File->BeginFrame(streamId, startFrameTicks, endFrameTicks, elapsedTicksSinceFirstFrame, utcStartTimeNanosecondsSinceAdvZeroEpoch, utcExposureNanoseconds);
 	AdvProfiling_EndProcessing();
-	return true;
+	return rv;
 }
 
-void AdvVer2_EndFrame()
+ADVRESULT AdvVer2_EndFrame()
 {
+	if (g_Adv2File == nullptr)
+		return E_ADV_NOFILE;
+
 	AdvProfiling_StartProcessing();
-	g_Adv2File->EndFrame();
+	ADVRESULT rv = g_Adv2File->EndFrame();
 	AdvProfiling_EndProcessing();
+
+	return rv;
 }
 
 void AdvVer2_DefineImageSection(unsigned short width, unsigned short height, unsigned char dataBpp)
@@ -862,4 +874,12 @@ ADVRESULT AdvVer2_GetImageLayoutInfo(int layoutIndex, AdvLib2::AdvImageLayoutInf
 		return E_ADV_NOFILE;
 
 	return g_Adv2File->ImageSection->GetImageLayoutInfo(layoutIndex, imageLayoutInfo);
+}
+
+int AdvVer2_GetLastSystemSpecificFileError()
+{
+	if (g_Adv2File == nullptr)
+		return 0;
+	else
+		return g_Adv2File->GetLastSystemSpecificFileError();
 }
