@@ -36,6 +36,8 @@ namespace AdvLib2
 			bool m_FrameStatusLoaded;
 			ADVRESULT VaidateStatusTagId(unsigned int tagIndex, Adv2TagType expectedTagType, bool write);
 
+			bool m_SectionDefinitionMode;
+
 		public:
 			int MaxFrameBufferSize;
 			__int64 UtcTimestampAccuracyInNanoseconds;
@@ -45,7 +47,7 @@ namespace AdvLib2
 			Adv2StatusSection(FILE* pFile, AdvFileInfo* fileInfo);
 			~Adv2StatusSection();
 
-			unsigned int DefineTag(const char* tagName, enum Adv2TagType tagType);
+			ADVRESULT DefineTag(const char* tagName, enum Adv2TagType tagType, unsigned int* addedTagId);
 
 			ADVRESULT BeginFrame(__int64 utcStartTimeNanosecondsSinceAdvZeroEpoch, unsigned int utcExposureNanoseconds);
 			void WriteHeader(FILE* pfile);

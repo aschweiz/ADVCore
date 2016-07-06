@@ -67,6 +67,7 @@ namespace AdvLib2
 			bool m_ImageAdded;
 			bool m_FrameStarted;
 			int m_LastSystemSpecificFileError;
+			bool m_FileDefinitionMode;
 
 			void InitFileState();
 			void AddFrameImageInternal(unsigned char layoutId, unsigned short* pixels, unsigned char pixelsBpp, enum GetByteOperation operation);
@@ -90,11 +91,11 @@ namespace AdvLib2
 			void AddImageSection(AdvLib2::Adv2ImageSection* section);
 			void AddStatusSection(AdvLib2::Adv2StatusSection* section);
 
-			int AddFileTag(const char* tagName, const char* tagValue);
-			int AddUserTag(const char* tagName, const char* tagValue);
+			ADVRESULT AddFileTag(const char* tagName, const char* tagValue);
+			ADVRESULT AddUserTag(const char* tagName, const char* tagValue);
 
-			int AddMainStreamTag(const char* tagName, const char* tagValue);
-			int AddCalibrationStreamTag(const char* tagName, const char* tagValue);
+			ADVRESULT AddMainStreamTag(const char* tagName, const char* tagValue);
+			ADVRESULT AddCalibrationStreamTag(const char* tagName, const char* tagValue);
 			
 			ADVRESULT BeginFrame(unsigned char streamId, __int64 startFrameTicks, __int64 endFrameTicks,__int64 elapsedTicksSinceFirstFrame, __int64 utcStartTimeNanosecondsSinceAdvZeroEpoch, unsigned int utcExposureNanoseconds);
 			ADVRESULT BeginFrame(unsigned char streamId, __int64 utcStartTimeNanosecondsSinceAdvZeroEpoch, unsigned int utcExposureNanoseconds);

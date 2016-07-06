@@ -26,6 +26,7 @@ Adv2ImageSection::Adv2ImageSection(unsigned int width, unsigned int height, unsi
 	UsesCRC = false;
 	MaxPixelValue = 0;
 	m_RGBorBGR = false;
+	m_SectionDefinitionMode = true;
 }
 
 Adv2ImageSection::~Adv2ImageSection()
@@ -49,20 +50,16 @@ Adv2ImageLayout* Adv2ImageSection::AddImageLayout(unsigned char layoutId, const 
 	return layout;
 }
 
-void Adv2ImageSection::AddOrUpdateTag(const char* tagName, const char* tagValue)
+ADVRESULT Adv2ImageSection::AddOrUpdateTag(const char* tagName, const char* tagValue)
 {
-	map<string, string>::iterator curr = m_ImageTags.begin();
-	while (curr != m_ImageTags.end()) 
+	if (!m_SectionDefinitionMode)
+		return E_ADV_CHANGE_NOT_ALLOWED_RIGHT_NOW;
+
+	ADVRESULT rv = S_OK;
+	if (m_ImageTags.find(tagName) != m_ImageTags.end())
 	{
-		const char* existingTagName = curr->first.c_str();
-		
-		if (0 == strcmp(existingTagName, tagName))
-		{
-			m_ImageTags.erase(curr);
-			break;
-		}
-		
-		curr++;
+		m_ImageTags.erase(tagName);
+		rv = S_ADV_TAG_REPLACED;
 	}
 
 	if (strcmp("IMAGE-BYTE-ORDER", tagName) == 0)
@@ -91,6 +88,7 @@ void Adv2ImageSection::AddOrUpdateTag(const char* tagName, const char* tagValue)
 	}
 	
 	m_ImageTags.insert(make_pair(string(tagName), string(tagValue == nullptr ? "" : tagValue)));
+	return rv;
 }
 
 Adv2ImageSection::Adv2ImageSection(FILE* pFile, AdvFileInfo* fileInfo)
@@ -138,6 +136,8 @@ Adv2ImageSection::Adv2ImageSection(FILE* pFile, AdvFileInfo* fileInfo)
 	fileInfo->IsColourImage = IsColourImage;
 	fileInfo->ImageLayoutsCount = (int)m_ImageLayouts.size();
 	fileInfo->ImageSectionTagsCount = m_ImageTags.size();	
+
+	m_SectionDefinitionMode = false;
 }
 
 void Adv2ImageSection::WriteHeader(FILE* pFile)
@@ -181,12 +181,16 @@ void Adv2ImageSection::WriteHeader(FILE* pFile)
 		
 		curr++;
 	}
+
+	m_SectionDefinitionMode = false;
 }
 
 ADVRESULT Adv2ImageSection::BeginFrame()
 {
 	if (m_ImageLayouts.size() == 0)
 		return E_ADV_IMAGE_LAYOUTS_UNDEFINED;
+
+	m_SectionDefinitionMode = false;
 
 	return S_OK;
 }

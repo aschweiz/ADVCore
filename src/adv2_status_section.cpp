@@ -23,6 +23,7 @@ Adv2StatusSection::Adv2StatusSection(__int64 utcTimestampAccuracyInNanoseconds)
 	m_TagDefinition.empty();
 
 	m_FrameStatusLoaded = false;
+	m_SectionDefinitionMode = true;
 }
 
 Adv2StatusSection::~Adv2StatusSection()
@@ -30,8 +31,17 @@ Adv2StatusSection::~Adv2StatusSection()
 
 }
 
-unsigned int Adv2StatusSection::DefineTag(const char* tagName, Adv2TagType tagType)
+ADVRESULT Adv2StatusSection::DefineTag(const char* tagName, enum Adv2TagType tagType, unsigned int* addedTagId)
 {
+	if (!m_SectionDefinitionMode)
+		return E_ADV_CHANGE_NOT_ALLOWED_RIGHT_NOW;
+
+	if (m_TagDefinition.find(tagName) != m_TagDefinition.end())
+	{
+		m_TagDefinition[tagName] = tagType;
+		return S_ADV_TAG_REPLACED;
+	}
+
 	m_TagDefinitionNames.push_back(string(tagName));
 	m_TagDefinition.insert(make_pair(string(tagName), (Adv2TagType)tagType));
 	
@@ -62,7 +72,8 @@ unsigned int Adv2StatusSection::DefineTag(const char* tagName, Adv2TagType tagTy
 			break;
 	}
 	
-	return (unsigned int)m_TagDefinitionNames.size() - 1;
+	*addedTagId = m_TagDefinitionNames.size() - 1;
+	return S_OK;
 }
 
 
@@ -77,6 +88,8 @@ ADVRESULT Adv2StatusSection::BeginFrame(__int64 utcStartTimeNanosecondsSinceAdvZ
 
 	m_UtcStartTimeNanosecondsSinceAdvZeroEpoch = utcStartTimeNanosecondsSinceAdvZeroEpoch;
 	m_UtcExposureNanoseconds = utcExposureNanoseconds;
+
+	m_SectionDefinitionMode = false;
 
 	return S_OK;
 }
@@ -345,7 +358,9 @@ Adv2StatusSection::Adv2StatusSection(FILE* pFile, AdvFileInfo* fileInfo)
 		unsigned char tagType;
 		advfread(&tagType, 1, 1, pFile);
 
-		DefineTag(tagName, (Adv2TagType)tagType);
+		// TODO: What happens if the tagIds do not correspond to the index of the tags in the list of at all possible?
+		unsigned int addedTagId;
+		DefineTag(tagName, (Adv2TagType)tagType, &addedTagId);
 
 		if (strcmp("Error", tagName) == 0) fileInfo->ErrorStatusTagId = i;
 	}
@@ -354,6 +369,7 @@ Adv2StatusSection::Adv2StatusSection(FILE* pFile, AdvFileInfo* fileInfo)
 	fileInfo->StatusTagsCount = tagsCount;
 
 	m_FrameStatusLoaded = false;
+	m_SectionDefinitionMode = false;
 }
 
 void Adv2StatusSection::WriteHeader(FILE* pFile)
@@ -379,6 +395,8 @@ void Adv2StatusSection::WriteHeader(FILE* pFile)
 		buffChar = (unsigned char)(int)((Adv2TagType)(currDef->second));
 		advfwrite(&buffChar, 1, 1, pFile);
 	}
+
+	m_SectionDefinitionMode = false;
 }
 
 unsigned char* Adv2StatusSection::GetDataBytes(unsigned int *bytesCount)

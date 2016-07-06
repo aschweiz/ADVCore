@@ -495,22 +495,28 @@ ADVRESULT AdvVer2_EndFile()
 	return rv;
 }
 
-unsigned int AdvVer2_AddMainStreamTag(const char* tagName, const char* tagValue)
+ADVRESULT AdvVer2_AddMainStreamTag(const char* tagName, const char* tagValue)
 {
+	if (g_Adv2File == nullptr)
+		return E_ADV_NOFILE;
+
 	AdvProfiling_StartProcessing();
-	int tagId = g_Adv2File->AddMainStreamTag(tagName, tagValue);
+	ADVRESULT rv = g_Adv2File->AddMainStreamTag(tagName, tagValue);
 	AdvProfiling_EndProcessing();
 
-	return tagId;
+	return rv;
 }
 
-unsigned int AdvVer2_AddCalibrationStreamTag(const char* tagName, const char* tagValue)
+ADVRESULT AdvVer2_AddCalibrationStreamTag(const char* tagName, const char* tagValue)
 {
+	if (g_Adv2File == nullptr)
+		return E_ADV_NOFILE;
+
 	AdvProfiling_StartProcessing();
-	int tagId = g_Adv2File->AddCalibrationStreamTag(tagName, tagValue);
+	ADVRESULT rv = g_Adv2File->AddCalibrationStreamTag(tagName, tagValue);
 	AdvProfiling_EndProcessing();
 
-	return tagId;
+	return rv;
 }
 
 ADVRESULT AdvVer2_BeginFrame(unsigned int streamId, __int64 utcStartTimeNanosecondsSinceAdvZeroEpoch, unsigned int utcExposureNanoseconds)
@@ -594,35 +600,48 @@ void AdvVer2_DefineImageLayout(unsigned char layoutId, const char* layoutType, c
 	AdvProfiling_EndProcessing();
 }
 
-unsigned int AdvVer2_DefineStatusSectionTag(const char* tagName, int tagType)
+ADVRESULT AdvVer2_DefineStatusSectionTag(const char* tagName, int tagType, unsigned int* fileTagId)
 {
+	if (g_Adv2File == nullptr || g_Adv2File->StatusSection == nullptr)
+		return E_ADV_NOFILE;
+
 	AdvProfiling_StartProcessing();
-	unsigned int statusTagId = g_Adv2File->StatusSection->DefineTag(tagName, (Adv2TagType)tagType);
+	ADVRESULT rv = g_Adv2File->StatusSection->DefineTag(tagName, (Adv2TagType)tagType, fileTagId);
 	AdvProfiling_EndProcessing();
-	return statusTagId;
+	return rv;
 }
 
-unsigned int AdvVer2_AddFileTag(const char* tagName, const char* tagValue)
+ADVRESULT AdvVer2_AddFileTag(const char* tagName, const char* tagValue)
 {
+	if (g_Adv2File == nullptr)
+		return E_ADV_NOFILE;
+
 	AdvProfiling_StartProcessing();
-	unsigned int fileTagId = g_Adv2File->AddFileTag(tagName, tagValue);
+	ADVRESULT rv = g_Adv2File->AddFileTag(tagName, tagValue);
 	AdvProfiling_EndProcessing();
-	return fileTagId;
+	return rv;
 }
 
-unsigned int AdvVer2_AddUserTag(const char* tagName, const char* tagValue)
+ADVRESULT AdvVer2_AddUserTag(const char* tagName, const char* tagValue)
 {
+	if (g_Adv2File == nullptr)
+		return E_ADV_NOFILE;
+
 	AdvProfiling_StartProcessing();
-	unsigned int fileTagId = g_Adv2File->AddUserTag(tagName, tagValue);
+	ADVRESULT rv = g_Adv2File->AddUserTag(tagName, tagValue);
 	AdvProfiling_EndProcessing();
-	return fileTagId;
+	return rv;
 }
 
-void AdvVer2_AddOrUpdateImageSectionTag(const char* tagName, const char* tagValue)
+ADVRESULT AdvVer2_AddOrUpdateImageSectionTag(const char* tagName, const char* tagValue)
 {
+	if (g_Adv2File == nullptr || g_Adv2File->ImageSection == nullptr)
+		return E_ADV_NOFILE;
+	
 	AdvProfiling_StartProcessing();
-	g_Adv2File->ImageSection->AddOrUpdateTag(tagName, tagValue);
+	ADVRESULT rv = g_Adv2File->ImageSection->AddOrUpdateTag(tagName, tagValue);
 	AdvProfiling_EndProcessing();
+	return rv;
 }
 
 ADVRESULT AdvVer2_FrameAddStatusTagUTF8String(unsigned int tagIndex, const char* tagValue)

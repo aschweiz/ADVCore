@@ -38,6 +38,7 @@ Adv2File::Adv2File()
 	m_ImageAdded = false;
 	m_FrameStarted = false;
 	m_LastSystemSpecificFileError = 0;
+	m_FileDefinitionMode = true;
 }
 
 Adv2File::~Adv2File()
@@ -232,7 +233,9 @@ ADVRESULT Adv2File::BeginFile(const char* fileName)
 	m_CalibrationFrameNo = 0;
 
     advfflush(m_Adv2File);
-    
+
+	m_FileDefinitionMode = false;
+
 	return S_OK;
 }
 
@@ -395,6 +398,7 @@ int Adv2File::LoadFile(const char* fileName, AdvFileInfo* fileInfo)
 		m_UserMetadataTags.insert(make_pair(tagName, tagValue));
 	}
 
+	m_FileDefinitionMode = false;
 	return true;
 }
 
@@ -526,32 +530,72 @@ void Adv2File::AddStatusSection(AdvLib2::Adv2StatusSection* section)
 	StatusSection = section;
 }
 
-int Adv2File::AddMainStreamTag(const char* tagName, const char* tagValue)
+ADVRESULT Adv2File::AddMainStreamTag(const char* tagName, const char* tagValue)
 {
+	if (!m_FileDefinitionMode)
+		return E_ADV_CHANGE_NOT_ALLOWED_RIGHT_NOW;
+
+	ADVRESULT rv = S_OK;
+	if (m_MainStreamTags.find(tagName) != m_MainStreamTags.end())
+	{
+		m_MainStreamTags.erase(tagName);
+		rv = S_ADV_TAG_REPLACED;
+	}
+
 	m_MainStreamTags.insert((make_pair(string(tagName == nullptr ? "" : tagName), string(tagValue == nullptr ? "" : tagValue))));
 	
-	return (int)m_MainStreamTags.size();
+	return rv;
 }
 
-int Adv2File::AddCalibrationStreamTag(const char* tagName, const char* tagValue)
+ADVRESULT Adv2File::AddCalibrationStreamTag(const char* tagName, const char* tagValue)
 {
+	if (!m_FileDefinitionMode)
+		return E_ADV_CHANGE_NOT_ALLOWED_RIGHT_NOW;
+
+	ADVRESULT rv = S_OK;
+	if (m_MainStreamTags.find(tagName) != m_MainStreamTags.end())
+	{
+		m_MainStreamTags.erase(tagName);
+		rv = S_ADV_TAG_REPLACED;
+	}
+
 	m_CalibrationStreamTags.insert((make_pair(string(tagName == nullptr ? "" : tagName), string(tagValue == nullptr ? "" : tagValue))));
 	
-	return (int)m_CalibrationStreamTags.size();
+	return rv;
 }
 
-int Adv2File::AddFileTag(const char* tagName, const char* tagValue)
+ADVRESULT Adv2File::AddFileTag(const char* tagName, const char* tagValue)
 {	
+	if (!m_FileDefinitionMode)
+		return E_ADV_CHANGE_NOT_ALLOWED_RIGHT_NOW;
+
+	ADVRESULT rv = S_OK;
+	if (m_FileTags.find(tagName) != m_FileTags.end())
+	{
+		m_FileTags.erase(tagName);
+		rv = S_ADV_TAG_REPLACED;
+	}
+
 	m_FileTags.insert((make_pair(string(tagName == nullptr ? "" : tagName), string(tagValue == nullptr ? "" : tagValue))));
 	
-	return (int)m_FileTags.size();
+	return rv;
 }
 
-int Adv2File::AddUserTag(const char* tagName, const char* tagValue)
+ADVRESULT Adv2File::AddUserTag(const char* tagName, const char* tagValue)
 {
+	if (!m_FileDefinitionMode)
+		return E_ADV_CHANGE_NOT_ALLOWED_RIGHT_NOW;
+
+	ADVRESULT rv = S_OK;
+	if (m_UserMetadataTags.find(tagName) != m_UserMetadataTags.end())
+	{
+		m_UserMetadataTags.erase(tagName);
+		rv = S_ADV_TAG_REPLACED;
+	}
+
 	m_UserMetadataTags.insert((make_pair(string(tagName == nullptr ? "" : tagName), string(tagValue == nullptr ? "" : tagValue))));
 	
-	return (int)m_UserMetadataTags.size();	
+	return rv;
 }
 
 ADVRESULT Adv2File::BeginFrame(unsigned char streamId, __int64 utcStartTimeNanosecondsSinceAdvZeroEpoch, unsigned int utcExposureNanoseconds)
