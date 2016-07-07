@@ -51,9 +51,9 @@ DLL_PUBLIC void AdvVer2_DefineExternalClockForMainStream(__int64 clockFrequency,
 DLL_PUBLIC void AdvVer2_DefineExternalClockForCalibrationStream(__int64 clockFrequency, int ticksTimingAccuracy);
 DLL_PUBLIC ADVRESULT AdvVer2_AddMainStreamTag(const char* tagName, const char* tagValue);
 DLL_PUBLIC ADVRESULT AdvVer2_AddCalibrationStreamTag(const char* tagName, const char* tagValue);
-DLL_PUBLIC void AdvVer2_DefineImageSection(unsigned short width, unsigned short height, unsigned char dataBpp);
-DLL_PUBLIC void AdvVer2_DefineImageLayout(unsigned char layoutId, const char* layoutType, const char* compression, unsigned char layoutBpp);
-DLL_PUBLIC void AdvVer2_DefineStatusSection(__int64 utcTimestampAccuracyInNanoseconds);
+DLL_PUBLIC ADVRESULT AdvVer2_DefineImageSection(unsigned short width, unsigned short height, unsigned char dataBpp);
+DLL_PUBLIC ADVRESULT AdvVer2_DefineImageLayout(unsigned char layoutId, const char* layoutType, const char* compression, unsigned char layoutBpp);
+DLL_PUBLIC ADVRESULT AdvVer2_DefineStatusSection(__int64 utcTimestampAccuracyInNanoseconds);
 DLL_PUBLIC ADVRESULT AdvVer2_DefineStatusSectionTag(const char* tagName, int tagType, unsigned int* addedTagId);
 DLL_PUBLIC ADVRESULT AdvVer2_AddFileTag(const char* tagName, const char* tagValue);
 DLL_PUBLIC ADVRESULT AdvVer2_AddUserTag(const char* tagName, const char* tagValue);

@@ -510,8 +510,17 @@ void Adv2File::EndFile()
 	m_Adv2File = nullptr;
 }
 
-void Adv2File::AddImageSection(AdvLib2::Adv2ImageSection* section)
+ADVRESULT Adv2File::AddImageSection(AdvLib2::Adv2ImageSection* section)
 {
+	if (section == nullptr)
+		return E_FAIL;
+
+	if (!m_FileDefinitionMode)
+		return E_ADV_CHANGE_NOT_ALLOWED_RIGHT_NOW;
+
+	if (ImageSection != nullptr)
+		return E_ADV_IMAGE_SECTION_ALREADY_DEFINED;
+
 	ImageSection = section;
 
 	char convStr [10];
@@ -523,11 +532,24 @@ void Adv2File::AddImageSection(AdvLib2::Adv2ImageSection* section)
 	
 	_snprintf_s(convStr, 10, "%d", section->DataBpp);
 	m_FileTags.insert(make_pair(string("BITPIX"), string(convStr)));
+
+	return S_OK;
 }
 
-void Adv2File::AddStatusSection(AdvLib2::Adv2StatusSection* section)
+ADVRESULT Adv2File::AddStatusSection(AdvLib2::Adv2StatusSection* section)
 {
+	if (section == nullptr)
+		return E_FAIL;
+
+	if (!m_FileDefinitionMode)
+		return E_ADV_CHANGE_NOT_ALLOWED_RIGHT_NOW;
+
+	if (StatusSection != nullptr)
+		return E_ADV_STATUS_SECTION_ALREADY_DEFINED;
+
 	StatusSection = section;
+
+	return S_OK;
 }
 
 ADVRESULT Adv2File::AddMainStreamTag(const char* tagName, const char* tagValue)
@@ -553,9 +575,9 @@ ADVRESULT Adv2File::AddCalibrationStreamTag(const char* tagName, const char* tag
 		return E_ADV_CHANGE_NOT_ALLOWED_RIGHT_NOW;
 
 	ADVRESULT rv = S_OK;
-	if (m_MainStreamTags.find(tagName) != m_MainStreamTags.end())
+	if (m_CalibrationStreamTags.find(tagName) != m_CalibrationStreamTags.end())
 	{
-		m_MainStreamTags.erase(tagName);
+		m_CalibrationStreamTags.erase(tagName);
 		rv = S_ADV_TAG_REPLACED;
 	}
 

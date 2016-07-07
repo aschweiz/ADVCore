@@ -88,8 +88,8 @@ namespace AdvLib2
 			int LoadFile(const char* fileName, AdvFileInfo* fileInfo);
 			bool CloseFile();
 			
-			void AddImageSection(AdvLib2::Adv2ImageSection* section);
-			void AddStatusSection(AdvLib2::Adv2StatusSection* section);
+			ADVRESULT AddImageSection(AdvLib2::Adv2ImageSection* section);
+			ADVRESULT AddStatusSection(AdvLib2::Adv2StatusSection* section);
 
 			ADVRESULT AddFileTag(const char* tagName, const char* tagValue);
 			ADVRESULT AddUserTag(const char* tagName, const char* tagValue);

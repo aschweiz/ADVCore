@@ -43,11 +43,17 @@ Adv2ImageSection::~Adv2ImageSection()
 	m_ImageLayouts.empty();
 }
 
-Adv2ImageLayout* Adv2ImageSection::AddImageLayout(unsigned char layoutId, const char* layoutType, const char* compression, unsigned char layoutBpp)
+ADVRESULT Adv2ImageSection::AddImageLayout(unsigned char layoutId, const char* layoutType, const char* compression, unsigned char layoutBpp)
 {
-	AdvLib2::Adv2ImageLayout* layout = new AdvLib2::Adv2ImageLayout(this, Width, Height, layoutId, layoutType, compression, layoutBpp); 
+	if (!m_SectionDefinitionMode)
+		return E_ADV_CHANGE_NOT_ALLOWED_RIGHT_NOW;
+
+	if (m_ImageLayouts.find(layoutId) != m_ImageLayouts.end())
+		return E_ADV_IMAGE_LAYOUT_ALREADY_DEFINED;
+
+	Adv2ImageLayout* layout = new AdvLib2::Adv2ImageLayout(this, Width, Height, layoutId, layoutType, compression, layoutBpp); 
 	m_ImageLayouts.insert(make_pair(layoutId, layout));
-	return layout;
+	return S_OK;
 }
 
 ADVRESULT Adv2ImageSection::AddOrUpdateTag(const char* tagName, const char* tagValue)
