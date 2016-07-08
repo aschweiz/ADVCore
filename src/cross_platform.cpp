@@ -163,3 +163,20 @@ __int64 advgetclockticks()
 #endif
 	return rv;
 }
+
+ADVRESULT CheckFileName(const char* fileName, bool failIfExists)
+{
+	ADVRESULT rv = S_OK;
+#ifdef MSVC
+	// TODO: 
+#elif __linux__
+	// TODO: 
+#elif _WIN32
+	// TODO: 
+#elif __APPLE__
+	// TODO: 
+#else
+	#error Platform not supported
+#endif
+	return rv;
+}

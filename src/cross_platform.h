@@ -115,4 +115,6 @@ int advfflush(FILE* file);
 __int64 advgetclockresolution();
 __int64 advgetclockticks();
 
+ADVRESULT CheckFileName(const char* fileName, bool overwriteExisting);
+
 #endif

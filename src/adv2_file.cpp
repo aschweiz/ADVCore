@@ -444,24 +444,39 @@ bool Adv2File::CloseFile()
 	return fileClosed;
 }
 
-void Adv2File::SetTicksTimingPrecision(int mainStreamAccuracy, int calibrationStreamAccuracy)
+ADVRESULT Adv2File::SetTicksTimingPrecision(int mainStreamAccuracy, int calibrationStreamAccuracy)
 {
+	if (!m_FileDefinitionMode)
+		return E_ADV_CHANGE_NOT_ALLOWED_RIGHT_NOW;
+
 	m_MainStreamTickAccuracy = mainStreamAccuracy;
 	m_CalibrationStreamTickAccuracy = calibrationStreamAccuracy;
+
+	return S_OK;
 }
 
-void Adv2File::DefineExternalClockForMainStream(__int64 clockFrequency, int ticksTimingAccuracy)
+ADVRESULT Adv2File::DefineExternalClockForMainStream(__int64 clockFrequency, int ticksTimingAccuracy)
 {
+	if (!m_FileDefinitionMode)
+		return E_ADV_CHANGE_NOT_ALLOWED_RIGHT_NOW;
+
 	m_UsesExternalMainStreamClock = true;
 	m_MainStreamClockFrequency = clockFrequency;
 	m_MainStreamTickAccuracy = ticksTimingAccuracy;
+
+	return S_OK;
 }
 
-void Adv2File::DefineExternalClockForCalibrationStream(__int64 clockFrequency, int ticksTimingAccuracy)
+ADVRESULT Adv2File::DefineExternalClockForCalibrationStream(__int64 clockFrequency, int ticksTimingAccuracy)
 {
+	if (!m_FileDefinitionMode)
+		return E_ADV_CHANGE_NOT_ALLOWED_RIGHT_NOW;
+
 	m_UsesExternalCalibrationStreamClock = true;
 	m_CalibrationStreamClockFrequency = clockFrequency;
 	m_CalibrationStreamTickAccuracy = ticksTimingAccuracy;
+
+	return S_OK;
 }
 
 void Adv2File::EndFile()

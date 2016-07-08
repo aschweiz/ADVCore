@@ -80,9 +80,9 @@ namespace AdvLib2
 			~Adv2File();
 			
 			ADVRESULT BeginFile(const char* fileName);
-			void SetTicksTimingPrecision(int mainStreamAccuracy, int calibrationStreamAccuracy);
-			void DefineExternalClockForMainStream(__int64 clockFrequency, int ticksTimingAccuracy);
-			void DefineExternalClockForCalibrationStream(__int64 clockFrequency, int ticksTimingAccuracy);
+			ADVRESULT SetTicksTimingPrecision(int mainStreamAccuracy, int calibrationStreamAccuracy);
+			ADVRESULT DefineExternalClockForMainStream(__int64 clockFrequency, int ticksTimingAccuracy);
+			ADVRESULT DefineExternalClockForCalibrationStream(__int64 clockFrequency, int ticksTimingAccuracy);
 			void EndFile();
 			
 			int LoadFile(const char* fileName, AdvFileInfo* fileInfo);

@@ -416,8 +416,11 @@ void GetLibraryPlatformId(char* platform)
 #endif
 }
 
-void AdvVer2_NewFile(const char* fileName)
+ADVRESULT AdvVer2_NewFile(const char* fileName, bool overwriteExisting)
 {
+	if (fileName == nullptr)
+		return E_FAIL;
+
 	AdvProfiling_ResetPerformanceCounters();
 	AdvProfiling_StartProcessing();
 	
@@ -435,6 +438,10 @@ void AdvVer2_NewFile(const char* fileName)
 	
 	g_FileStarted = false;
 	
+	ADVRESULT rv = CheckFileName(fileName, !overwriteExisting);
+	if (rv != S_OK)
+		return rv;
+
 	int len = (int)strlen(fileName);
 	if (len > 0)
 	{
@@ -444,30 +451,32 @@ void AdvVer2_NewFile(const char* fileName)
 		g_Adv2File = new AdvLib2::Adv2File();
 	}
 	AdvProfiling_EndProcessing();
+
+	return S_OK;
 }
 
-void AdvVer2_SetTicksTimingPrecision(int mainStreamAccuracy, int calibrationStreamAccuracy)
+ADVRESULT AdvVer2_SetTicksTimingPrecision(int mainStreamAccuracy, int calibrationStreamAccuracy)
 {
-	if (nullptr != g_Adv2File)
-	{
-		g_Adv2File->SetTicksTimingPrecision(mainStreamAccuracy, calibrationStreamAccuracy);
-	}
+	if (g_Adv2File == nullptr)
+		return E_ADV_NOFILE;
+
+	return g_Adv2File->SetTicksTimingPrecision(mainStreamAccuracy, calibrationStreamAccuracy);
 }
 
-void AdvVer2_DefineExternalClockForMainStream(__int64 clockFrequency, int ticksTimingAccuracy)
+ADVRESULT AdvVer2_DefineExternalClockForMainStream(__int64 clockFrequency, int ticksTimingAccuracy)
 {
-	if (nullptr != g_Adv2File)
-	{
-		g_Adv2File->DefineExternalClockForMainStream(clockFrequency, ticksTimingAccuracy);
-	}
+	if (g_Adv2File == nullptr)
+		return E_ADV_NOFILE;
+
+	return g_Adv2File->DefineExternalClockForMainStream(clockFrequency, ticksTimingAccuracy);
 }
 
-void AdvVer2_DefineExternalClockForCalibrationStream(__int64 clockFrequency, int ticksTimingAccuracy)
+ADVRESULT AdvVer2_DefineExternalClockForCalibrationStream(__int64 clockFrequency, int ticksTimingAccuracy)
 {
-	if (nullptr != g_Adv2File)
-	{
-		g_Adv2File->DefineExternalClockForCalibrationStream(clockFrequency, ticksTimingAccuracy);
-	}
+	if (g_Adv2File == nullptr)
+		return E_ADV_NOFILE;
+
+	return g_Adv2File->DefineExternalClockForCalibrationStream(clockFrequency, ticksTimingAccuracy);
 }
 
 

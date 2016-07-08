@@ -45,10 +45,10 @@ DLL_PUBLIC void AdvVer1_FrameAddStatusTag32(unsigned int tagIndex, unsigned int 
 DLL_PUBLIC void AdvVer1_FrameAddStatusTag64(unsigned int tagIndex, __int64 tagValue);
 DLL_PUBLIC void AdvVer1_EndFrame();
 
-DLL_PUBLIC void AdvVer2_NewFile(const char* fileName);
-DLL_PUBLIC void AdvVer2_SetTicksTimingPrecision(int mainStreamAccuracy, int calibrationStreamAccuracy);
-DLL_PUBLIC void AdvVer2_DefineExternalClockForMainStream(__int64 clockFrequency, int ticksTimingAccuracy);
-DLL_PUBLIC void AdvVer2_DefineExternalClockForCalibrationStream(__int64 clockFrequency, int ticksTimingAccuracy);
+DLL_PUBLIC ADVRESULT AdvVer2_NewFile(const char* fileName, bool overwriteExisting);
+DLL_PUBLIC ADVRESULT AdvVer2_SetTicksTimingPrecision(int mainStreamAccuracy, int calibrationStreamAccuracy);
+DLL_PUBLIC ADVRESULT AdvVer2_DefineExternalClockForMainStream(__int64 clockFrequency, int ticksTimingAccuracy);
+DLL_PUBLIC ADVRESULT AdvVer2_DefineExternalClockForCalibrationStream(__int64 clockFrequency, int ticksTimingAccuracy);
 DLL_PUBLIC ADVRESULT AdvVer2_AddMainStreamTag(const char* tagName, const char* tagValue);
 DLL_PUBLIC ADVRESULT AdvVer2_AddCalibrationStreamTag(const char* tagName, const char* tagValue);
 DLL_PUBLIC ADVRESULT AdvVer2_DefineImageSection(unsigned short width, unsigned short height, unsigned char dataBpp);
