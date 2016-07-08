@@ -51,6 +51,29 @@ ADVRESULT Adv2ImageSection::AddImageLayout(unsigned char layoutId, const char* l
 	if (m_ImageLayouts.find(layoutId) != m_ImageLayouts.end())
 		return E_ADV_IMAGE_LAYOUT_ALREADY_DEFINED;
 
+	if (layoutType == nullptr)
+		return E_ADV_INVALID_IMAGE_LAYOUT_TYPE;
+
+	if (strcmp(layoutType, "FULL-IMAGE-RAW") != 0 &&
+		strcmp(layoutType, "12BIT-IMAGE-PACKED") != 0 &&
+		strcmp(layoutType, "8BIT-COLOR-IMAGE") != 0)
+	{
+		return E_ADV_INVALID_IMAGE_LAYOUT_TYPE;
+	}
+
+	if (compression == nullptr)
+		return E_ADV_INVALID_IMAGE_LAYOUT_COMPRESSION;
+
+	if (strcmp(compression, "UNCOMPRESSED") != 0 &&
+		strcmp(compression, "LAGARITH16") != 0 &&
+		strcmp(compression, "QUICKLZ") != 0)
+	{
+		return E_ADV_INVALID_IMAGE_LAYOUT_COMPRESSION;
+	}
+
+	if (layoutBpp == 0 || layoutBpp > 32)
+		return E_ADV_INVALID_IMAGE_LAYOUT_BPP;
+
 	Adv2ImageLayout* layout = new AdvLib2::Adv2ImageLayout(this, Width, Height, layoutId, layoutType, compression, layoutBpp); 
 	m_ImageLayouts.insert(make_pair(layoutId, layout));
 	return S_OK;
