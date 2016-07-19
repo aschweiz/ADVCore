@@ -344,6 +344,8 @@ Adv2StatusSection::Adv2StatusSection(FILE* pFile, AdvFileInfo* fileInfo)
 	m_TagDefinitionNames.empty();
 	m_TagDefinition.empty();
 
+	m_SectionDefinitionMode = true;
+
 	unsigned char version;
 	advfread(&version, 1, 1, pFile); /* Version */
 
