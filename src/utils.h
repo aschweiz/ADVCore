@@ -132,6 +132,9 @@ namespace AdvLib2
 
 		unsigned int SystemTimestampLo;
 		unsigned int SystemTimestampHi;
+
+		unsigned int ImageLayoutId;
+		unsigned int RawDataBlockSize;
 	};
 
 	struct AdvImageLayoutInfo

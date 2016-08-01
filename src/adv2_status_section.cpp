@@ -39,7 +39,7 @@ ADVRESULT Adv2StatusSection::DefineTag(const char* tagName, enum Adv2TagType tag
 	vector<string>::iterator curr = std::find(m_TagDefinitionNames.begin(), m_TagDefinitionNames.end(), tagName);
 	if (curr != m_TagDefinitionNames.end())
 	{
-		*addedTagId = std::distance(m_TagDefinitionNames.begin(), curr);
+		*addedTagId = (unsigned int)std::distance(m_TagDefinitionNames.begin(), curr);
 		m_TagDefinition[tagName] = tagType;
 		return S_ADV_TAG_REPLACED;
 	}
@@ -74,7 +74,7 @@ ADVRESULT Adv2StatusSection::DefineTag(const char* tagName, enum Adv2TagType tag
 			break;
 	}
 	
-	*addedTagId = m_TagDefinitionNames.size() - 1;
+	*addedTagId = (unsigned int)m_TagDefinitionNames.size() - 1;
 	return S_OK;
 }
 

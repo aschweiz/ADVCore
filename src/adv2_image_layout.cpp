@@ -477,7 +477,7 @@ void Adv2ImageLayout::GetPixelsFrom12BitByteArray(unsigned char* layoutData, uns
 ADVRESULT Adv2ImageLayout::GetImageLayoutInfo(AdvLib2::AdvImageLayoutInfo* imageLayoutInfo)
 {
 	imageLayoutInfo->ImageLayoutId = LayoutId;
-	imageLayoutInfo->ImageLayoutTagsCount = m_LayoutTags.size();
+	imageLayoutInfo->ImageLayoutTagsCount = (int)m_LayoutTags.size();
 	imageLayoutInfo->ImageLayoutBpp = Bpp;
 	imageLayoutInfo->IsFullImageRaw = IsFullImageRaw;
 	imageLayoutInfo->Is12BitImagePacked = Is12BitImagePacked;

@@ -164,7 +164,7 @@ Adv2ImageSection::Adv2ImageSection(FILE* pFile, AdvFileInfo* fileInfo)
 	fileInfo->MaxPixelValue = MaxPixelValue;
 	fileInfo->IsColourImage = IsColourImage;
 	fileInfo->ImageLayoutsCount = (int)m_ImageLayouts.size();
-	fileInfo->ImageSectionTagsCount = m_ImageTags.size();	
+	fileInfo->ImageSectionTagsCount = (int)m_ImageTags.size();	
 
 	m_SectionDefinitionMode = false;
 }
@@ -277,7 +277,7 @@ ADVRESULT Adv2ImageSection::GetImageLayoutById(unsigned char layoutId, AdvLib2::
 	return E_ADV_INVALID_IMAGE_LAYOUT_ID;
 }
 
-void Adv2ImageSection::GetDataFromDataBytes(unsigned char* data, unsigned int* pixels, int sectionDataLength, int startOffset)
+int Adv2ImageSection::GetDataFromDataBytes(unsigned char* data, unsigned int* pixels, int sectionDataLength, int startOffset)
 {
 	unsigned char* sectionData = data + startOffset;
 	unsigned char layoutId = *sectionData;
@@ -290,6 +290,7 @@ void Adv2ImageSection::GetDataFromDataBytes(unsigned char* data, unsigned int* p
 	ADVRESULT rv = GetImageLayoutById(layoutId, &imageLayout);	
 
 	imageLayout->GetDataFromDataBytes(data, pixels, sectionDataLength - 2, startOffset + 2);
+	return layoutId;
 }
 
 ADVRESULT Adv2ImageSection::GetImageSectionTagSizes(int tagId, int* tagNameSize, int* tagValueSize)

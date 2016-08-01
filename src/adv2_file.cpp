@@ -933,11 +933,12 @@ void Adv2File::GetFrameSectionData(int streamId, int frameId, unsigned int* pixe
 		frameInfo->StartTicksHi = data[5] + (data[6] << 8) + (data[7] << 16) + (data[8] << 24);
 		frameInfo->EndTicksLo = data[9] + (data[10] << 8) + (data[11] << 16) + (data[12] << 24);
 		frameInfo->EndTicksHi = data[13] + (data[14] << 8) + (data[15] << 16) + (data[16] << 24);
+		frameInfo->RawDataBlockSize = indexEntry->BytesCount;
 
 	    int dataOffset = 17;
 		int sectionDataLength = data[dataOffset] + (data[dataOffset + 1] << 8) + (data[dataOffset + 2] << 16) + (data[dataOffset + 3] << 24);
 
-		ImageSection->GetDataFromDataBytes(data, pixels, sectionDataLength, dataOffset + 4);
+		frameInfo->ImageLayoutId = ImageSection->GetDataFromDataBytes(data, pixels, sectionDataLength, dataOffset + 4);
 		dataOffset += sectionDataLength + 4;
 
 		sectionDataLength = data[dataOffset] + (data[dataOffset + 1] << 8) + (data[dataOffset + 2] << 16) + (data[dataOffset + 3] << 24);
