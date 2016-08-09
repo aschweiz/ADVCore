@@ -146,6 +146,13 @@ namespace AdvLib2
 		bool Is12BitImagePacked;
 		bool Is8BitColourImage;
 	};
+
+	struct AdvIndexEntry
+	{
+		__int64 ElapsedTicks;
+		__int64 FrameOffset;
+		unsigned int  BytesCount;
+	};
 }
 
 void crc32_init(void);

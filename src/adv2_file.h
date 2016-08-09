@@ -115,6 +115,8 @@ namespace AdvLib2
 			ADVRESULT GetUserMetadataTagSizes(int tagId, int* tagNameSize, int* tagValueSize);
 			ADVRESULT GetUserMetadataTag(int tagId, char* tagName, char* tagValue);
 
+			ADVRESULT GetIndexEntries(AdvLib2::AdvIndexEntry* mainIndex, AdvLib2::AdvIndexEntry* calibrationIndex);
+
 			int GetLastSystemSpecificFileError();
 		};
 

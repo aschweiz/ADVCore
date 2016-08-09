@@ -14,7 +14,7 @@ extern AdvLib::AdvFile* g_AdvFile;
 extern AdvLib2::Adv2File* g_Adv2File;
 extern bool g_FileStarted;
 
-#define CORE_VERSION "2.0d"
+#define CORE_VERSION "2.0e"
 
 #ifdef __cplusplus
 extern "C"
@@ -84,6 +84,7 @@ DLL_PUBLIC ADVRESULT AdvVer2_GetStatusTag16(unsigned int tagIndex, unsigned shor
 DLL_PUBLIC ADVRESULT AdvVer2_GetStatusTagReal(unsigned int tagIndex, float* tagValue);
 DLL_PUBLIC ADVRESULT AdvVer2_GetStatusTag32(unsigned int tagIndex, unsigned int* tagValue);
 DLL_PUBLIC ADVRESULT AdvVer2_GetStatusTag64(unsigned int tagIndex, __int64* tagValue);
+DLL_PUBLIC ADVRESULT AdvVer2_GetIndexEntries(AdvLib2::AdvIndexEntry* mainIndex, AdvLib2::AdvIndexEntry* calibrationIndex);
 
 DLL_PUBLIC int AdvVer2_GetLastSystemSpecificFileError();
 

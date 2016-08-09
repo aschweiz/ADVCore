@@ -997,6 +997,14 @@ ADVRESULT AdvVer2_GetImageLayoutInfo(int layoutIndex, AdvLib2::AdvImageLayoutInf
 	return g_Adv2File->ImageSection->GetImageLayoutInfo(layoutIndex, imageLayoutInfo);
 }
 
+ADVRESULT AdvVer2_GetIndexEntries(AdvLib2::AdvIndexEntry* mainIndex, AdvLib2::AdvIndexEntry* calibrationIndex)
+{
+	if (g_Adv2File == nullptr)
+		return E_ADV_NOFILE;
+
+	return g_Adv2File->GetIndexEntries(mainIndex, calibrationIndex);
+}
+
 int AdvVer2_GetLastSystemSpecificFileError()
 {
 	if (g_Adv2File == nullptr)

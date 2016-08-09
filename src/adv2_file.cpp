@@ -1060,4 +1060,29 @@ ADVRESULT Adv2File::GetUserMetadataTag(int tagId, char* tagName, char* tagValue)
 	return S_OK;
 }
 
+ADVRESULT Adv2File::GetIndexEntries(AdvLib2::AdvIndexEntry* mainIndex, AdvLib2::AdvIndexEntry* calibrationIndex)
+{
+	unsigned int mainFrames = m_Index->GetFramesCount(0);
+	for(unsigned int i = 0; i < mainFrames; i++)
+	{
+		Index2Entry* entry = m_Index->GetIndexForFrame(0, i);
+		mainIndex->BytesCount = entry->BytesCount;
+		mainIndex->ElapsedTicks = entry->ElapsedTicks;
+		mainIndex->FrameOffset = entry->FrameOffset;
+		mainIndex++;
+	}
+
+	unsigned int calibFrames = m_Index->GetFramesCount(1);
+	for(unsigned int i = 0; i < calibFrames; i++)
+	{
+		Index2Entry* entry = m_Index->GetIndexForFrame(1, i);
+		calibrationIndex->BytesCount = entry->BytesCount;
+		calibrationIndex->ElapsedTicks = entry->ElapsedTicks;
+		calibrationIndex->FrameOffset = entry->FrameOffset;
+		calibrationIndex++;
+	}
+
+	return S_OK;
+}
+
 }
