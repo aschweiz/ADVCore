@@ -83,7 +83,7 @@ namespace AdvLib2
 			ADVRESULT SetTicksTimingPrecision(int mainStreamAccuracy, int calibrationStreamAccuracy);
 			ADVRESULT DefineExternalClockForMainStream(__int64 clockFrequency, int ticksTimingAccuracy);
 			ADVRESULT DefineExternalClockForCalibrationStream(__int64 clockFrequency, int ticksTimingAccuracy);
-			void EndFile();
+			ADVRESULT EndFile();
 			
 			int LoadFile(const char* fileName, AdvFileInfo* fileInfo);
 			bool CloseFile();
@@ -104,8 +104,8 @@ namespace AdvLib2
 			ADVRESULT AddFrameImage(unsigned char layoutId, unsigned short* pixels, unsigned char pixelsBpp);
 			ADVRESULT AddFrameImage(unsigned char layoutId, unsigned char* pixels, unsigned char pixelsBpp);
 
-			void GetFrameImageSectionHeader(int streamId, int frameId, unsigned char* layoutId, enum GetByteMode* mode);
-			void GetFrameSectionData(int streamId, int frameId, unsigned int* pixels, AdvFrameInfo* frameInfo, int* systemErrorLen);
+			ADVRESULT GetFrameImageSectionHeader(int streamId, int frameId, unsigned char* layoutId, enum GetByteMode* mode);
+			ADVRESULT GetFrameSectionData(int streamId, int frameId, unsigned int* pixels, AdvFrameInfo* frameInfo, int* systemErrorLen);
 			ADVRESULT GetMainStreamTagSizes(int tagId, int* tagNameSize, int* tagValueSize);
 			ADVRESULT GetMainStreamTag(int tagId, char* tagName, char* tagValue);
 			ADVRESULT GetCalibrationStreamTagSizes(int tagId, int* tagNameSize, int* tagValueSize);

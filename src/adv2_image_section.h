@@ -26,6 +26,7 @@ namespace AdvLib2
 		map<unsigned char, Adv2ImageLayout*> m_ImageLayouts;
 		bool m_RGBorBGR;
 		bool m_SectionDefinitionMode;
+		int m_MaxImageLayoutFrameBufferSize;
 
 	public:
 		unsigned int Width;
@@ -52,7 +53,7 @@ namespace AdvLib2
 		ADVRESULT AddOrUpdateTag(const char* tagName, const char* tagValue);
 		ADVRESULT AddImageLayout(unsigned char layoutId, const char* layoutType, const char* compression, unsigned char layoutBpp);
 
-		int MaxFrameBufferSize();
+		ADVRESULT MaxFrameBufferSize(int* maxImageBuffer);
 
 		int GetDataFromDataBytes(unsigned char* data, unsigned int* pixels, int sectionDataLength, int startOffset);
 

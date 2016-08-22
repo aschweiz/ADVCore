@@ -149,9 +149,18 @@ void Adv2FramesIndex::AddFrame(unsigned char streamId, unsigned int frameNo, __i
 
 Index2Entry* Adv2FramesIndex::GetIndexForFrame(unsigned char streamId, unsigned int frameNo)
 {
-	Index2Entry* indexEntryAtPos = streamId == 0 
-		? m_MainIndexEntries->at(frameNo)
-		: m_CalibrationIndexEntries->at(frameNo);
+	Index2Entry* indexEntryAtPos = nullptr;
+
+	if (streamId == 0)
+	{
+		if (m_MainIndexEntries->size() > frameNo)
+			return m_MainIndexEntries->at(frameNo);
+	}
+	else if (streamId == 1)
+	{
+		if (m_CalibrationIndexEntries->size() > frameNo)
+			return m_CalibrationIndexEntries->at(frameNo);
+	}
 
 	return indexEntryAtPos;
 }

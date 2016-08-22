@@ -408,7 +408,7 @@ bool Adv2File::CloseFile()
 	if (nullptr != m_Adv2File)
 	{
 		advfclose(m_Adv2File);
-		m_Adv2File = nullptr;
+		m_Adv2File = 0;
 		fileClosed = true;
 	}
 	
@@ -479,12 +479,16 @@ ADVRESULT Adv2File::DefineExternalClockForCalibrationStream(__int64 clockFrequen
 	return S_OK;
 }
 
-void Adv2File::EndFile()
+ADVRESULT Adv2File::EndFile()
 {
+	if (m_Adv2File == 0)
+		return E_ADV_FILE_NOT_OPEN;
+
 	__int64 indexTableOffset;
 	advfgetpos64(m_Adv2File, &indexTableOffset);
 	
-	m_Index->WriteIndex(m_Adv2File);
+	if (nullptr != m_Index)
+		m_Index->WriteIndex(m_Adv2File);
 		
 	__int64 userMetaTableOffset;
 	advfgetpos64(m_Adv2File, &userMetaTableOffset);
@@ -517,12 +521,13 @@ void Adv2File::EndFile()
 		
 		curr++;
 	}
-	
-	
+		
 	advfflush(m_Adv2File);
 	advfclose(m_Adv2File);
 	
-	m_Adv2File = nullptr;
+	m_Adv2File = 0;
+
+	return S_OK;
 }
 
 ADVRESULT Adv2File::AddImageSection(AdvLib2::Adv2ImageSection* section)
@@ -655,6 +660,9 @@ ADVRESULT Adv2File::BeginFrame(unsigned char streamId, __int64 utcStartTimeNanos
 
 ADVRESULT Adv2File::BeginFrame(unsigned char streamId, __int64 startFrameTicks, __int64 endFrameTicks,__int64 elapsedTicksSinceFirstFrame, __int64 utcStartTimeNanosecondsSinceAdvZeroEpoch, unsigned int utcExposureNanoseconds)
 {
+	if (m_Adv2File == 0)
+		return E_ADV_FILE_NOT_OPEN;
+
 	if (streamId != 0 && streamId != 1)
 		return E_ADV_INVALID_STREAM_ID;
 
@@ -669,13 +677,18 @@ ADVRESULT Adv2File::BeginFrame(unsigned char streamId, __int64 startFrameTicks, 
 		
 	if (m_FrameBytes == nullptr)
 	{
+		int imageBufferSize = 0;
+		ADVRESULT rv = ImageSection->MaxFrameBufferSize(&imageBufferSize);
+		if (!SUCCEEDED(rv))
+			return rv;
+
 		int maxUncompressedBufferSize = 
 			4 + // frame start magic
 			8 + // timestamp
 			4 + // exposure			
 			4 + 4 + // the length of each of the 2 sections 
 			StatusSection->MaxFrameBufferSize +
-			ImageSection->MaxFrameBufferSize() + 
+			imageBufferSize + 
 			100; // Just in case
 		
 		m_FrameBytes = new unsigned char[maxUncompressedBufferSize];
@@ -887,65 +900,86 @@ ADVRESULT Adv2File::EndFrame()
 	return S_OK;
 }
 
-void Adv2File::GetFrameImageSectionHeader(int streamId, int frameId, unsigned char* layoutId, enum GetByteMode* mode)
+ADVRESULT Adv2File::GetFrameImageSectionHeader(int streamId, int frameId, unsigned char* layoutId, enum GetByteMode* mode)
 {
+	if (m_Adv2File == 0)
+		return E_ADV_FILE_NOT_OPEN;
+
 	AdvLib2::Index2Entry* indexEntry = m_Index->GetIndexForFrame(streamId, frameId);
-
-	advfsetpos64(m_Adv2File, &indexEntry->FrameOffset);
-
-
-	long frameDataMagic;
-	fread(&frameDataMagic, 4, 1, m_Adv2File);
-
-	if (frameDataMagic == 0xEE0122FF)
+	if (indexEntry != nullptr)
 	{
-		// Skip 1 byte of streamId, 16 bytes of start and end timestamps and 4 bytes of section size
-		fseek(m_Adv2File, 1 + 16 + 4, SEEK_CUR);
+		advfsetpos64(m_Adv2File, &indexEntry->FrameOffset);
 
-		fread(layoutId, 1, 1, m_Adv2File);
+		long frameDataMagic;
+		fread(&frameDataMagic, 4, 1, m_Adv2File);
 
-		unsigned char byteMode;
+		if (frameDataMagic == 0xEE0122FF)
+		{
+			// Skip 1 byte of streamId, 16 bytes of start and end timestamps and 4 bytes of section size
+			fseek(m_Adv2File, 1 + 16 + 4, SEEK_CUR);
 
-		fread(&byteMode, 1, 1, m_Adv2File);
+			fread(layoutId, 1, 1, m_Adv2File);
 
-		*mode = (GetByteMode)byteMode;
+			unsigned char byteMode;
+
+			fread(&byteMode, 1, 1, m_Adv2File);
+
+			*mode = (GetByteMode)byteMode;
+
+			return S_OK;
+		}
+		else
+			return E_ADV_FRAME_CORRUPTED;
 	}
+	else
+		return E_ADV_FRAME_MISSING_FROM_INDEX;
 }
 
-void Adv2File::GetFrameSectionData(int streamId, int frameId, unsigned int* pixels, AdvFrameInfo* frameInfo, int* systemErrorLen)
+ADVRESULT Adv2File::GetFrameSectionData(int streamId, int frameId, unsigned int* pixels, AdvFrameInfo* frameInfo, int* systemErrorLen)
 {
+	if (m_Adv2File == 0)
+		return E_ADV_FILE_NOT_OPEN;
+
 	AdvLib2::Index2Entry* indexEntry = m_Index->GetIndexForFrame(streamId, frameId);
 
-	advfsetpos64(m_Adv2File, &indexEntry->FrameOffset);
-
-	long frameDataMagic;
-	fread(&frameDataMagic, 4, 1, m_Adv2File);
-
-	if (frameDataMagic == 0xEE0122FF)
+	if (indexEntry != nullptr)
 	{
-		unsigned char* data = (unsigned char*)malloc(indexEntry->BytesCount);
-		fread(data, indexEntry->BytesCount, 1, m_Adv2File);
+		advfsetpos64(m_Adv2File, &indexEntry->FrameOffset);
 
-		// data[0] is the streamId
+		long frameDataMagic;
+		fread(&frameDataMagic, 4, 1, m_Adv2File);
 
-		// Read the timestamp and exposure 
-		frameInfo->StartTicksLo = data[1] + (data[2] << 8) + (data[3] << 16) + (data[4] << 24);
-		frameInfo->StartTicksHi = data[5] + (data[6] << 8) + (data[7] << 16) + (data[8] << 24);
-		frameInfo->EndTicksLo = data[9] + (data[10] << 8) + (data[11] << 16) + (data[12] << 24);
-		frameInfo->EndTicksHi = data[13] + (data[14] << 8) + (data[15] << 16) + (data[16] << 24);
-		frameInfo->RawDataBlockSize = indexEntry->BytesCount;
+		if (frameDataMagic == 0xEE0122FF)
+		{
+			unsigned char* data = (unsigned char*)malloc(indexEntry->BytesCount);
+			fread(data, indexEntry->BytesCount, 1, m_Adv2File);
 
-	    int dataOffset = 17;
-		int sectionDataLength = data[dataOffset] + (data[dataOffset + 1] << 8) + (data[dataOffset + 2] << 16) + (data[dataOffset + 3] << 24);
+			// data[0] is the streamId
 
-		frameInfo->ImageLayoutId = ImageSection->GetDataFromDataBytes(data, pixels, sectionDataLength, dataOffset + 4);
-		dataOffset += sectionDataLength + 4;
+			// Read the timestamp and exposure 
+			frameInfo->StartTicksLo = data[1] + (data[2] << 8) + (data[3] << 16) + (data[4] << 24);
+			frameInfo->StartTicksHi = data[5] + (data[6] << 8) + (data[7] << 16) + (data[8] << 24);
+			frameInfo->EndTicksLo = data[9] + (data[10] << 8) + (data[11] << 16) + (data[12] << 24);
+			frameInfo->EndTicksHi = data[13] + (data[14] << 8) + (data[15] << 16) + (data[16] << 24);
+			frameInfo->RawDataBlockSize = indexEntry->BytesCount;
 
-		sectionDataLength = data[dataOffset] + (data[dataOffset + 1] << 8) + (data[dataOffset + 2] << 16) + (data[dataOffset + 3] << 24);
-		StatusSection->GetDataFromDataBytes(data, sectionDataLength, dataOffset + 4, frameInfo, systemErrorLen);
+			int dataOffset = 17;
+			int sectionDataLength = data[dataOffset] + (data[dataOffset + 1] << 8) + (data[dataOffset + 2] << 16) + (data[dataOffset + 3] << 24);
+
+			frameInfo->ImageLayoutId = ImageSection->GetDataFromDataBytes(data, pixels, sectionDataLength, dataOffset + 4);
+			dataOffset += sectionDataLength + 4;
+
+			sectionDataLength = data[dataOffset] + (data[dataOffset + 1] << 8) + (data[dataOffset + 2] << 16) + (data[dataOffset + 3] << 24);
+			StatusSection->GetDataFromDataBytes(data, sectionDataLength, dataOffset + 4, frameInfo, systemErrorLen);
 		
-		delete data;
+			delete data;
+			return S_OK;
+		}
+		else
+			return E_ADV_FRAME_CORRUPTED;
 	}
+	else
+		return E_ADV_FRAME_MISSING_FROM_INDEX;
 }
 
 ADVRESULT Adv2File::GetMainStreamTag(int tagId, char* tagName, char* tagValue)
@@ -1066,20 +1100,30 @@ ADVRESULT Adv2File::GetIndexEntries(AdvLib2::AdvIndexEntry* mainIndex, AdvLib2::
 	for(unsigned int i = 0; i < mainFrames; i++)
 	{
 		Index2Entry* entry = m_Index->GetIndexForFrame(0, i);
-		mainIndex->BytesCount = entry->BytesCount;
-		mainIndex->ElapsedTicks = entry->ElapsedTicks;
-		mainIndex->FrameOffset = entry->FrameOffset;
-		mainIndex++;
+		if (entry != nullptr)
+		{
+			mainIndex->BytesCount = entry->BytesCount;
+			mainIndex->ElapsedTicks = entry->ElapsedTicks;
+			mainIndex->FrameOffset = entry->FrameOffset;
+			mainIndex++;
+		}
+		else
+			return E_ADV_FRAME_MISSING_FROM_INDEX;
 	}
 
 	unsigned int calibFrames = m_Index->GetFramesCount(1);
 	for(unsigned int i = 0; i < calibFrames; i++)
 	{
 		Index2Entry* entry = m_Index->GetIndexForFrame(1, i);
-		calibrationIndex->BytesCount = entry->BytesCount;
-		calibrationIndex->ElapsedTicks = entry->ElapsedTicks;
-		calibrationIndex->FrameOffset = entry->FrameOffset;
-		calibrationIndex++;
+		if (entry != nullptr)
+		{
+			calibrationIndex->BytesCount = entry->BytesCount;
+			calibrationIndex->ElapsedTicks = entry->ElapsedTicks;
+			calibrationIndex->FrameOffset = entry->FrameOffset;
+			calibrationIndex++;
+		}
+		else
+			return E_ADV_FRAME_MISSING_FROM_INDEX;
 	}
 
 	return S_OK;

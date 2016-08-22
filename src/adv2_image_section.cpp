@@ -27,6 +27,7 @@ Adv2ImageSection::Adv2ImageSection(unsigned int width, unsigned int height, unsi
 	MaxPixelValue = 0;
 	m_RGBorBGR = false;
 	m_SectionDefinitionMode = true;
+	m_MaxImageLayoutFrameBufferSize = -1;
 }
 
 Adv2ImageSection::~Adv2ImageSection()
@@ -134,6 +135,7 @@ Adv2ImageSection::Adv2ImageSection(FILE* pFile, AdvFileInfo* fileInfo)
 	IsColourImage = false;
 	MaxPixelValue = 0;
 	m_RGBorBGR = false;
+	m_MaxImageLayoutFrameBufferSize = -1;
 
 	unsigned char imageLayouts;
 	advfread(&imageLayouts, 1, 1, pFile);
@@ -224,10 +226,11 @@ ADVRESULT Adv2ImageSection::BeginFrame()
 	return S_OK;
 }
 
-int m_MaxImageLayoutFrameBufferSize = -1;
-
-int Adv2ImageSection::MaxFrameBufferSize()
+ADVRESULT Adv2ImageSection::MaxFrameBufferSize(int* maxImageBuffer)
 {
+	if (m_SectionDefinitionMode)
+		return E_ADV_CHANGE_NOT_ALLOWED_RIGHT_NOW;
+
 	// Max frame buffer size is the max frame buffer size of the largest image layout
 	if (m_MaxImageLayoutFrameBufferSize == -1)
 	{
@@ -243,7 +246,8 @@ int Adv2ImageSection::MaxFrameBufferSize()
 		}		
 	}
 		
-	return m_MaxImageLayoutFrameBufferSize;
+	*maxImageBuffer = m_MaxImageLayoutFrameBufferSize;
+	return S_OK;
 }
 
 unsigned char* Adv2ImageSection::GetDataBytes(unsigned char layoutId, unsigned short* currFramePixels, unsigned int *bytesCount, unsigned char pixelsBpp, enum GetByteOperation operation)

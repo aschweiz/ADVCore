@@ -486,10 +486,10 @@ ADVRESULT AdvVer2_EndFile()
 
 	if (nullptr != g_Adv2File)
 	{
-		g_Adv2File->EndFile();
+		rv = g_Adv2File->EndFile();
 		
 		delete g_Adv2File;
-		g_Adv2File = nullptr;
+		g_Adv2File = nullptr;		
 	}
 	else
 		rv = E_ADV_NOFILE;
@@ -815,16 +815,16 @@ ADVRESULT AdvVer2_GetFramePixels(int streamId, int frameNo, unsigned int* pixels
         unsigned char layoutId;
         enum GetByteMode byteMode;
 
-        g_Adv2File->GetFrameImageSectionHeader(streamId, frameNo, &layoutId, &byteMode);
-
-		AdvLib2::Adv2ImageLayout* layout;
-		ADVRESULT rv = g_Adv2File->ImageSection->GetImageLayoutById(layoutId, &layout);
+        ADVRESULT rv = g_Adv2File->GetFrameImageSectionHeader(streamId, frameNo, &layoutId, &byteMode);
 		if (rv != S_OK) 
 			return rv;
 
-        g_Adv2File->GetFrameSectionData(streamId, frameNo, pixels, frameInfo, systemErrorLen);
-	
-		return S_OK;
+		AdvLib2::Adv2ImageLayout* layout;
+		rv = g_Adv2File->ImageSection->GetImageLayoutById(layoutId, &layout);
+		if (rv != S_OK) 
+			return rv;
+
+        return g_Adv2File->GetFrameSectionData(streamId, frameNo, pixels, frameInfo, systemErrorLen);
 }
 
 ADVRESULT AdvVer2_GetTagPairSizes(TagPairType tagPairType, int tagId, int* tagNameSize, int* tagValueSize)
