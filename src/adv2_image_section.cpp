@@ -123,6 +123,8 @@ ADVRESULT Adv2ImageSection::AddOrUpdateTag(const char* tagName, const char* tagV
 
 Adv2ImageSection::Adv2ImageSection(FILE* pFile, AdvFileInfo* fileInfo)
 {
+	m_SectionDefinitionMode = true;
+
 	unsigned char version;
 	advfread(&version, 1, 1, pFile); /* Version */
 

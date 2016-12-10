@@ -577,6 +577,7 @@ void Adv2StatusSection::GetDataFromDataBytes(unsigned char* data, int sectionDat
 	m_FrameStatusTagsUInt64.clear();
 	m_FrameStatusTagsUInt32.clear();
 	m_FrameStatusTagsReal.clear();	
+	m_FrameStatusTags.clear();
 
 	unsigned char tagsCount = *statusData;
 	statusData++;
@@ -713,8 +714,6 @@ void Adv2StatusSection::GetDataFromDataBytes(unsigned char* data, int sectionDat
 
 					if (strcmp("Error", tagName) == 0)
 						*systemErrorLen = byteCount;
-
-					statusData += byteCount;
 				}
 				break;
 		}
