@@ -916,7 +916,7 @@ ADVRESULT Adv2File::GetFrameImageSectionHeader(int streamId, int frameId, unsign
 		if (frameDataMagic == 0xEE0122FF)
 		{
 			// Skip 1 byte of streamId, 16 bytes of start and end timestamps and 4 bytes of section size
-			fseek(m_Adv2File, 1 + 16 + 4, SEEK_CUR);
+			advfseek(m_Adv2File, 1 + 16 + 4, SEEK_CUR);
 
 			fread(layoutId, 1, 1, m_Adv2File);
 
