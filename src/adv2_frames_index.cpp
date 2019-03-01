@@ -86,7 +86,7 @@ void Adv2FramesIndex::WriteIndex(FILE *file)
 	unsigned int buffOffset = 9;
 	advfwrite(&buffOffset, 4, 1, file);
 
-	buffOffset = (unsigned int)m_MainIndexEntries->size() * 20 + 10;
+	buffOffset = (unsigned int)m_MainIndexEntries->size() * 20 + 13;
 	advfwrite(&buffOffset, 4, 1, file);
 
 	unsigned int framesCount = (unsigned int)m_MainIndexEntries->size();
