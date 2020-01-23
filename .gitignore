@@ -38,3 +38,6 @@
 /AdvLib.txt
 /.build-release_win32
 /.build-release_win64
+/.vs
+/*.suo
+/AdvLib.Core.sdf
