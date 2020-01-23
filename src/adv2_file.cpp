@@ -348,8 +348,12 @@ int Adv2File::LoadFile(const char* fileName, AdvFileInfo* fileInfo)
 	unsigned char tagsCount;
 
 	// Read MAIN stream metadata table
-	advfsetpos64(m_Adv2File, &streamHeaderOffsets[0]);
-	advfread(&tagsCount, 1, 1, m_Adv2File);
+	// Optional, missing if the offset is 0
+	tagsCount = 0;
+	if (streamHeaderOffsets[0]) {
+		advfsetpos64(m_Adv2File, &streamHeaderOffsets[0]);
+		advfread(&tagsCount, 1, 1, m_Adv2File);
+	}
 	fileInfo->MainStreamTagsCount = tagsCount;
 	for (int i = 0; i < tagsCount; i++)
 	{
@@ -360,8 +364,11 @@ int Adv2File::LoadFile(const char* fileName, AdvFileInfo* fileInfo)
 	}
 
 	// Read CALIBRATION stream metadata table
-	advfsetpos64(m_Adv2File, &streamHeaderOffsets[1]);
-	advfread(&tagsCount, 1, 1, m_Adv2File);
+	tagsCount = 0;
+	if (streamHeaderOffsets[1]) {
+		advfsetpos64(m_Adv2File, &streamHeaderOffsets[1]);
+		advfread(&tagsCount, 1, 1, m_Adv2File);
+	}
 	fileInfo->CalibrationStreamTagsCount = tagsCount;
 	for (int i = 0; i < tagsCount; i++)
 	{
@@ -917,6 +924,13 @@ ADVRESULT Adv2File::GetFrameImageSectionHeader(int streamId, int frameId, unsign
 		{
 			// Skip 1 byte of streamId, 16 bytes of start and end timestamps and 4 bytes of section size
 			advfseek(m_Adv2File, 1 + 16 + 4, SEEK_CUR);
+
+			// TODO
+			// According to the spec, the stream ID is repeated 
+			// in the ADV image section of the FSTF frame and should be read 
+			// or skipped here. However, this would break existing ADV files 
+			// and software, so it may be simpler to update the specification.
+			// fread(streamId, 1, 1, m_Adv2File);
 
 			fread(layoutId, 1, 1, m_Adv2File);
 
