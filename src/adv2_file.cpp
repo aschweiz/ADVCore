@@ -925,6 +925,13 @@ ADVRESULT Adv2File::GetFrameImageSectionHeader(int streamId, int frameId, unsign
 			// Skip 1 byte of streamId, 16 bytes of start and end timestamps and 4 bytes of section size
 			advfseek(m_Adv2File, 1 + 16 + 4, SEEK_CUR);
 
+			// TODO
+			// According to the spec, the stream ID is repeated 
+			// in the ADV image section of the FSTF frame and should be read 
+			// or skipped here. However, this would break existing ADV files 
+			// and software, so it may be simpler to update the specification.
+			// fread(streamId, 1, 1, m_Adv2File);
+
 			fread(layoutId, 1, 1, m_Adv2File);
 
 			unsigned char byteMode;
