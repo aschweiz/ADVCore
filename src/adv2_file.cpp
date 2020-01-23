@@ -348,8 +348,12 @@ int Adv2File::LoadFile(const char* fileName, AdvFileInfo* fileInfo)
 	unsigned char tagsCount;
 
 	// Read MAIN stream metadata table
-	advfsetpos64(m_Adv2File, &streamHeaderOffsets[0]);
-	advfread(&tagsCount, 1, 1, m_Adv2File);
+	// Optional, missing if the offset is 0
+	tagsCount = 0;
+	if (streamHeaderOffsets[0]) {
+		advfsetpos64(m_Adv2File, &streamHeaderOffsets[0]);
+		advfread(&tagsCount, 1, 1, m_Adv2File);
+	}
 	fileInfo->MainStreamTagsCount = tagsCount;
 	for (int i = 0; i < tagsCount; i++)
 	{
@@ -360,8 +364,11 @@ int Adv2File::LoadFile(const char* fileName, AdvFileInfo* fileInfo)
 	}
 
 	// Read CALIBRATION stream metadata table
-	advfsetpos64(m_Adv2File, &streamHeaderOffsets[1]);
-	advfread(&tagsCount, 1, 1, m_Adv2File);
+	tagsCount = 0;
+	if (streamHeaderOffsets[1]) {
+		advfsetpos64(m_Adv2File, &streamHeaderOffsets[1]);
+		advfread(&tagsCount, 1, 1, m_Adv2File);
+	}
 	fileInfo->CalibrationStreamTagsCount = tagsCount;
 	for (int i = 0; i < tagsCount; i++)
 	{
