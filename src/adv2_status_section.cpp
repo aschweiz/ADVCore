@@ -79,7 +79,7 @@ ADVRESULT Adv2StatusSection::DefineTag(const char* tagName, enum Adv2TagType tag
 }
 
 
-ADVRESULT Adv2StatusSection::BeginFrame(__int64 utcStartTimeNanosecondsSinceAdvZeroEpoch, unsigned int utcExposureNanoseconds)
+ADVRESULT Adv2StatusSection::BeginFrame(__int64 utcMiddleOfExposureTimeNanosecondsSinceAdvZeroEpoch, unsigned int utcExposureNanoseconds)
 {
 	m_FrameStatusTags.clear();
 	m_FrameStatusTagsUInt8.clear();
@@ -88,7 +88,8 @@ ADVRESULT Adv2StatusSection::BeginFrame(__int64 utcStartTimeNanosecondsSinceAdvZ
 	m_FrameStatusTagsUInt32.clear();
 	m_FrameStatusTagsReal.clear();	
 
-	m_UtcStartTimeNanosecondsSinceAdvZeroEpoch = utcStartTimeNanosecondsSinceAdvZeroEpoch;
+	m_UtcMiddleOfExposureTimeNanosecondsSinceAdvZeroEpoch 
+		= utcMiddleOfExposureTimeNanosecondsSinceAdvZeroEpoch;
 	m_UtcExposureNanoseconds = utcExposureNanoseconds;
 
 	m_SectionDefinitionMode = false;
@@ -434,14 +435,14 @@ unsigned char* Adv2StatusSection::GetDataBytes(unsigned int *bytesCount)
 	
 	unsigned char *statusData = (unsigned char*)malloc(size);
 
-	statusData[0] = (unsigned char)(m_UtcStartTimeNanosecondsSinceAdvZeroEpoch & 0xFF);
-	statusData[1] = (unsigned char)((m_UtcStartTimeNanosecondsSinceAdvZeroEpoch >> 8) & 0xFF);
-	statusData[2] = (unsigned char)((m_UtcStartTimeNanosecondsSinceAdvZeroEpoch >> 16) & 0xFF);
-	statusData[3] = (unsigned char)((m_UtcStartTimeNanosecondsSinceAdvZeroEpoch >> 24) & 0xFF);
-	statusData[4] = (unsigned char)((m_UtcStartTimeNanosecondsSinceAdvZeroEpoch >> 32) & 0xFF);
-	statusData[5] = (unsigned char)((m_UtcStartTimeNanosecondsSinceAdvZeroEpoch >> 40) & 0xFF);
-	statusData[6] = (unsigned char)((m_UtcStartTimeNanosecondsSinceAdvZeroEpoch >> 48) & 0xFF);
-	statusData[7] = (unsigned char)((m_UtcStartTimeNanosecondsSinceAdvZeroEpoch >> 56) & 0xFF);
+	statusData[0] = (unsigned char)(m_UtcMiddleOfExposureTimeNanosecondsSinceAdvZeroEpoch & 0xFF);
+	statusData[1] = (unsigned char)((m_UtcMiddleOfExposureTimeNanosecondsSinceAdvZeroEpoch >> 8) & 0xFF);
+	statusData[2] = (unsigned char)((m_UtcMiddleOfExposureTimeNanosecondsSinceAdvZeroEpoch >> 16) & 0xFF);
+	statusData[3] = (unsigned char)((m_UtcMiddleOfExposureTimeNanosecondsSinceAdvZeroEpoch >> 24) & 0xFF);
+	statusData[4] = (unsigned char)((m_UtcMiddleOfExposureTimeNanosecondsSinceAdvZeroEpoch >> 32) & 0xFF);
+	statusData[5] = (unsigned char)((m_UtcMiddleOfExposureTimeNanosecondsSinceAdvZeroEpoch >> 40) & 0xFF);
+	statusData[6] = (unsigned char)((m_UtcMiddleOfExposureTimeNanosecondsSinceAdvZeroEpoch >> 48) & 0xFF);
+	statusData[7] = (unsigned char)((m_UtcMiddleOfExposureTimeNanosecondsSinceAdvZeroEpoch >> 56) & 0xFF);
 	statusData[8] = (unsigned char)(m_UtcExposureNanoseconds & 0xFF);
 	statusData[9] = (unsigned char)((m_UtcExposureNanoseconds >> 8) & 0xFF);
 	statusData[10] = (unsigned char)((m_UtcExposureNanoseconds >> 16) & 0xFF);
@@ -564,7 +565,7 @@ void Adv2StatusSection::GetDataFromDataBytes(unsigned char* data, int sectionDat
 {
 	unsigned char* statusData = data + startOffset;
 
-	m_UtcStartTimeNanosecondsSinceAdvZeroEpoch = 
+	m_UtcMiddleOfExposureTimeNanosecondsSinceAdvZeroEpoch = 
 		 (statusData[0] + (statusData[1] << 8) + (statusData[2] << 16) + (statusData[3] << 24) +
 		 ((__int64)(statusData[4] + (statusData[5] << 8) + (statusData[6] << 16) + (statusData[7] << 24)) << 32));
 	frameInfo->Exposure = m_UtcExposureNanoseconds = statusData[8] + (statusData[9] << 8) + (statusData[10] << 16) + (statusData[11] << 24);
