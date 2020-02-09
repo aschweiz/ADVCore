@@ -7,7 +7,7 @@
 
 #include <map>
 #include <string>
-
+#include <vector>
 #include "utils.h"
 
 #include "adv2_image_section.h"
@@ -21,6 +21,14 @@ using std::string;
 
 namespace AdvLib2
 {
+	struct RoiDefinition
+	{
+		unsigned int Width;
+		unsigned int Height;
+		unsigned int Top;
+		unsigned int Left;
+	};
+
 	class Adv2ImageSection;
 
 	class Adv2ImageLayout {
@@ -29,6 +37,7 @@ namespace AdvLib2
 		Adv2ImageSection* m_ImageSection;
 		map<string, string> m_LayoutTags;
 		ImageBytesLayout m_BytesLayout;
+		vector<RoiDefinition> m_RoiDefinitions;
 
 		unsigned char *m_PixelArrayBuffer;
 
@@ -39,10 +48,13 @@ namespace AdvLib2
 		Compressor* m_Lagarith16Compressor;
 		bool m_UsesCompression;
 		bool m_UsesLagarith16Compression;
+		int m_RoiCount;
 
 		void InitialiseBuffers();
 		void ResetBuffers();
 		void EnsureCompressors();
+		unsigned int GetRoiTag(unsigned int roiNo, const char* tagPrefix);
+		void InitRoiDeDefinitions();
 
 	public:
 		unsigned char LayoutId;
@@ -79,6 +91,9 @@ namespace AdvLib2
 		void GetPixelsFrom8BitByteArrayRawLayout(unsigned char* layoutData, unsigned int* pixelsOut, int* readIndex, bool* crcOkay);
 		void GetPixelsFrom16BitByteArrayRawLayout(unsigned char* layoutData, unsigned int* pixelsOut, int* readIndex, bool* crcOkay);
 		void GetPixelsFrom12BitByteArray(unsigned char* layoutData, unsigned int* pixelsOut, int* readIndex, bool* crcOkay);
+		void GetRoiPixelsFrom8BitByteArrayRawLayout(RoiDefinition roiDef, unsigned char* layoutData, unsigned int* pixelsOut, int* readIndex, bool* crcOkay);
+		void GetRoiPixelsFrom16BitByteArrayRawLayout(RoiDefinition roiDef, unsigned char* layoutData, unsigned int* pixelsOut, int* readIndex, bool* crcOkay);
+		void GetRoiPixelsFrom12BitByteArray(RoiDefinition roiDef, unsigned char* layoutData, unsigned int* pixelsOut, int* readIndex, bool* crcOkay);
 	};
 }
 

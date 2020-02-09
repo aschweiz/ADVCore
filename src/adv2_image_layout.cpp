@@ -8,6 +8,7 @@
 #include "math.h"
 #include <stdlib.h>
 #include "adv_profiling.h"
+#include "cross_platform.h"
 
 namespace AdvLib2
 {
@@ -30,6 +31,8 @@ Adv2ImageLayout::Adv2ImageLayout(Adv2ImageSection* imageSection, unsigned int wi
 
 	InitialiseBuffers();
 	EnsureCompressors();
+
+	m_RoiDefinitions.empty();
 }
 
 Adv2ImageLayout::Adv2ImageLayout(Adv2ImageSection* imageSection, char layoutId, FILE* pFile)
@@ -67,6 +70,38 @@ Adv2ImageLayout::Adv2ImageLayout(Adv2ImageSection* imageSection, char layoutId, 
 
 	InitialiseBuffers();
 	EnsureCompressors();
+
+	m_RoiDefinitions.empty();
+	InitRoiDeDefinitions();
+}
+
+unsigned int Adv2ImageLayout::GetRoiTag(unsigned int roiNo, const char* tagPrefix)
+{
+	char fullTagName[32];
+	_snprintf_s(fullTagName, 32, tagPrefix, roiNo);
+	map<string, string>::iterator curr = m_LayoutTags.find(fullTagName);
+	if (curr != m_LayoutTags.end())
+	{
+		return atoi(curr->second.c_str());
+	}
+	return 0;
+}
+
+void Adv2ImageLayout::InitRoiDeDefinitions()
+{
+	if (m_RoiCount > 0)
+	{
+		for (int i = 0; i < m_RoiCount; i++)
+		{
+			RoiDefinition roi;
+			roi.Width = GetRoiTag(i, "ROI-WIDTH-%d");
+			roi.Height = GetRoiTag(i, "ROI-HEIGHT-%d");
+			roi.Top = GetRoiTag(i, "ROI-TOP-%d");
+			roi.Left = GetRoiTag(i, "ROI-LEFT-%d");
+
+			m_RoiDefinitions.push_back(roi);
+		}
+	}
 }
 
 void Adv2ImageLayout::InitialiseBuffers()
@@ -173,6 +208,11 @@ void Adv2ImageLayout::AddOrUpdateTag(const char* tagName, const char* tagValue)
 		IsFullImageRaw = 0 == strcmp(tagValue, "FULL-IMAGE-RAW");
 		Is12BitImagePacked = 0 == strcmp(tagValue, "12BIT-IMAGE-PACKED");
 		Is8BitColourImage = 0 == strcmp(tagValue, "8BIT-COLOR-IMAGE");
+	}
+
+	if (0 == strcmp("ROI-COUNT", tagName))
+	{
+		m_RoiCount = atoi(tagValue);
 	}
 }
 
@@ -334,11 +374,11 @@ void Adv2ImageLayout::GetDataFromDataBytes(unsigned char* data, unsigned int* pi
 	{		
 		size_t size = qlz_size_decompressed((char*)(data + startOffset));
 		// MaxFrameBufferSize
-		qlz_decompress((char*)(data + startOffset), m_DecompressedPixels, m_StateDecompress);		
+		qlz_decompress((char*)(data + startOffset), m_DecompressedPixels, m_StateDecompress);
 		layoutData = (unsigned char*)m_DecompressedPixels;
 	}
 	else  if (0 == strcmp(Compression, "LAGARITH16"))
-	{		
+	{
 		int size = m_Lagarith16Compressor->DecompressData((char*)(data + startOffset), (unsigned short*)m_DecompressedPixels);
 		layoutData = (unsigned char*)m_DecompressedPixels;
 	}
@@ -346,17 +386,38 @@ void Adv2ImageLayout::GetDataFromDataBytes(unsigned char* data, unsigned int* pi
 	bool crcOkay;
 	int readIndex = 0;
 
-	if (Bpp == 12)
+	if (m_RoiCount > 0)
 	{
-		GetPixelsFrom12BitByteArray(layoutData, pixels, &readIndex, &crcOkay);
+		for (std::vector<RoiDefinition>::iterator it = m_RoiDefinitions.begin() ; it != m_RoiDefinitions.end(); ++it)
+		{
+			if (Bpp == 12)
+			{
+				GetRoiPixelsFrom12BitByteArray(*it, layoutData, pixels, &readIndex, &crcOkay);
+			}
+			else if (Bpp == 16)
+			{
+				GetRoiPixelsFrom16BitByteArrayRawLayout(*it, layoutData, pixels, &readIndex, &crcOkay);
+			}
+			else if (Bpp == 8)
+			{
+				GetRoiPixelsFrom8BitByteArrayRawLayout(*it, layoutData, pixels, &readIndex, &crcOkay);
+			}
+		}
 	}
-	else if (Bpp == 16)
+	else
 	{
-		GetPixelsFrom16BitByteArrayRawLayout(layoutData, pixels, &readIndex, &crcOkay);
-	}
-	else if (Bpp == 8)
-	{
-		GetPixelsFrom8BitByteArrayRawLayout(layoutData, pixels, &readIndex, &crcOkay);
+		if (Bpp == 12)
+		{
+			GetPixelsFrom12BitByteArray(layoutData, pixels, &readIndex, &crcOkay);
+		}
+		else if (Bpp == 16)
+		{
+			GetPixelsFrom16BitByteArrayRawLayout(layoutData, pixels, &readIndex, &crcOkay);
+		}
+		else if (Bpp == 8)
+		{
+			GetPixelsFrom8BitByteArrayRawLayout(layoutData, pixels, &readIndex, &crcOkay);
+		}
 	}
 }
 
@@ -461,6 +522,139 @@ void Adv2ImageLayout::GetPixelsFrom12BitByteArray(unsigned char* layoutData, uns
 
 		*pixelsOut = val1; pixelsOut++;
 		*pixelsOut = val2; pixelsOut++;
+	}
+
+	if (m_ImageSection->UsesCRC)
+	{
+		unsigned int savedFrameCrc = (unsigned int)(*layoutData + (*(layoutData + 1) << 8) + (*(layoutData + 2) << 16) + (*(layoutData + 3) << 24));
+		*readIndex += 4;
+	}
+	else
+		*crcOkay = true;
+
+    return;
+}
+
+void Adv2ImageLayout::GetRoiPixelsFrom8BitByteArrayRawLayout(RoiDefinition roiDef, unsigned char* layoutData, unsigned int* pixelsOut, int* readIndex, bool* crcOkay)
+{
+	if (Bpp == 8)
+	{		
+		unsigned int* pPixelsOut = pixelsOut + roiDef.Top * Width + roiDef.Left;
+		for (unsigned int y = 0; y < roiDef.Height; ++y)
+		{
+			for (unsigned int x = 0; x < roiDef.Width; ++x)
+			{
+				unsigned char bt1 = *layoutData;
+				layoutData++;
+					
+				*pPixelsOut = (unsigned short)bt1;
+				pPixelsOut++;
+			}
+		}
+
+		*readIndex += roiDef.Height * roiDef.Width;
+	}
+	
+	if (m_ImageSection->UsesCRC)
+	{
+		unsigned int savedFrameCrc = (unsigned int)(*layoutData + (*(layoutData + 1) << 8) + (*(layoutData + 2) << 16) + (*(layoutData + 3) << 24));
+		*readIndex += 4;
+	}
+	else
+		*crcOkay = true;
+}
+
+void Adv2ImageLayout::GetRoiPixelsFrom16BitByteArrayRawLayout(RoiDefinition roiDef, unsigned char* layoutData, unsigned int* pixelsOut, int* readIndex, bool* crcOkay)
+{
+	unsigned int* pPixelsOut = pixelsOut + roiDef.Top * Width + roiDef.Left;
+
+	if (m_ImageSection->DataBpp > 8)
+	{		
+		bool isLittleEndian = m_ImageSection->ByteOrder == LittleEndian;
+
+		for (unsigned int y = 0; y < roiDef.Height; ++y)
+		{
+			for (unsigned int x = 0; x < roiDef.Width; ++x)
+			{
+				unsigned char bt1 = *layoutData;
+				layoutData++;
+				unsigned char bt2 = *layoutData;
+				layoutData++;
+
+				unsigned short val = isLittleEndian 
+						? (unsigned short)(((unsigned short)bt2 << 8) + bt1)
+						: (unsigned short)(((unsigned short)bt1 << 8) + bt2);
+					
+				*pPixelsOut = val;
+				pPixelsOut++;
+			}
+
+			pPixelsOut += (Width - roiDef.Width);
+		}
+
+		*readIndex += roiDef.Height * roiDef.Width * 2;
+	}
+	else
+	{
+		for (unsigned int y = 0; y < roiDef.Height; ++y)
+		{
+			for (unsigned int x = 0; x < roiDef.Width; ++x)
+			{
+				unsigned char bt = *layoutData;
+				layoutData++;
+					
+				*pPixelsOut = (unsigned int)bt;
+				pPixelsOut++;
+			}
+
+			pPixelsOut += (Width - roiDef.Width);
+		}
+
+		*readIndex += roiDef.Height * roiDef.Width;
+	}
+
+	if (m_ImageSection->UsesCRC)
+	{
+		unsigned int savedFrameCrc = (unsigned int)(*layoutData + (*(layoutData + 1) << 8) + (*(layoutData + 2) << 16) + (*(layoutData + 3) << 24));
+		*readIndex += 4;
+	}
+	else
+		*crcOkay = true;
+}
+
+void Adv2ImageLayout::GetRoiPixelsFrom12BitByteArray(RoiDefinition roiDef, unsigned char* layoutData, unsigned int* pixelsOut, int* readIndex, bool* crcOkay)
+{
+	unsigned int* pPixelsOut = pixelsOut + roiDef.Top * Width + roiDef.Left;
+	int doubleByteCount = roiDef.Height * roiDef.Width / 2;
+	unsigned int x = 0;
+
+	for (int counter = 0; counter < doubleByteCount; ++counter)
+	{
+		// Every 2 12-bit values are be encoded in 3 bytes
+		// xxxxxxxx|xxxxyyyy|yyyyyyy
+
+		unsigned char bt1 = *layoutData; layoutData++;
+		unsigned char bt2 = *layoutData; layoutData++;
+		unsigned char bt3 = *layoutData; layoutData++;
+
+		unsigned short val1 = (unsigned short)(((unsigned short)bt1 << 4) + ((bt2 >> 4) & 0x0F));
+		unsigned short val2 = (unsigned short)((((unsigned short)bt2 & 0x0F) << 8) + bt3);
+
+		*pPixelsOut = val1; pPixelsOut++;
+		x++;
+		if (x == roiDef.Width)
+		{
+			pPixelsOut += (Width - roiDef.Width);
+			x = 0;
+		}
+
+		*pPixelsOut = val2; pPixelsOut++;
+		x++;
+		if (x == roiDef.Width)
+		{
+			pPixelsOut += (Width - roiDef.Width);
+			x = 0;
+		}
 	}
 
 	if (m_ImageSection->UsesCRC)
