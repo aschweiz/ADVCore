@@ -79,17 +79,16 @@ ADVRESULT Adv2StatusSection::DefineTag(const char* tagName, enum Adv2TagType tag
 }
 
 
-ADVRESULT Adv2StatusSection::BeginFrame(__int64 utcMiddleOfExposureTimeNanosecondsSinceAdvZeroEpoch, unsigned int utcExposureNanoseconds)
+ADVRESULT Adv2StatusSection::BeginFrame(__int64 utcStartOfExposureTimeNanosecondsSinceAdvZeroEpoch, unsigned int utcExposureNanoseconds)
 {
 	m_FrameStatusTags.clear();
 	m_FrameStatusTagsUInt8.clear();
 	m_FrameStatusTagsUInt16.clear();
 	m_FrameStatusTagsUInt64.clear();
 	m_FrameStatusTagsUInt32.clear();
-	m_FrameStatusTagsReal.clear();	
+	m_FrameStatusTagsReal.clear();
 
-	m_UtcMiddleOfExposureTimeNanosecondsSinceAdvZeroEpoch 
-		= utcMiddleOfExposureTimeNanosecondsSinceAdvZeroEpoch;
+	m_UtcMiddleOfExposureTimeNanosecondsSinceAdvZeroEpoch = utcStartOfExposureTimeNanosecondsSinceAdvZeroEpoch + (utcExposureNanoseconds / 2);
 	m_UtcExposureNanoseconds = utcExposureNanoseconds;
 
 	m_SectionDefinitionMode = false;
@@ -569,8 +568,8 @@ void Adv2StatusSection::GetDataFromDataBytes(unsigned char* data, int sectionDat
 		 (statusData[0] + (statusData[1] << 8) + (statusData[2] << 16) + (statusData[3] << 24) +
 		 ((__int64)(statusData[4] + (statusData[5] << 8) + (statusData[6] << 16) + (statusData[7] << 24)) << 32));
 	frameInfo->Exposure = m_UtcExposureNanoseconds = statusData[8] + (statusData[9] << 8) + (statusData[10] << 16) + (statusData[11] << 24);
-	frameInfo->UtcTimestampLo = statusData[0] + (statusData[1] << 8) + (statusData[2] << 16) + (statusData[3] << 24);
-	frameInfo->UtcTimestampHi = statusData[4] + (statusData[5] << 8) + (statusData[6] << 16) + (statusData[7] << 24);
+	frameInfo->UtcMidExposureTimestampLo = statusData[0] + (statusData[1] << 8) + (statusData[2] << 16) + (statusData[3] << 24);
+	frameInfo->UtcMidExposureTimestampHi = statusData[4] + (statusData[5] << 8) + (statusData[6] << 16) + (statusData[7] << 24);
 	statusData+=12;
 
 	m_FrameStatusTagsUInt8.clear();

@@ -111,8 +111,8 @@ namespace AdvLib2
 		unsigned int EndTicksLo;
 		unsigned int EndTicksHi;
 		
-		unsigned int UtcTimestampLo;
-		unsigned int UtcTimestampHi;
+		unsigned int UtcMidExposureTimestampLo;
+		unsigned int UtcMidExposureTimestampHi;
 		unsigned int Exposure;
 
 		float Gamma;
