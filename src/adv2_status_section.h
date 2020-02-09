@@ -30,7 +30,7 @@ namespace AdvLib2
 			map<unsigned int, __int64> m_FrameStatusTagsUInt64;
 			map<unsigned int, float> m_FrameStatusTagsReal;
 
-			__int64 m_UtcStartTimeNanosecondsSinceAdvZeroEpoch;
+			__int64 m_UtcMiddleOfExposureTimeNanosecondsSinceAdvZeroEpoch;
 			unsigned int m_UtcExposureNanoseconds;
 
 			bool m_FrameStatusLoaded;
