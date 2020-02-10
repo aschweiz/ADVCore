@@ -535,7 +535,7 @@ void Adv2ImageLayout::GetPixelsFrom12BitByteArray(unsigned char* layoutData, uns
     return;
 }
 
-void Adv2ImageLayout::GetRoiPixelsFrom8BitByteArrayRawLayout(RoiDefinition roiDef, unsigned char* layoutData, unsigned int* pixelsOut, int* readIndex, bool* crcOkay)
+void Adv2ImageLayout::GetRoiPixelsFrom8BitByteArrayRawLayout(RoiDefinition roiDef, unsigned char*& layoutData, unsigned int* pixelsOut, int* readIndex, bool* crcOkay)
 {
 	if (Bpp == 8)
 	{		
@@ -564,7 +564,7 @@ void Adv2ImageLayout::GetRoiPixelsFrom8BitByteArrayRawLayout(RoiDefinition roiDe
 		*crcOkay = true;
 }
 
-void Adv2ImageLayout::GetRoiPixelsFrom16BitByteArrayRawLayout(RoiDefinition roiDef, unsigned char* layoutData, unsigned int* pixelsOut, int* readIndex, bool* crcOkay)
+void Adv2ImageLayout::GetRoiPixelsFrom16BitByteArrayRawLayout(RoiDefinition roiDef, unsigned char*& layoutData, unsigned int* pixelsOut, int* readIndex, bool* crcOkay)
 {
 	unsigned int* pPixelsOut = pixelsOut + roiDef.Top * Width + roiDef.Left;
 
@@ -622,7 +622,7 @@ void Adv2ImageLayout::GetRoiPixelsFrom16BitByteArrayRawLayout(RoiDefinition roiD
 		*crcOkay = true;
 }
 
-void Adv2ImageLayout::GetRoiPixelsFrom12BitByteArray(RoiDefinition roiDef, unsigned char* layoutData, unsigned int* pixelsOut, int* readIndex, bool* crcOkay)
+void Adv2ImageLayout::GetRoiPixelsFrom12BitByteArray(RoiDefinition roiDef, unsigned char*& layoutData, unsigned int* pixelsOut, int* readIndex, bool* crcOkay)
 {
 	unsigned int* pPixelsOut = pixelsOut + roiDef.Top * Width + roiDef.Left;
 	int doubleByteCount = roiDef.Height * roiDef.Width / 2;
