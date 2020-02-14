@@ -51,6 +51,7 @@ Adv2ImageLayout::Adv2ImageLayout(Adv2ImageSection* imageSection, char layoutId, 
 	m_BytesLayout = FullImageRaw;
 	m_UsesCompression = false;
 	m_UsesLagarith16Compression = false;
+	m_RoiCount = 0;
 
 	unsigned char version;
 	advfread(&version, 1, 1, pFile); /* Version */
