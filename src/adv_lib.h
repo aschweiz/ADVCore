@@ -14,7 +14,7 @@ extern AdvLib::AdvFile* g_AdvFile;
 extern AdvLib2::Adv2File* g_Adv2File;
 extern bool g_FileStarted;
 
-#define CORE_VERSION "2.1b"
+#define CORE_VERSION "2.1c"
 
 #ifdef __cplusplus
 extern "C"

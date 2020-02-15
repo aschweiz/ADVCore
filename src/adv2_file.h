@@ -85,7 +85,7 @@ namespace AdvLib2
 			ADVRESULT DefineExternalClockForCalibrationStream(__int64 clockFrequency, int ticksTimingAccuracy);
 			ADVRESULT EndFile();
 			
-			int LoadFile(const char* fileName, AdvFileInfo* fileInfo);
+			ADVRESULT LoadFile(const char* fileName, AdvFileInfo* fileInfo);
 			bool CloseFile();
 			
 			ADVRESULT AddImageSection(AdvLib2::Adv2ImageSection* section);

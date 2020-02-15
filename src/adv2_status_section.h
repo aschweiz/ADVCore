@@ -38,7 +38,10 @@ namespace AdvLib2
 
 			bool m_SectionDefinitionMode;
 
+			static const int SupportedVersion = 2;
+
 		public:
+			ADVRESULT ErrorCode;
 			int MaxFrameBufferSize;
 			__int64 UtcTimestampAccuracyInNanoseconds;
 

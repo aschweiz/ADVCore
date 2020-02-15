@@ -56,7 +56,10 @@ namespace AdvLib2
 		unsigned int GetRoiTag(unsigned int roiNo, const char* tagPrefix);
 		void InitRoiDeDefinitions();
 
+		static const int SupportedVersion = 2;
+
 	public:
+		ADVRESULT ErrorCode;
 		unsigned char LayoutId;
 		unsigned int Width;
 		unsigned int Height;

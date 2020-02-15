@@ -14,6 +14,7 @@
 #include "adv_image_layout.h"
 #include "adv_profiling.h"
 #include "adv2_file.h"
+#include "adv2_error_codes.h"
 
 
 char* g_CurrentAdvFile;
@@ -50,7 +51,7 @@ int AdvOpenFile(const char* fileName, AdvLib2::AdvFileInfo* fileInfo)
 	AdvCloseFile();
 
 	FILE* probe = advfopen(fileName, "rb");
-	if (probe == 0) return 0;
+	if (probe == 0) return E_ADV_IO_ERROR;
 	
 	unsigned int buffInt;
 	unsigned char buffChar;
@@ -59,7 +60,7 @@ int AdvOpenFile(const char* fileName, AdvLib2::AdvFileInfo* fileInfo)
 	advfread(&buffChar, 1, 1, probe);
 	advfclose(probe);
 	
-	if (buffInt != 0x46545346) return 0;
+	if (buffInt != 0x46545346) return E_ADV_NOT_AN_ADV_FILE;
 	
 	if (buffChar == 1)
 	{
@@ -78,7 +79,7 @@ int AdvOpenFile(const char* fileName, AdvLib2::AdvFileInfo* fileInfo)
 			strncpy_s(g_CurrentAdvFile, len + 1, fileName, len + 1);
 		
 			g_AdvFile = new AdvLib::AdvFile();
-			int res = !g_AdvFile->LoadFile(fileName);
+			int res = g_AdvFile->LoadFile(fileName);
 			if (res < 0)
 			{
 				delete g_AdvFile;
@@ -106,7 +107,7 @@ int AdvOpenFile(const char* fileName, AdvLib2::AdvFileInfo* fileInfo)
 			strncpy_s(g_CurrentAdvFile, len + 1, fileName, len + 1);
 		
 			g_Adv2File = new AdvLib2::Adv2File();
-			int res = !g_Adv2File->LoadFile(fileName, fileInfo);
+			int res = g_Adv2File->LoadFile(fileName, fileInfo);
 			if (res < 0)
 			{
 				delete g_Adv2File;
@@ -118,7 +119,7 @@ int AdvOpenFile(const char* fileName, AdvLib2::AdvFileInfo* fileInfo)
 		return 2;
 	}
 
-	return 0;
+	return E_ADV_VERSION_NOT_SUPPORTED;
 }
 
 unsigned int AdvCloseFile()

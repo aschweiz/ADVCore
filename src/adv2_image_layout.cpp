@@ -37,6 +37,7 @@ Adv2ImageLayout::Adv2ImageLayout(Adv2ImageSection* imageSection, unsigned int wi
 
 Adv2ImageLayout::Adv2ImageLayout(Adv2ImageSection* imageSection, char layoutId, FILE* pFile)
 {
+	ErrorCode = E_FAIL;
 	m_ImageSection = imageSection;
 	LayoutId = layoutId;
 	Width = imageSection->Width;
@@ -56,6 +57,12 @@ Adv2ImageLayout::Adv2ImageLayout(Adv2ImageSection* imageSection, char layoutId, 
 	unsigned char version;
 	advfread(&version, 1, 1, pFile); /* Version */
 
+	if (version > AdvLib2::Adv2ImageLayout::SupportedVersion)
+	{
+		ErrorCode = E_ADV_IMAGE_LAYOUT_VERSION_NOT_SUPPORTED;
+		return;
+	}
+
 	advfread(&Bpp, 1, 1, pFile);
 
 	unsigned char tagsCount;
@@ -74,6 +81,7 @@ Adv2ImageLayout::Adv2ImageLayout(Adv2ImageSection* imageSection, char layoutId, 
 
 	m_RoiDefinitions.empty();
 	InitRoiDeDefinitions();
+	ErrorCode = S_OK;
 }
 
 unsigned int Adv2ImageLayout::GetRoiTag(unsigned int roiNo, const char* tagPrefix)

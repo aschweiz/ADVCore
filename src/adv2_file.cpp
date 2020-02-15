@@ -11,6 +11,7 @@
 #include "utils.h"
 #include "cross_platform.h"
 #include "adv_profiling.h"
+#include "adv2_error_codes.h"
 
 using namespace std;
 
@@ -239,13 +240,13 @@ ADVRESULT Adv2File::BeginFile(const char* fileName)
 	return S_OK;
 }
 
-int Adv2File::LoadFile(const char* fileName, AdvFileInfo* fileInfo)
+ADVRESULT Adv2File::LoadFile(const char* fileName, AdvFileInfo* fileInfo)
 {
 	TotalNumberOfMainFrames = 0;
 	TotalNumberOfCalibrationFrames = 0;
 
 	m_Adv2File = advfopen(fileName, "rb");
-	if (m_Adv2File == 0) return false;
+	if (m_Adv2File == 0) return E_ADV_IO_ERROR;
 	
 	unsigned int buffInt;
 	
@@ -253,10 +254,15 @@ int Adv2File::LoadFile(const char* fileName, AdvFileInfo* fileInfo)
 	advfread(&buffInt, 4, 1, m_Adv2File);
 	advfread(&dataformatVersion, 1, 1, m_Adv2File);
 
-	if (buffInt != 0x46545346 || dataformatVersion != 2)
+	if (buffInt != 0x46545346)
+	{
+		return E_ADV_NOT_AN_ADV_FILE;
+	}
+
+	if (dataformatVersion != 2)
 	{
 		// Unsuported stream format
-		return 0;
+		return E_ADV_VERSION_NOT_SUPPORTED;
 	}
 
 	advfread(&buffInt, 4, 1, m_Adv2File); // 0x00000000 (Reserved)
@@ -278,7 +284,7 @@ int Adv2File::LoadFile(const char* fileName, AdvFileInfo* fileInfo)
 	if (strcmp(mainStreamName, "MAIN") != 0)
 	{
 		delete mainStreamName;
-		return -1;
+		return E_ADV_NO_MAIN_STREAM;
 	}
 	delete mainStreamName;
 
@@ -291,13 +297,13 @@ int Adv2File::LoadFile(const char* fileName, AdvFileInfo* fileInfo)
 	fileInfo->MainStreamAccuracy = m_MainStreamTickAccuracy;
 	fileInfo->CountMaintFrames = m_NumberOfMainFrames;
 
-	TotalNumberOfMainFrames = m_NumberOfMainFrames;	
+	TotalNumberOfMainFrames = m_NumberOfMainFrames;
 
 	char* calibrationStreamName = ReadUTF8String(m_Adv2File);
 	if (strcmp(calibrationStreamName, "CALIBRATION") != 0)
 	{
 		delete calibrationStreamName;
-		return -1;
+		return E_ADV_NO_CALIBRATION_STREAM;
 	}
 	delete calibrationStreamName;
 
@@ -316,7 +322,7 @@ int Adv2File::LoadFile(const char* fileName, AdvFileInfo* fileInfo)
 	advfread(&numberSections, 1, 1, m_Adv2File); // Number of sections (image and status) 
 	if (numberSections != 2)
 	{
-		return -2;
+		return E_ADV_TWO_SECTIONS_EXPECTED;
 	}
 
 	__int64 sectionHeaderOffsets[2];
@@ -325,7 +331,7 @@ int Adv2File::LoadFile(const char* fileName, AdvFileInfo* fileInfo)
 	if (strcmp(imageSectionName, "IMAGE") != 0)
 	{
 		delete imageSectionName;
-		return -2;
+		return E_ADV_NO_IMAGE_SECTION;
 	}
 	delete imageSectionName;
 	advfread(&sectionHeaderOffsets[0], 8, 1, m_Adv2File);
@@ -334,16 +340,24 @@ int Adv2File::LoadFile(const char* fileName, AdvFileInfo* fileInfo)
 	if (strcmp(statusSectionName, "STATUS") != 0)
 	{
 		delete statusSectionName;
-		return -2;
+		return E_ADV_NO_STATUS_SECTION;
 	}
 	delete statusSectionName;
 	advfread(&sectionHeaderOffsets[1], 8, 1, m_Adv2File);
 
 	advfsetpos64(m_Adv2File, &sectionHeaderOffsets[0]);
 	ImageSection = new AdvLib2::Adv2ImageSection(m_Adv2File, fileInfo);
+	if (ImageSection->ErrorCode != S_OK)
+	{
+		return ImageSection->ErrorCode;
+	}
 
 	advfsetpos64(m_Adv2File, &sectionHeaderOffsets[1]);
 	StatusSection = new AdvLib2::Adv2StatusSection(m_Adv2File, fileInfo);
+	if (StatusSection->ErrorCode != S_OK)
+	{
+		return StatusSection->ErrorCode;
+	}
 
 	unsigned char tagsCount;
 
@@ -406,7 +420,7 @@ int Adv2File::LoadFile(const char* fileName, AdvFileInfo* fileInfo)
 	}
 
 	m_FileDefinitionMode = false;
-	return true;
+	return S_OK;
 }
 
 bool Adv2File::CloseFile()
