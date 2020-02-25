@@ -399,22 +399,17 @@ void Adv2ImageLayout::GetDataFromDataBytes(unsigned char* data, unsigned int* pi
 	{
 		for (std::vector<RoiDefinition>::iterator it = m_RoiDefinitions.begin() ; it != m_RoiDefinitions.end(); ++it)
 		{
-			unsigned int nofPixelsInRoi = it->Width * it->Height;
-
 			if (Bpp == 12)
 			{
 				GetRoiPixelsFrom12BitByteArray(*it, layoutData, pixels, &readIndex, &crcOkay);
-				layoutData += (3 * nofPixelsInRoi) / 2;
 			}
 			else if (Bpp == 16)
 			{
 				GetRoiPixelsFrom16BitByteArrayRawLayout(*it, layoutData, pixels, &readIndex, &crcOkay);
-				layoutData += 2 * nofPixelsInRoi;
 			}
 			else if (Bpp == 8)
 			{
 				GetRoiPixelsFrom8BitByteArrayRawLayout(*it, layoutData, pixels, &readIndex, &crcOkay);
-				layoutData += nofPixelsInRoi;
 			}
 		}
 	}
