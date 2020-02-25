@@ -28,7 +28,10 @@ namespace AdvLib2
 		bool m_SectionDefinitionMode;
 		int m_MaxImageLayoutFrameBufferSize;
 
+		static const int SupportedVersion = 2;
+
 	public:
+		ADVRESULT ErrorCode;
 		unsigned int Width;
 		unsigned int Height;
 		unsigned char DataBpp;
@@ -40,7 +43,6 @@ namespace AdvLib2
 		char ImageBayerPattern[128];
 
 	public:
-
 		Adv2ImageSection(unsigned int width, unsigned int height, unsigned char dataBpp);
 		Adv2ImageSection(FILE* pfile, AdvFileInfo* fileInfo);
 		~Adv2ImageSection();

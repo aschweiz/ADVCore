@@ -11,6 +11,7 @@
 #include "utils.h"
 #include "cross_platform.h"
 #include "adv_profiling.h"
+#include "adv2_error_codes.h"
 
 using namespace std;
 
@@ -151,9 +152,9 @@ bool AdvFile::BeginFile(const char* fileName)
 	return true;
 }
 
-int AdvFile::LoadFile(const char* fileName)
+ADVRESULT AdvFile::LoadFile(const char* fileName)
 {
-	return 0;
+	return E_ADV_VERSION_NOT_SUPPORTED;
 }
 
 bool AdvFile::CloseFile()
@@ -202,7 +203,7 @@ void AdvFile::EndFile()
 	
 	
 	advfflush(m_File);
-	advfclose(m_File);	
+	advfclose(m_File);
 	
 	m_File = nullptr;
 }

@@ -37,6 +37,7 @@ Adv2ImageLayout::Adv2ImageLayout(Adv2ImageSection* imageSection, unsigned int wi
 
 Adv2ImageLayout::Adv2ImageLayout(Adv2ImageSection* imageSection, char layoutId, FILE* pFile)
 {
+	ErrorCode = E_FAIL;
 	m_ImageSection = imageSection;
 	LayoutId = layoutId;
 	Width = imageSection->Width;
@@ -51,9 +52,16 @@ Adv2ImageLayout::Adv2ImageLayout(Adv2ImageSection* imageSection, char layoutId, 
 	m_BytesLayout = FullImageRaw;
 	m_UsesCompression = false;
 	m_UsesLagarith16Compression = false;
+	m_RoiCount = 0;
 
 	unsigned char version;
 	advfread(&version, 1, 1, pFile); /* Version */
+
+	if (version > AdvLib2::Adv2ImageLayout::SupportedVersion)
+	{
+		ErrorCode = E_ADV_IMAGE_LAYOUT_VERSION_NOT_SUPPORTED;
+		return;
+	}
 
 	advfread(&Bpp, 1, 1, pFile);
 
@@ -73,6 +81,7 @@ Adv2ImageLayout::Adv2ImageLayout(Adv2ImageSection* imageSection, char layoutId, 
 
 	m_RoiDefinitions.empty();
 	InitRoiDeDefinitions();
+	ErrorCode = S_OK;
 }
 
 unsigned int Adv2ImageLayout::GetRoiTag(unsigned int roiNo, const char* tagPrefix)
@@ -540,7 +549,7 @@ void Adv2ImageLayout::GetPixelsFrom12BitByteArray(unsigned char* layoutData, uns
     return;
 }
 
-void Adv2ImageLayout::GetRoiPixelsFrom8BitByteArrayRawLayout(RoiDefinition roiDef, unsigned char* layoutData, unsigned int* pixelsOut, int* readIndex, bool* crcOkay)
+void Adv2ImageLayout::GetRoiPixelsFrom8BitByteArrayRawLayout(RoiDefinition roiDef, unsigned char*& layoutData, unsigned int* pixelsOut, int* readIndex, bool* crcOkay)
 {
 	if (Bpp == 8)
 	{		
@@ -569,7 +578,7 @@ void Adv2ImageLayout::GetRoiPixelsFrom8BitByteArrayRawLayout(RoiDefinition roiDe
 		*crcOkay = true;
 }
 
-void Adv2ImageLayout::GetRoiPixelsFrom16BitByteArrayRawLayout(RoiDefinition roiDef, unsigned char* layoutData, unsigned int* pixelsOut, int* readIndex, bool* crcOkay)
+void Adv2ImageLayout::GetRoiPixelsFrom16BitByteArrayRawLayout(RoiDefinition roiDef, unsigned char*& layoutData, unsigned int* pixelsOut, int* readIndex, bool* crcOkay)
 {
 	unsigned int* pPixelsOut = pixelsOut + roiDef.Top * Width + roiDef.Left;
 
@@ -627,7 +636,7 @@ void Adv2ImageLayout::GetRoiPixelsFrom16BitByteArrayRawLayout(RoiDefinition roiD
 		*crcOkay = true;
 }
 
-void Adv2ImageLayout::GetRoiPixelsFrom12BitByteArray(RoiDefinition roiDef, unsigned char* layoutData, unsigned int* pixelsOut, int* readIndex, bool* crcOkay)
+void Adv2ImageLayout::GetRoiPixelsFrom12BitByteArray(RoiDefinition roiDef, unsigned char*& layoutData, unsigned int* pixelsOut, int* readIndex, bool* crcOkay)
 {
 	unsigned int* pPixelsOut = pixelsOut + roiDef.Top * Width + roiDef.Left;
 	int doubleByteCount = roiDef.Height * roiDef.Width / 2;

@@ -56,7 +56,10 @@ namespace AdvLib2
 		unsigned int GetRoiTag(unsigned int roiNo, const char* tagPrefix);
 		void InitRoiDeDefinitions();
 
+		static const int SupportedVersion = 2;
+
 	public:
+		ADVRESULT ErrorCode;
 		unsigned char LayoutId;
 		unsigned int Width;
 		unsigned int Height;
@@ -91,9 +94,9 @@ namespace AdvLib2
 		void GetPixelsFrom8BitByteArrayRawLayout(unsigned char* layoutData, unsigned int* pixelsOut, int* readIndex, bool* crcOkay);
 		void GetPixelsFrom16BitByteArrayRawLayout(unsigned char* layoutData, unsigned int* pixelsOut, int* readIndex, bool* crcOkay);
 		void GetPixelsFrom12BitByteArray(unsigned char* layoutData, unsigned int* pixelsOut, int* readIndex, bool* crcOkay);
-		void GetRoiPixelsFrom8BitByteArrayRawLayout(RoiDefinition roiDef, unsigned char* layoutData, unsigned int* pixelsOut, int* readIndex, bool* crcOkay);
-		void GetRoiPixelsFrom16BitByteArrayRawLayout(RoiDefinition roiDef, unsigned char* layoutData, unsigned int* pixelsOut, int* readIndex, bool* crcOkay);
-		void GetRoiPixelsFrom12BitByteArray(RoiDefinition roiDef, unsigned char* layoutData, unsigned int* pixelsOut, int* readIndex, bool* crcOkay);
+		void GetRoiPixelsFrom8BitByteArrayRawLayout(RoiDefinition roiDef, unsigned char*& layoutData, unsigned int* pixelsOut, int* readIndex, bool* crcOkay);
+		void GetRoiPixelsFrom16BitByteArrayRawLayout(RoiDefinition roiDef, unsigned char*& layoutData, unsigned int* pixelsOut, int* readIndex, bool* crcOkay);
+		void GetRoiPixelsFrom12BitByteArray(RoiDefinition roiDef, unsigned char*& layoutData, unsigned int* pixelsOut, int* readIndex, bool* crcOkay);
 	};
 }
 

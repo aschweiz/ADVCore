@@ -339,6 +339,7 @@ float IntToFloat(unsigned int x)
 
 Adv2StatusSection::Adv2StatusSection(FILE* pFile, AdvFileInfo* fileInfo)
 {
+	ErrorCode = E_FAIL;
 	MaxFrameBufferSize = 0;
 	
 	m_TagDefinitionNames.empty();
@@ -348,6 +349,12 @@ Adv2StatusSection::Adv2StatusSection(FILE* pFile, AdvFileInfo* fileInfo)
 
 	unsigned char version;
 	advfread(&version, 1, 1, pFile); /* Version */
+
+	if (version > AdvLib2::Adv2StatusSection::SupportedVersion)
+	{
+		ErrorCode = E_ADV_STATUS_SECTION_VERSION_NOT_SUPPORTED;
+		return;
+	}
 
 	advfread(&UtcTimestampAccuracyInNanoseconds, 8, 1, pFile);
 
@@ -374,6 +381,7 @@ Adv2StatusSection::Adv2StatusSection(FILE* pFile, AdvFileInfo* fileInfo)
 
 	m_FrameStatusLoaded = false;
 	m_SectionDefinitionMode = false;
+	ErrorCode = S_OK;
 }
 
 void Adv2StatusSection::WriteHeader(FILE* pFile)

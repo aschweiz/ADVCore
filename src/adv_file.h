@@ -9,6 +9,7 @@
 #include "adv_image_section.h"
 #include "adv_status_section.h"
 #include "adv_frames_index.h"
+#include "adv2_error_codes.h"
 
 #include <map>
 #include <string>
@@ -49,7 +50,7 @@ namespace AdvLib
 			bool BeginFile(const char* fileName);
 			void EndFile();
 			
-			int LoadFile(const char* fileName);
+			ADVRESULT LoadFile(const char* fileName);
 			bool CloseFile();
 
 			void AddImageSection(AdvLib::AdvImageSection* section);

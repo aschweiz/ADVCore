@@ -123,10 +123,17 @@ ADVRESULT Adv2ImageSection::AddOrUpdateTag(const char* tagName, const char* tagV
 
 Adv2ImageSection::Adv2ImageSection(FILE* pFile, AdvFileInfo* fileInfo)
 {
+	ErrorCode = E_FAIL;
 	m_SectionDefinitionMode = true;
 
 	unsigned char version;
 	advfread(&version, 1, 1, pFile); /* Version */
+
+	if (version > AdvLib2::Adv2ImageSection::SupportedVersion)
+	{
+		ErrorCode = E_ADV_IMAGE_SECTION_VERSION_NOT_SUPPORTED;
+		return;
+	}
 
 	advfread(&Width, 4, 1, pFile);
 	advfread(&Height, 4, 1, pFile);
@@ -148,6 +155,11 @@ Adv2ImageSection::Adv2ImageSection(FILE* pFile, AdvFileInfo* fileInfo)
 		advfread(&layoutId, 1, 1, pFile);
 
 		Adv2ImageLayout* imageLayout = new AdvLib2::Adv2ImageLayout(this, layoutId, pFile);
+		if (imageLayout->ErrorCode != S_OK)
+		{
+			ErrorCode = imageLayout->ErrorCode;
+			return;
+		}
 		m_ImageLayouts.insert(make_pair(layoutId, imageLayout));
 	}
 
@@ -171,6 +183,7 @@ Adv2ImageSection::Adv2ImageSection(FILE* pFile, AdvFileInfo* fileInfo)
 	fileInfo->ImageSectionTagsCount = (int)m_ImageTags.size();	
 
 	m_SectionDefinitionMode = false;
+	ErrorCode = S_OK;
 }
 
 void Adv2ImageSection::WriteHeader(FILE* pFile)
